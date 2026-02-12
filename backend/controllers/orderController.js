@@ -1,7 +1,7 @@
 const Order = require('../models/Order');
 
 module.exports = {
-
+  createOrder
 };
 
 async function createOrder(req, res){
