@@ -1,16 +1,8 @@
-const express = require("express");
-const cors = require("cors");
+require("dotenv").config();
 const connectDB = require("./config/db")
+const app = require('./app');
 // const orderRoutes = require("./routes/orderRoutes");
 // const kioskRoutes = require("./routes/kioskRoutes");
-
-require("dotenv").config();
-
-const app = express();
-
-// Middleware
-app.use(cors())
-app.use(express.json());
 
 // Connect to DB
 connectDB();
