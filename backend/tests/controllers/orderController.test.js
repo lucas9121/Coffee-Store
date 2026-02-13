@@ -11,7 +11,7 @@ const { createOrder, getOrder } = require("../../controllers/orderController");
 const Order = require("../../models/Order");
 
 // Replace the real Order model with a mocked version
-jest.mock("../models/Order");
+jest.mock("../../models/Order");
 
 describe("createOrder", () => {
 
