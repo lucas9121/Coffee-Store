@@ -18,10 +18,11 @@ describe("Order Model", () => {
   //Test 2 - Invalid name length
   invalidNames = [
     'J', // too short
-    'My name is too long for this schema' // too long
+    'My name is too long for this schema', // too long
+    '  k   ' // trim
   ];
   invalidNames.forEach(name => {
-    it(`should not allow invalid name ${cname} `, async () => {
+    it(`should not allow invalid name ${name} `, async () => {
       const order = new Order({customerName: name});
       let error;
       try {
