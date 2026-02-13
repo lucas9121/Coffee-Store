@@ -4,7 +4,8 @@ const mongoose = require("mongoose")
 module.exports = {
   createOrder,
   getOrder,
-  updateOrder
+  updateOrder,
+  updateOrderStatus,
 };
 
 async function createOrder(req, res){
@@ -41,6 +42,27 @@ async function updateOrder(req, res){
     );
     if(!updatedOrder) return res.status(404).json({message: "Order not found"});
     res.status(200).json(updatedOrder);
+  } catch (error) {
+    res.status(400).json({message: error.message});
+  };
+};
+
+async function updateOrderStatus(req, res){
+  try {
+    if(!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({message: "Invalid ID"});
+    };
+
+    const updatedOrder = await Order.findByIdAndUpdate(
+      req.params.id, 
+      {status: req.body.status}, // Only allow status
+      { new:true, runValidators: true }
+    );
+
+    if(!updatedOrder) return res.status(404).json({message: "Order not found"});
+
+    res.status(200).json(updatedOrder);
+
   } catch (error) {
     res.status(400).json({message: error.message});
   };
