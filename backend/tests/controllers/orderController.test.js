@@ -1,4 +1,4 @@
-const { createOrder, getOrder, updateOrder } = require("../../controllers/orderController");
+const { createOrder, getOrder, updateOrder, updateOrderStatus } = require("../../controllers/orderController");
 const Order = require("../../models/Order");
 
 // Replace the real Order model with a mocked version
@@ -172,5 +172,91 @@ describe("updateOrder", () => {
     await updateOrder(req, res)
     expect(res.status).toHaveBeenCalledWith(404);
     expect(res.json).toHaveBeenCalledWith({message: "Order not found"})
-  })
-})
+  });
+});
+
+describe("updateOrdeStatus", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+  // Test 1 - change order status
+  const validStatuses = [
+    "PLACED",
+    "IN PROGRESS", 
+    "READY", 
+    "COMPLETED", 
+    "CANCELLED"
+  ];
+  validStatuses.forEach(status => {
+    it(`should update status to ${status}`, async () => {
+      const req = {
+        params: {id: "507f191e810c19729de860ea"},
+        body: { status }
+      };
+      const fakeUpdate = {
+        _id: "507f191e810c19729de860ea", 
+        customerName: "Alice", 
+        status
+      };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn()
+      };
+      Order.findByIdAndUpdate.mockResolvedValue(fakeUpdate);
+      await updateOrderStatus(req, res);
+      expect(Order.findByIdAndUpdate).toHaveBeenCalledWith(
+        req.params.id,
+        {status},
+        {new: true, runValidators: true}
+      );
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(fakeUpdate);
+    });
+  });
+
+  // Test 2 - Invalid ID
+  it("should return 400 for invalid ID format", async () => {
+    const req = {
+      params: {id: "abc"},
+      body: {}
+    };
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+    await updateOrderStatus(req, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({message: "Invalid ID"});
+  });
+
+  // Test 3 - Invalid status
+  it("should return 400 for invalid status update", async () => {
+    const req = {
+      params: {id: "507f191e810c19729de860ea"},
+      body: {status: "Thinking"}
+    };
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+    Order.findByIdAndUpdate.mockRejectedValue(new Error("Validation failed"));
+    await updateOrderStatus(req, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+
+  // Test 4 - Order not found
+  it("should return 404 if order not found", async() => {
+    const req = {
+      params: {id: "507f191e810c19729de860ea"},
+      body: {}
+    };
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+    Order.findByIdAndUpdate.mockResolvedValue(null);
+    await updateOrderStatus(req, res);
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({message: "Order not found"});
+  });
+});
