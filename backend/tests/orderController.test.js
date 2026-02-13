@@ -1,7 +1,7 @@
 // controllers/orderController.test.js
 
 // Import the controller function we want to test
-const { createOrder } = require("./orderController");
+const { createOrder } = require("../controllers/orderController");
 
 // Import the Order model
 const Order = require("../models/Order");
