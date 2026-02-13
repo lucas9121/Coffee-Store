@@ -18,9 +18,10 @@ async function getOrder(req, res){
   try {
     const id = req.params.id;
     const order = await Order.findById(id)
-    res.status(201).json(order);
+    if(!order) return res.status(404).json({message: "Order not found"});
+    res.status(200).json(order);
   } catch (error) {
-    res.status(404).json({message: "Order not found"});
-    console.log("Order not found.", error);
+    res.status(400).json({message: "Invalid ID"});
+    console.log("Invalid ID", error);
   }
 }
