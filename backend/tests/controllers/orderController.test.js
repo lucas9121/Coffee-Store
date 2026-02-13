@@ -1,20 +1,13 @@
-
-beforeEach(() => {
-  jest.clearAllMocks();
-  jest.spyOn(console, 'log').mockImplementation(() => {}); //Won't print console logs
-})
-
-// Import the controller function we want to test
 const { createOrder, getOrder, updateOrder } = require("../../controllers/orderController");
-
-// Import the Order model
 const Order = require("../../models/Order");
 
 // Replace the real Order model with a mocked version
 jest.mock("../../models/Order");
 
 describe("createOrder", () => {
-
+  beforeEach(() => {
+    jest.clearAllMocks();
+  })
   it("should create an order successfully", async () => {
 
     // Fake request object
@@ -38,10 +31,13 @@ describe("createOrder", () => {
     // Check if json was called with the correct data
     expect(res.json).toHaveBeenCalledWith(req.body);
   });
-
 });
 
 describe("getOrder", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.spyOn(console, 'log').mockImplementation(() => {}); //Won't print console logs
+  })
   // Test 1 - Successfull fetch
   it("should get order successfully", async () => {
     // Fake request
@@ -95,6 +91,9 @@ describe("getOrder", () => {
 });
 
 describe("updateOrder", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  })
   // Test 1 - change order status
   const validStatuses = [
     "IN PROGRESS", 
@@ -106,7 +105,7 @@ describe("updateOrder", () => {
     it(`should update status to ${status}`, async () => {
       const req = {
         params: {id: "507f191e810c19729de860ea"},
-        body: { status: "PLACED" }
+        body: { status }
       };
       const fakeUpdate = {
         _id: "507f191e810c19729de860ea", 
