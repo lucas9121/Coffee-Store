@@ -1,13 +1,14 @@
 
 beforeEach(() => {
   jest.clearAllMocks();
+  jest.spyOn(console, 'log').mockImplementation(() => {}); //Won't print console logs
 })
 
 // Import the controller function we want to test
-const { createOrder, getOrder } = require("../controllers/orderController");
+const { createOrder, getOrder } = require("../../controllers/orderController");
 
 // Import the Order model
-const Order = require("../models/Order");
+const Order = require("../../models/Order");
 
 // Replace the real Order model with a mocked version
 jest.mock("../models/Order");
