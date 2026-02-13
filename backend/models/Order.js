@@ -2,7 +2,13 @@ const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema(
   {
-    customerName: {type: String, required: true},
+    customerName: {
+      type: String, 
+      required: true, 
+      maxlength: 10, 
+      minlength: 2,
+      trim: true
+    },
     status: {
       type: String, 
       enum: ["PLACED", "IN PROGRESS", "READY", "COMPLETED", "CANCELLED"], 
