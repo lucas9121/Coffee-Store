@@ -1,14 +1,14 @@
 require("dotenv").config();
 const connectDB = require("./config/db")
 const app = require('./app');
-// const orderRoutes = require("./routes/orderRoutes");
+const orderRoutes = require("./routes/orderRoutes");
 // const kioskRoutes = require("./routes/kioskRoutes");
 
 // Connect to DB
 connectDB();
 
 // Routes
-// app.use("/orders", orderRoutes);
+app.use("/orders", orderRoutes);
 // app.use("/kiosk", kioskRoutes);
 
 
