@@ -1,8 +1,10 @@
 const Order = require('../models/Order');
+const mongoose = require("mongoose")
 
 module.exports = {
   createOrder,
-  getOrder
+  getOrder,
+  updateOrder
 };
 
 async function createOrder(req, res){
@@ -22,6 +24,24 @@ async function getOrder(req, res){
     res.status(200).json(order);
   } catch (error) {
     res.status(400).json({message: "Invalid ID"});
-    console.log("Invalid ID", error);
+    console.log("Invalid ID", error.message);
   }
-}
+};
+
+async function updateOrder(req, res){
+  try {
+    // ID validation before querying to DB
+    if(!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({message: "Invalid ID"});
+    };
+    const updatedOrder = await Order.findByIdAndUpdate(
+      req.params.id, 
+      req.body, 
+      { new:true, runValidators: true }
+    );
+    if(!updatedOrder) return res.status(404).json({message: "Order not found"});
+    res.status(200).json(updatedOrder);
+  } catch (error) {
+    res.status(400).json({message: error.message});
+  };
+};
