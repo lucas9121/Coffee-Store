@@ -17,7 +17,6 @@ describe("Order Routes (mocked DB)", () => {
   it("POST /orders should create an order", async () => {
     const fakeOrder = {_id: "123", customerName: "Alice"};
     Order.create.mockResolvedValue(fakeOrder);
-    console.log("Mock:", Order.findByIdAndUpdate);
 
     const response = await request(app)
       .post("/orders")
@@ -54,5 +53,16 @@ describe("Order Routes (mocked DB)", () => {
     expect(Order.findById).toHaveBeenCalledWith(`${validId}`);
     expect(response.status).toBe(200);
     expect(response.body).toEqual(fakeOrder);
+  });
+
+  // DELETE /orders/:id
+  it("should delete order by id", async () => {
+    const validId = "507f191e810c19729de860ea";
+    const fakeOrder = {_id: `${validId}`};
+    Order.findByIdAndDelete.mockResolvedValue(fakeOrder);
+    const response = await request(app).delete(`/orders/${validId}`)
+    expect(Order.findByIdAndDelete).toHaveBeenCalledWith(`${validId}`);
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual("Order deleted");
   });
 });
