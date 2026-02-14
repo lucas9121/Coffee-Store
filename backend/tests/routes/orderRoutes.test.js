@@ -62,7 +62,7 @@ describe("Order Routes (mocked DB)", () => {
     Order.findByIdAndDelete.mockResolvedValue(fakeOrder);
     const response = await request(app).delete(`/orders/${validId}`)
     expect(Order.findByIdAndDelete).toHaveBeenCalledWith(`${validId}`);
-    expect(response.status).toBe(200);
-    expect(response.body).toEqual("Order deleted");
+    expect(response.status).toBe(204);
+    expect(response.body).toEqual({});
   });
 });

@@ -77,7 +77,7 @@ async function deleteOrder(req, res) {
 
     const eraseOrder = await Order.findByIdAndDelete(req.params.id);
     if(!eraseOrder) return res.status(404).json({message: "Order not found"});
-    res.status(200).json("Order deleted")
+    res.status(204).send()
   } catch (error) {
     res.status(400).json({message: error.message})
   }

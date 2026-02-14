@@ -271,12 +271,14 @@ describe("deleteOrder", () => {
     const req = {params: {id: "507f191e810c19729de860ea"},};
     const res = {
       status: jest.fn().mockReturnThis(),
-      json: jest.fn()
+      json: jest.fn(),
+      send: jest.fn()
     };
     Order.findByIdAndDelete.mockResolvedValue(req.params.id)
     await deleteOrder(req, res);
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith("Order deleted");
+    expect(res.status).toHaveBeenCalledWith(204);
+    expect(res.send).toHaveBeenCalled();
+    expect(res.json).not.toHaveBeenCalled();
   });
 
   // Test 2 - Invalid ID
