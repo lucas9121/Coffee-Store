@@ -6,6 +6,7 @@ module.exports = {
   getOrder,
   updateOrder,
   updateOrderStatus,
+  deleteOrder
 };
 
 async function createOrder(req, res){
@@ -67,3 +68,17 @@ async function updateOrderStatus(req, res){
     res.status(400).json({message: error.message});
   };
 };
+
+async function deleteOrder(req, res) {
+  try {
+    if(!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({message: "Invalid ID"});
+    };
+
+    const eraseOrder = await Order.findByIdAndDelete(req.params.id);
+    if(!eraseOrder) return res.status(404).json({message: "Order not found"});
+    res.status(200).json("Order deleted")
+  } catch (error) {
+    res.status(400).json({message: error.message})
+  }
+}
