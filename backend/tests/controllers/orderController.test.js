@@ -1,4 +1,4 @@
-const { createOrder, getOrder, updateOrder, updateOrderStatus } = require("../../controllers/orderController");
+const { createOrder, getOrder, updateOrder, updateOrderStatus, deleteOrder } = require("../../controllers/orderController");
 const Order = require("../../models/Order");
 
 // Replace the real Order model with a mocked version
@@ -260,3 +260,48 @@ describe("updateOrdeStatus", () => {
     expect(res.json).toHaveBeenCalledWith({message: "Order not found"});
   });
 });
+
+
+describe("deleteOrder", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  })
+  // Test 1 - Delete order
+  it("should delete order", async () => {
+    const req = {params: {id: "507f191e810c19729de860ea"},};
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+    Order.findByIdAndDelete.mockResolvedValue(req.params.id)
+    await deleteOrder(req, res);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith("Order deleted");
+  });
+
+  // Test 2 - Invalid ID
+  it("should return 400 for invalid ID format", async () => {
+    const req = {params: {id: "abc"},};
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+    await deleteOrder(req, res)
+    expect(res.status).toHaveBeenCalledWith(400)
+    expect(res.json).toHaveBeenCalledWith({message: "Invalid ID"})
+  })
+
+  // Test 3 - Order not found
+  it("should return 404 if order not found", async() => {
+    const req = {params: {id: "507f191e810c19729de860ea"},};
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+    Order.findByIdAndDelete.mockResolvedValue(null);
+    await deleteOrder(req, res)
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({message: "Order not found"})
+  });
+});
+
