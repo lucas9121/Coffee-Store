@@ -12,6 +12,18 @@ describe("Order Item Routes (mocked DB)", () => {
     jest.clearAllMocks();
   });
 
+  // POST /menu
+  it("should create an item", async () => {
+      const fakeOrderItem = {name: "Latte", price: 5};
+      OrderItem.create.mockResolvedValue(fakeOrderItem);
+      const response = await request(app)
+        .post("/menu")
+        .send({name: "Latte", price: 5});
+      expect(OrderItem.create).toHaveBeenCalledWith({name: "Latte", price: 5});
+      expect(response.status).toBe(201);
+      expect(response.body).toEqual(fakeOrderItem);
+  });
+
   // GET /menu
   it("should return all order items", async () => {
       const fakeOrderItems = [
