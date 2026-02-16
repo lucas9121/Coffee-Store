@@ -2,7 +2,17 @@ const OrderItem = require('../models/OrderItem');
 const mongoose = require("mongoose");
 
 module.exports = {
+  getAllOrderItems,
   getOrderItem,
+}
+
+async function getAllOrderItems(req, res) {
+  try {
+    const orderItems = await OrderItem.find({});
+    res.status(200).json(orderItems);
+  } catch (error) {
+    res.status(400).json({message: error.message})
+  }
 }
 
 async function getOrderItem(req, res) {
@@ -10,7 +20,7 @@ async function getOrderItem(req, res) {
     const id = req.params.id;
     const orderItem = await OrderItem.findById(id)
     if(!orderItem) return res.status(404).json({message: "Item not found"})
-      res.status(200).json(orderItem)
+    res.status(200).json(orderItem)
   } catch (error) {
     res.status(400).json({message: "Invalid ID"});
   }
