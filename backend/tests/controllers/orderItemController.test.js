@@ -91,7 +91,7 @@ describe("getAllOrderItems", () => {
     const mockError = new Error("Server error");
     OrderItem.find.mockRejectedValue(mockError);
     await getAllOrderItems(req, res);
-    expect(res.status).toHaveBeenCalledWith(400)
+    expect(res.status).toHaveBeenCalledWith(500)
     expect(res.json).toHaveBeenCalledWith({message: mockError.message})
   });
 })
