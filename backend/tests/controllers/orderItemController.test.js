@@ -1,4 +1,4 @@
-const {getOrderItem, getAllOrderItems} = require("../../controllers/orderItemController");
+const {getOrderItem, getAllOrderItems, createItem} = require("../../controllers/orderItemController");
 const OrderItem = require("../../models/OrderItem");
 
 jest.mock("../../models/OrderItem");
@@ -7,7 +7,8 @@ describe("getOrderItem", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
-  
+
+  // Test 1 - OrderItem found
   it("should get orderItem successfully", async () => {
     // Fake request
     const req = {params: {id: "507f191e810c19729de860ea"}};
@@ -64,6 +65,7 @@ describe("getAllOrderItems", () => {
     jest.clearAllMocks();
   });
   
+  // Test 1 - All orderItems found
   it("should get all orderItems successfully", async () => {
     const req = {};
     const fakeOrderItems = [
@@ -82,7 +84,7 @@ describe("getAllOrderItems", () => {
   });
 
   // Test 2 - Not found error
-  it("should have invalid id", async () => {
+  it("should not be found", async () => {
     const req = {};
     const res = {
       status: jest.fn().mockReturnThis(),
@@ -95,3 +97,60 @@ describe("getAllOrderItems", () => {
     expect(res.json).toHaveBeenCalledWith({message: mockError.message})
   });
 })
+
+describe("createOrderItem", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  })
+
+  // Test 1 - OrderItem created
+  it("should create an item successfully", async () => {
+    const req = { body: { 
+      name: "Latte",
+      price: 5 
+    }};
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+    OrderItem.create.mockResolvedValue(req.body);
+    await createItem(req, res);
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(res.json).toHaveBeenCalledWith(req.body);
+  });
+
+  // Test 2 - Validation error
+  it("should return 400 if validation fails", async () => {
+    const req = { body: { 
+      name: "Latte",
+      price: 5 
+    }};
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+    const validationError = new Error("ValidationError")
+    validationError.name = "ValidationError"
+    OrderItem.create.mockRejectedValue(validationError);
+    await createItem(req, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({message: "ValidationError"});
+  });
+
+  // Test 3 - Server errors
+  it("should return 500 for server errors", async () => {
+    const req = { body: { 
+      name: "Latte",
+      price: 5 
+    } };
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+    const serverError = new Error("Server error");
+    OrderItem.create.mockRejectedValue(serverError);
+    await createItem(req, res);
+    expect(res.status).toHaveBeenCalledWith(500)
+    expect(res.json).toHaveBeenCalledWith({message: serverError.message})
+  });
+});
