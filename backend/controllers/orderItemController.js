@@ -8,7 +8,7 @@ module.exports = {
 
 async function getAllOrderItems(req, res) {
   try {
-    const orderItems = await OrderItem.find({});
+    const orderItems = await OrderItem.find();
     res.status(200).json(orderItems);
   } catch (error) {
     res.status(500).json({message: "Server error"})

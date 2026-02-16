@@ -22,7 +22,7 @@ describe("Order Item Routes (mocked DB)", () => {
       OrderItem.find.mockResolvedValue(fakeOrderItems);
       const response = await request(app).get(`/menu`);
   
-      expect(OrderItem.find).toHaveBeenCalledWith({});
+      expect(OrderItem.find).toHaveBeenCalledWith();
       expect(response.status).toBe(200);
       expect(response.body).toEqual(fakeOrderItems);
   });
