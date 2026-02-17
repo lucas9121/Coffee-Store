@@ -14,7 +14,30 @@ const orderSchema = new mongoose.Schema(
       enum: ["PLACED", "IN PROGRESS", "READY", "COMPLETED", "CANCELLED"], 
       default: "PLACED"
     },
-    orderItems: [{type: mongoose.Schema.Types.ObjectId, ref: "OrderItem"}]
+    orderItems: [
+      {
+        item: {
+          type: mongoose.Schema.Types.ObjectId, 
+          ref: "OrderItem", 
+          required: true
+        },
+        quantity: {
+          type: Number, 
+          required: true, 
+          min: 1, 
+          default: 1
+        },
+        priceAtPurchase: {
+          type: Number, 
+          required: true, 
+          min: 0
+        }
+      }
+    ],
+    totalPrice: {
+      type: Number,
+      required: true
+    }
   },
   { timestamps: true }
 );
