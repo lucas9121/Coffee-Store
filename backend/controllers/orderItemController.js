@@ -5,7 +5,8 @@ module.exports = {
   getAllOrderItems,
   getOrderItem,
   createItem,
-  updateOrderItem
+  updateOrderItem,
+  deleteOrderItem
 }
 
 async function getAllOrderItems(req, res) {
@@ -55,4 +56,17 @@ async function updateOrderItem(req, res) {
   } catch (error) {
     res.status(400).json({message: error.message});
   };
+}
+
+async function deleteOrderItem(req, res) {
+  try {
+    if(!mongoose.Types.ObjectId.isValid(req.params.id)){
+      return res.status(400).json({message: "Invalid ID"});
+    };
+    const deleteItem = await OrderItem.findByIdAndDelete(req.params.id);
+    if(!deleteItem) return res.status(404).json({message: "Item not found"});
+    res.status(204).send()
+  } catch (error) {
+    res.status(400).json({message: error.message})
+  }
 }
