@@ -67,4 +67,15 @@ describe("Order Item Routes (mocked DB)", () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual(fakeUpdateOrder);
   });
+
+  // DELETE /menu/:id
+  it("should delete order item", async () => {
+    const validId = "507f191e810c19729de860ea";
+    const fakeOrderItem = {_id: `${validId}`, name: "Latte", price: 5};
+    OrderItem.findByIdAndDelete.mockResolvedValue(fakeOrderItem);
+    const response = await request(app)
+      .delete(`/menu/${validId}`);
+    expect(OrderItem.findByIdAndDelete).toHaveBeenCalledWith(validId);
+    expect(response.status).toBe(204);
+  });
 });
