@@ -50,4 +50,21 @@ describe("Order Item Routes (mocked DB)", () => {
       expect(response.status).toBe(200);
       expect(response.body).toEqual(fakeOrderItem);
   });
-})
+
+  // PATCH /menu/:id
+  it("should update order item", async () => {
+    const validId = "507f191e810c19729de860ea";
+    const fakeUpdateOrder = {_id: `${validId}`, name: "Cappuccino", price: 6};
+    OrderItem.findByIdAndUpdate.mockResolvedValue(fakeUpdateOrder);
+    const response = await request(app)
+      .patch(`/menu/${validId}`)
+      .send({name: "Cappuccino", price: 6});
+    expect(OrderItem.findByIdAndUpdate).toHaveBeenCalledWith(
+      validId, 
+      {name: "Cappuccino", price: 6},
+      {new: true, runValidators: true}
+    );
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(fakeUpdateOrder);
+  });
+});
