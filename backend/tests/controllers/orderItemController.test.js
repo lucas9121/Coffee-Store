@@ -1,4 +1,10 @@
-const {getOrderItem, getAllOrderItems, createItem, updateOrderItem} = require("../../controllers/orderItemController");
+const {
+  getOrderItem, 
+  getAllOrderItems, 
+  createItem, 
+  updateOrderItem, 
+  deleteOrderItem
+} = require("../../controllers/orderItemController");
 const OrderItem = require("../../models/OrderItem");
 
 jest.mock("../../models/OrderItem");
@@ -167,7 +173,7 @@ describe("updateOrderItem", () => {
     {inStock: false}
   ];
   validUpdates.forEach(update => {
-    it(`should update status to ${Object.keys(update)[0]}`, async () => {
+    it(`should update order ${Object.keys(update)[0]} to ${Object.values(update)[0]}`, async () => {
       const req = {
         params: {id: "507f191e810c19729de860ea"},
         body: update
@@ -227,3 +233,52 @@ describe("updateOrderItem", () => {
     expect(res.json).toHaveBeenCalledWith({message: "Item not found"})
   });
 });
+
+describe("deleteOrderItem", () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  });
+
+  // Test 1 - Delete order item
+  it("should delete order item", async () => {
+    const req = {params: {id: "507f191e810c19729de860ea"}}
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      send: jest.fn(),
+      json: jest.fn()
+    };
+    OrderItem.findByIdAndDelete.mockResolvedValue({
+      _id: req.params.id,
+      name: "Latte"
+    });
+    await deleteOrderItem(req, res);
+    expect(OrderItem.findByIdAndDelete).toHaveBeenCalledWith(req.params.id);
+    expect(res.status).toHaveBeenCalledWith(204);
+    expect(res.send).toHaveBeenCalled()
+  })
+
+  // Test 2 - Invalid ID
+  it("should return 400 for invalid ID format", async () => {
+    const req = {params: {id: "abc"},};
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+    await deleteOrderItem(req, res)
+    expect(res.status).toHaveBeenCalledWith(400)
+    expect(res.json).toHaveBeenCalledWith({message: "Invalid ID"})
+  })
+
+  // Test 3 - Order item not found
+  it("should return 404 if order item not found", async() => {
+    const req = {params: {id: "507f191e810c19729de860ea"},};
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+    OrderItem.findByIdAndDelete.mockResolvedValue(null);
+    await deleteOrderItem(req, res)
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({message: "Item not found"})
+  });
+})
