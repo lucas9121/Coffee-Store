@@ -1,4 +1,4 @@
-const {getOrderItem, getAllOrderItems, createItem} = require("../../controllers/orderItemController");
+const {getOrderItem, getAllOrderItems, createItem, updateOrderItem} = require("../../controllers/orderItemController");
 const OrderItem = require("../../models/OrderItem");
 
 jest.mock("../../models/OrderItem");
@@ -152,5 +152,78 @@ describe("createOrderItem", () => {
     await createItem(req, res);
     expect(res.status).toHaveBeenCalledWith(500)
     expect(res.json).toHaveBeenCalledWith({message: serverError.message})
+  });
+});
+
+describe("updateOrderItem", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  })
+  // Test 1 - change order item fields
+  const validUpdates = [
+    {name: "Cappuccino"}, 
+    {price: 10}, 
+    {image: "picture.com"}, 
+    {inStock: false}
+  ];
+  validUpdates.forEach(update => {
+    it(`should update status to ${Object.keys(update)[0]}`, async () => {
+      const req = {
+        params: {id: "507f191e810c19729de860ea"},
+        body: update
+      };
+      const fakeUpdate = {
+        _id: "507f191e810c19729de860ea", 
+        name: "Latte", 
+        price: 5,
+        image: "",
+        inStock: true,
+        ...update
+      };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn()
+      };
+      OrderItem.findByIdAndUpdate.mockResolvedValue(fakeUpdate);
+      await updateOrderItem(req, res);
+      expect(OrderItem.findByIdAndUpdate).toHaveBeenCalledWith(
+        req.params.id,
+        req.body,
+        {new: true, runValidators: true}
+      );
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(fakeUpdate);
+    });
+  });
+
+  // Test 2 - Invalid ID
+  it("should return 400 for invalid ID format", async () => {
+    const req = {
+      params: {id: "abc"},
+      body: {}
+    };
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+    await updateOrderItem(req, res)
+    expect(res.status).toHaveBeenCalledWith(400)
+    expect(res.json).toHaveBeenCalledWith({message: "Invalid ID"})
+  })
+
+  // Test 3 - Order item not found
+  it("should return 404 if order item not found", async() => {
+    const req = {
+      params: {id: "507f191e810c19729de860ea"},
+      body: {}
+    };
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+    OrderItem.findByIdAndUpdate.mockResolvedValue(null);
+    await updateOrderItem(req, res)
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({message: "Item not found"})
   });
 });
