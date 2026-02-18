@@ -1,5 +1,6 @@
 const Order = require('../models/Order');
 const mongoose = require("mongoose")
+const OrderItem = require("../models/OrderItem")
 
 module.exports = {
   createOrder,
@@ -11,10 +12,32 @@ module.exports = {
 
 async function createOrder(req, res){
   try {
-    const order = await Order.create(req.body);
+    const {customerName, orderItems} = req.body;
+    let finalPrice = 0;
+    for(const orderItem of orderItems) {
+
+      // Fetch real item from DB
+      const itemFromDB = await OrderItem.findById(orderItem.item);
+      if(!itemFromDB) return res.status(404).json({message: "Order item not found"});
+
+      const price = itemFromDB.price
+      // Copy real price into order
+      orderItem.priceAtPurchase = price;
+      const quantity = orderItem.quantity;
+
+      // Add to running total
+      finalPrice += (price * quantity)
+    }
+
+    // Create order ONCE with trusted values
+    const order =  await Order.create({
+      customerName,
+      orderItems,
+      totalPrice: finalPrice
+    });
     res.status(201).json(order);
   } catch (error) {
-    res.status(404).json(error);
+    res.status(500).json(error.message);
   }
 };
 
