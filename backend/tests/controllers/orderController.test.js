@@ -1,17 +1,33 @@
 const { createOrder, getOrder, updateOrder, updateOrderStatus, deleteOrder } = require("../../controllers/orderController");
 const Order = require("../../models/Order");
+const OrderItem = require("../../models/OrderItem");
 
 // Replace the real Order model with a mocked version
 jest.mock("../../models/Order");
+jest.mock("../../models/OrderItem"); // for createOrder test
 
 describe("createOrder", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   })
+
+  // Test 1 - Successfull create
   it("should create an order successfully", async () => {
+    // Fake DB accepted ID
+    const fakeItemId = "507f191e810c19729de860ea";
 
     // Fake request object
-    const req = { body: { customerName: "Alice" } };
+    const req = {
+      body: {
+        customerName: "Alice",
+        orderItems: [
+          {
+            item: fakeItemId,
+            quantity: 2
+          }
+        ]
+      }
+    };
 
     // Fake response object
     const res = {
@@ -19,17 +35,96 @@ describe("createOrder", () => {
       json: jest.fn()
     };
 
-    // Mock the database call to simulate success
-    Order.create.mockResolvedValue(req.body);
+    // Mock DB item lookup
+    OrderItem.findById.mockResolvedValue({
+      _id: fakeItemId,
+      price: 5
+    });
+
+    // Mock database call to simulate success
+    Order.create.mockResolvedValue({
+      customerName: "Alice",
+      orderItems: [
+        {
+          item: fakeItemId,
+          quantity: 2,
+          priceAtPurchase: 5
+        }
+      ],
+      totalPrice: 10
+    });
 
     // Call the controller function
     await createOrder(req, res);
 
-    // Check if status was called with 201
+    expect(OrderItem.findById).toHaveBeenCalledWith(fakeItemId);
+    expect(Order.create).toHaveBeenCalledWith({
+      customerName: "Alice",
+      orderItems: [
+        {
+          item: fakeItemId,
+          quantity: 2,
+          priceAtPurchase: 5
+        }
+      ],
+      totalPrice: 10
+    });
     expect(res.status).toHaveBeenCalledWith(201);
+    expect(res.json).toHaveBeenCalled();
+  });
 
-    // Check if json was called with the correct data
-    expect(res.json).toHaveBeenCalledWith(req.body);
+  // Test 2 - Order not found
+  it("should return 404 if order item not found", async () => {
+    const req = {
+      body: {
+        customerName: "Alice",
+        orderItems: [
+          {
+            item: "507f191e810c19729de860ea",
+            quantity: 2
+          }
+        ]
+      }
+    };
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+    OrderItem.findById.mockResolvedValue(null);
+    await createOrder(req, res);
+    expect(res.status).toHaveBeenCalledWith(404);
+  });
+
+  // Test 3 - Error
+  it("should return 500 if an unexpected error occurs", async () => {
+    const fakeItemId = "507f191e810c19729de860ea";
+    const req = {
+      body: {
+        customerName: "Alice",
+        orderItems: [
+          {
+            item: fakeItemId,
+            quantity: 2
+          }
+        ]
+      }
+    };
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+
+    // First DB call succeeds
+    OrderItem.findById.mockResolvedValue({
+      _id: fakeItemId,
+      price: 5
+    });
+
+    // Simulate database failure on Order.create
+    Order.create.mockRejectedValue(new Error("Database failure"));
+    await createOrder(req, res);
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith("Database failure");
   });
 });
 
