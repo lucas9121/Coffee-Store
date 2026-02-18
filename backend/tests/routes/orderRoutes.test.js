@@ -2,7 +2,11 @@ const request = require("supertest");
 const app = require("../../app");
 
 const Order = require("../../models/Order");
-jest.mock("../../models/Order"); // Replace all real DB calls with mocks
+const OrderItem = require("../../models/OrderItem"); // POST test
+
+// Replace all real DB calls with mocks
+jest.mock("../../models/Order"); 
+jest.mock("../../models/OrderItem") // POST test
 
 const orderRoutes = require("../../routes/orderRoutes");
 app.use("/orders", orderRoutes); // Add routes
@@ -15,12 +19,39 @@ describe("Order Routes (mocked DB)", () => {
 
   // POST /orders
   it("POST /orders should create an order", async () => {
-    const fakeOrder = {_id: "123", customerName: "Alice"};
+    const fakeOrder = {
+      _id: "507f191e810c19729de860ea", 
+      customerName: "Alice",
+      orderItems: [
+        {
+          item: "517f191e810c19729de860ed",
+          quantity: 2,
+          priceAtPurchase: 5
+        },
+      ],
+      totalPrice: 10
+    };
+
+    // Mock DB lookup
+    OrderItem.findById.mockResolvedValue({
+      _id: "517f191e810c19729de860ed",
+      price: 5
+    });
     Order.create.mockResolvedValue(fakeOrder);
 
     const response = await request(app)
       .post("/orders")
-      .send({customerName: "Alice"});
+      .send({
+        customerName: "Alice",
+        orderItems: [
+          {
+            item: "517f191e810c19729de860ed",
+            quantity: 2,
+            priceAtPurchase: 5
+          },
+        ],
+        totalPrice: 10
+      });
 
     expect(response.status).toBe(201);
     expect(response.body).toEqual(fakeOrder);
