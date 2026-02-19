@@ -3,7 +3,7 @@ const connectDB = require("./config/db")
 const app = require('./app');
 const orderRoutes = require("./routes/orderRoutes");
 const menuRoutes = require("./routes/menuRoutes")
-// const kioskRoutes = require("./routes/kioskRoutes");
+const storeSettings = require("./routes/storeSettingsRoutes")
 
 // Connect to DB
 connectDB();
@@ -11,7 +11,7 @@ connectDB();
 // Routes
 app.use("/menu", menuRoutes);
 app.use("/orders", orderRoutes);
-// app.use("/kiosk", kioskRoutes);
+app.use("/store", storeSettings)
 
 
 const PORT = process.env.PORT || 3002;
