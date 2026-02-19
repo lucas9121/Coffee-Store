@@ -9,7 +9,7 @@ const {
 
 router.get("/", getStoreSettings);
 router.get("/status", getStoreStatus);
-router.patch("/schdule", updateWeeklySchedule);
+router.patch("/schedule", updateWeeklySchedule);
 router.patch("/override", setManualOverride);
 
 
