@@ -74,7 +74,6 @@ async function getStoreSettings(req, res) {
 async function getStoreStatus(req, res) {
   try {
     const store = await StoreSettings.findOne();
-    if(!store) return res.status(404).json({message: "Store settings not found"});
     res.status(200).json({isOpen: isStoreOpen(store)});
   } catch (error) {
     res.status(500).json({message: error.message});
@@ -89,7 +88,6 @@ async function updateWeeklySchedule (req, res) {
     { $set: req.body },
     { new: true }
   );
-    if(!updateStore) return res.status(404).json({message: "Store settings not found"});
     res.status(200).json(updateStore);
   } catch (error) {
     res.status(500).json({message: error.message});
@@ -101,13 +99,18 @@ async function setManualOverride (req, res) {
   try {
     const newStatus = req.body.status;
     const newExpiresAt = req.body.expiresAt;
-    const updatedStore = await StoreSettings.findOneAndUpdate({
-      manualOverride:{
-        status: newStatus,
-        expiresAt: newExpiresAt
-      }
-    });
-    if(!updatedStore) return res.status(404).json({message: "Store not found"});
+    const updatedStore = await StoreSettings.findOneAndUpdate(
+      {},
+      {
+        $set: {
+          manualOverride: {
+            status: newStatus,
+            expiresAt: newExpiresAt
+          }
+        }
+      },
+      { new: true }
+    );
     res.status(200).json(updatedStore);
   } catch (error) {
     res.status(500).json({message: error.message});
