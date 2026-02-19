@@ -1,10 +1,12 @@
 const { createOrder, getOrder, updateOrder, updateOrderStatus, deleteOrder } = require("../../controllers/orderController");
 const Order = require("../../models/Order");
 const OrderItem = require("../../models/OrderItem");
+const StoreSettings = require("../../models/StoreSettings");
 
 // Replace the real Order model with a mocked version
 jest.mock("../../models/Order");
 jest.mock("../../models/OrderItem"); // for createOrder test
+jest.mock("../../models/StoreSettings") // for createOrder test
 
 describe("createOrder", () => {
   beforeEach(() => {
@@ -35,6 +37,19 @@ describe("createOrder", () => {
       json: jest.fn()
     };
 
+    // Mock StoreSettings - store is open
+    StoreSettings.findOne.mockResolvedValue({
+      weeklySchedule: {
+        sunday: { open: "00:01", close: "23:59", enabled: true },
+        monday: { open: "00:01", close: "23:59", enabled: true },
+        tuesday: { open: "00:01", close: "23:59", enabled: true },
+        wednesday: { open: "00:01", close: "23:59", enabled: true },
+        thursday: { open: "00:01", close: "23:59", enabled: true },
+        friday: { open: "00:01", close: "23:59", enabled: true },
+        saturday: { open: "00:01", close: "23:59", enabled: true }
+      }
+    });
+
     // Mock DB item lookup
     OrderItem.findById.mockResolvedValue({
       _id: fakeItemId,
@@ -56,7 +71,8 @@ describe("createOrder", () => {
 
     // Call the controller function
     await createOrder(req, res);
-
+    
+    expect(StoreSettings.findOne).toHaveBeenCalled();
     expect(OrderItem.findById).toHaveBeenCalledWith(fakeItemId);
     expect(Order.create).toHaveBeenCalledWith({
       customerName: "Alice",
@@ -73,7 +89,39 @@ describe("createOrder", () => {
     expect(res.json).toHaveBeenCalled();
   });
 
-  // Test 2 - Order not found
+  // Test 2 - Store Closed
+  it("should return 403 if the store is closed", async () => {
+    const fakeItemId = "507f191e810c19729de860ea";
+    const req = {
+      body: {
+        customerName: "Alice",
+        orderItems: [
+          {
+            item: fakeItemId,
+            quantity: 2
+          }
+        ]
+      }
+    };
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+    
+    // Mock StoreSettings - store closed
+    StoreSettings.findOne.mockResolvedValue({
+      weeklySchedule: {
+        sunday: { open: "09:00", close: "10:00", enabled: false },
+      }
+    });
+
+    await createOrder(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.json).toHaveBeenCalledWith({message: "Store is currently closed"})
+  });
+
+  // Test 3 - Order not found
   it("should return 404 if order item not found", async () => {
     const req = {
       body: {
@@ -90,12 +138,24 @@ describe("createOrder", () => {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
     };
+    StoreSettings.findOne.mockResolvedValue({
+      weeklySchedule: {
+        sunday: { open: "00:01", close: "23:59", enabled: true },
+        monday: { open: "00:01", close: "23:59", enabled: true },
+        tuesday: { open: "00:01", close: "23:59", enabled: true },
+        wednesday: { open: "00:01", close: "23:59", enabled: true },
+        thursday: { open: "00:01", close: "23:59", enabled: true },
+        friday: { open: "00:01", close: "23:59", enabled: true },
+        saturday: { open: "00:01", close: "23:59", enabled: true }
+      }
+    });
     OrderItem.findById.mockResolvedValue(null);
     await createOrder(req, res);
     expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({message: "Order item not found"})
   });
 
-  // Test 3 - Error
+  // Test 4 - Error
   it("should return 500 if an unexpected error occurs", async () => {
     const fakeItemId = "507f191e810c19729de860ea";
     const req = {
@@ -113,6 +173,17 @@ describe("createOrder", () => {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
     };
+    StoreSettings.findOne.mockResolvedValue({
+      weeklySchedule: {
+        sunday: { open: "00:01", close: "23:59", enabled: true },
+        monday: { open: "00:01", close: "23:59", enabled: true },
+        tuesday: { open: "00:01", close: "23:59", enabled: true },
+        wednesday: { open: "00:01", close: "23:59", enabled: true },
+        thursday: { open: "00:01", close: "23:59", enabled: true },
+        friday: { open: "00:01", close: "23:59", enabled: true },
+        saturday: { open: "00:01", close: "23:59", enabled: true }
+      }
+    });
 
     // First DB call succeeds
     OrderItem.findById.mockResolvedValue({
