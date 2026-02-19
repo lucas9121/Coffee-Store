@@ -6,7 +6,6 @@ module.exports = {
   getStoreStatus,
   updateWeeklySchedule,
   setManualOverride
-
 }
 
 function isStoreOpen(settings) {
