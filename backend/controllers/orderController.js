@@ -1,6 +1,9 @@
 const Order = require('../models/Order');
 const mongoose = require("mongoose")
 const OrderItem = require("../models/OrderItem")
+const StoreSettings = require("../models/StoreSettings")
+
+const{isStoreOpen} = require("./storeSettingsControllers")
 
 module.exports = {
   createOrder,
@@ -11,7 +14,15 @@ module.exports = {
 };
 
 async function createOrder(req, res){
+
   try {
+    // Fetch store hours
+    const settings = await StoreSettings.findOne();
+
+    // Check if store is open
+    if (!settings || !isStoreOpen(settings)) {
+      return res.status(403).json({ message: "Store is currently closed" });
+    }
     const {customerName, orderItems} = req.body;
     let finalPrice = 0;
     for(const orderItem of orderItems) {
