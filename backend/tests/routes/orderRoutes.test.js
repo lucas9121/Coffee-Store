@@ -3,10 +3,12 @@ const app = require("../../app");
 
 const Order = require("../../models/Order");
 const OrderItem = require("../../models/OrderItem"); // POST test
+const StoreSettings = require("../../models/StoreSettings") // POST test
 
 // Replace all real DB calls with mocks
 jest.mock("../../models/Order"); 
 jest.mock("../../models/OrderItem") // POST test
+jest.mock("../../models/StoreSettings") // POST test
 
 const orderRoutes = require("../../routes/orderRoutes");
 app.use("/orders", orderRoutes); // Add routes
@@ -31,6 +33,19 @@ describe("Order Routes (mocked DB)", () => {
       ],
       totalPrice: 10
     };
+    
+    // Mock StoreSettings - store is open
+    StoreSettings.findOne.mockResolvedValue({
+      weeklySchedule: {
+        sunday: { open: "00:01", close: "23:59", enabled: true },
+        monday: { open: "00:01", close: "23:59", enabled: true },
+        tuesday: { open: "00:01", close: "23:59", enabled: true },
+        wednesday: { open: "00:01", close: "23:59", enabled: true },
+        thursday: { open: "00:01", close: "23:59", enabled: true },
+        friday: { open: "00:01", close: "23:59", enabled: true },
+        saturday: { open: "00:01", close: "23:59", enabled: true },
+      },
+    });
 
     // Mock DB lookup
     OrderItem.findById.mockResolvedValue({
