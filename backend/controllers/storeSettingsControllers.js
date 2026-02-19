@@ -43,7 +43,7 @@ function isStoreOpen(settings) {
   return currentTime >= openTime && currentTime <= closeTime;
 };
 
-// GET /store/settings
+// GET /store
 async function getStoreSettings(req, res) {
   try {
     let store = await StoreSettings.findOne();
