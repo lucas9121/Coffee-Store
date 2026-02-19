@@ -22,7 +22,7 @@ const storeSettingsSchema = new mongoose.Schema({
       enum: ["open", "closed", null],
       default: null
     },
-    expiresAt: Date
+    expiresAt: {type: Date, default: null}
   }
 
 }, { timestamps: true });
