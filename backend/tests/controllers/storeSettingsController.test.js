@@ -5,7 +5,10 @@ const {
     setManualOverride
 } = require("../../controllers/storeSettingsControllers");
 const StoreSettings = require("../../models/StoreSettings");
-const storeControllers = require("../../controllers/storeSettingsControllers"); // getOrderStatus test
+
+// Make isStoreOpen a proper Jest mock
+const isStoreOpen  = require("../../utils/isStoreOpen"); // for getOrderStatus test
+jest.mock("../../utils/isStoreOpen", () => jest.fn()); // Replace it with a Jest mock
 
 jest.mock("../../models/StoreSettings");
 
@@ -36,7 +39,7 @@ describe("getStoreSettings", () => {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
     };
-
+    isStoreOpen.mockReturnValue(false)
     StoreSettings.findOne.mockResolvedValue(fakeStore);
     await getStoreSettings(req, res);
     expect(res.status).toHaveBeenCalledWith(200);
@@ -68,7 +71,7 @@ describe("getStoreSettings", () => {
       json: jest.fn()
     };
     const error = new Error("DB Failure");
-
+    isStoreOpen.mockReturnValue(false)
     StoreSettings.findOne.mockRejectedValue(error);
     await getStoreSettings(req, res);
     expect(res.status).toHaveBeenCalledWith(500);
@@ -100,8 +103,8 @@ describe("getStoreStatus", () => {
     };
     StoreSettings.findOne.mockResolvedValue(fakeStore);
 
-    //mock isStoreOpem
-    jest.spyOn(storeControllers, "isStoreOpen").mockReturnValue(true);
+    //mock isStoreOpen
+    isStoreOpen.mockReturnValue(true);
     await getStoreStatus(req, res);
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({isOpen: true});
@@ -115,6 +118,7 @@ describe("getStoreStatus", () => {
       json: jest.fn()
     };
     const error = new Error("DB Failure")
+    isStoreOpen.mockReturnValue(false)
     StoreSettings.findOne.mockRejectedValue(error);
     await getStoreStatus(req, res);
     expect(res.status).toHaveBeenCalledWith(500);

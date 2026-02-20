@@ -2,15 +2,18 @@ const { createOrder, getOrder, updateOrder, updateOrderStatus, deleteOrder } = r
 const Order = require("../../models/Order");
 const OrderItem = require("../../models/OrderItem");
 const StoreSettings = require("../../models/StoreSettings");
+const isStoreOpen = require("../../utils/isStoreOpen")
 
 // Replace the real Order model with a mocked version
 jest.mock("../../models/Order");
 jest.mock("../../models/OrderItem"); // for createOrder test
 jest.mock("../../models/StoreSettings") // for createOrder test
+jest.mock("../../utils/isStoreOpen", () => jest.fn()) // for createOrder test
 
 describe("createOrder", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    isStoreOpen.mockReset() // reset the mock function
   })
 
   // Test 1 - Successfull create
@@ -49,6 +52,8 @@ describe("createOrder", () => {
         saturday: { open: "00:01", close: "23:59", enabled: true }
       }
     });
+
+    isStoreOpen.mockReturnValue(true)
 
     // Mock DB item lookup
     OrderItem.findById.mockResolvedValue({
@@ -114,7 +119,9 @@ describe("createOrder", () => {
         sunday: { open: "09:00", close: "10:00", enabled: false },
       }
     });
-
+    
+    isStoreOpen.mockReturnValue(false)
+    
     await createOrder(req, res);
 
     expect(res.status).toHaveBeenCalledWith(403);
@@ -149,6 +156,7 @@ describe("createOrder", () => {
         saturday: { open: "00:01", close: "23:59", enabled: true }
       }
     });
+    isStoreOpen.mockReturnValue(true)
     OrderItem.findById.mockResolvedValue(null);
     await createOrder(req, res);
     expect(res.status).toHaveBeenCalledWith(404);
@@ -184,6 +192,8 @@ describe("createOrder", () => {
         saturday: { open: "00:01", close: "23:59", enabled: true }
       }
     });
+
+    isStoreOpen.mockReturnValue(true)
 
     // First DB call succeeds
     OrderItem.findById.mockResolvedValue({

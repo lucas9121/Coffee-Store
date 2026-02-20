@@ -3,7 +3,7 @@ const mongoose = require("mongoose")
 const OrderItem = require("../models/OrderItem")
 const StoreSettings = require("../models/StoreSettings")
 
-const{isStoreOpen} = require("./storeSettingsControllers")
+const isStoreOpen = require("../utils/isStoreOpen");
 
 module.exports = {
   createOrder,
