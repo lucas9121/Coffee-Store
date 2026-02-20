@@ -2,7 +2,7 @@
 
 Monorepo Structure
 
-churchKiosk/
+```churchKiosk/
 │
 ├── apps/
 │   ├── mobile/        # Expo React Native app
@@ -66,3 +66,4 @@ backend/
 ├── app.js             # Express app + middleware setup
 ├── server.js          # Server entry point
 └── .nvmrc             # Node version (v20.11.0)
+```
