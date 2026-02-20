@@ -254,9 +254,13 @@ Structure:
 - Type: ObjectId
 - Ref: OrderItem
 
+--- 
+
 ### timestamps
 - createdAt
 - updatedAt
+
+--- 
 
 ### Pre-save Hook (Behavior)
 - **Passwords:** hashed on creation or whenever modified
