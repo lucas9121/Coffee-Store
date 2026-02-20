@@ -36,16 +36,17 @@ const userSchema = new Schema({
     },
     favorites: [{ type: Schema.Types.ObjectId, ref: 'OrderItem' }], // saved favorite items
     recent: [{ type: Schema.Types.ObjectId, ref: 'OrderItem' }], // recently viewed/purchased
-    securityQuestions: [
-        {
+    securityQuestions: {
+        type: [{
             question: { 
               type: String, 
               enum: SECURITY_QUESTIONS, 
               required: true 
             },
             answer: { type: String, required: true } // will be hashed once on creation
-        }
-    ]
+        }],
+        validate: [arr => arr.length === 2, "You must select exactly 2 security questions"]
+    }
 }, 
 {
     timestamps: true,
