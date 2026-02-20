@@ -53,6 +53,9 @@ const userSchema = new Schema({
     toJSON: {
         transform: function(doc, ret) {
             delete ret.password; // hide password in JSON responses
+            ret.securityQuestions = ret.securityQuestions.map(sq => ({
+                question: sq.question // only send question without answer
+            }))
             return ret;
         }
     }
