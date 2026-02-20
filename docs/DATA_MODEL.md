@@ -161,3 +161,109 @@ currentDate > expiresAt
 ### timestamps
 - createdAt
 - updatedAt
+
+---
+
+# User
+
+Represents a user of the ChurchKiosk system. Users can be customers (user), employees (worker), or administrators (admin).
+
+---
+
+## Fields
+
+### name
+- Type: String
+- Required: Yes
+- Trimmed: Yes
+
+---
+
+### email
+- Type: String
+- Required: Yes
+- Unique: Yes
+- Trimmed: Yes
+- Stored lowercase
+
+---
+
+### password
+- Type: String
+- Required: Yes
+- Min length: 5
+- Trimmed: Yes
+- Stored as a bcrypt hash in the database
+- Pre-save hook automatically hashes new or modified passwords
+
+---
+
+### account
+- Type: String
+- Enum:
+  - user (customer)
+  - worker (employee)
+  - admin
+- Default: user
+- Required: Yes
+
+--- 
+
+### securityQuestions (Array – 2 items)
+Each user must select two security questions and provide answers.
+
+Structure:
+- question
+  - Type: String
+  - Enum:
+    - "What is your mother's maiden name?"
+    - "What is the name of your first pet?"
+    - "What was your first car?"
+    - "What elementary school did you attend?"
+    - "What is the name of the town where you were born?"
+    - "Where did you meet your spouse?"
+  - Required: Yes
+- answer
+  - Type: String
+  - Required: Yes
+  - Stored as a bcrypt hash
+  - Pre-save hook automatically hashes new or modified answers
+
+### Notes:
+- Users cannot change an answer without selecting a new question.
+- Changing a question requires current password verification in the controller.
+- Hashing ensures answers are securely stored.
+
+--- 
+
+### favorites (Array)
+
+References to OrderItem documents that the user has marked as favorite.
+
+Structure:
+- Type: ObjectId
+- Ref: OrderItem
+
+---
+
+### recent (Array)
+
+References to recent OrderItem documents the user has purchased.
+
+Structure:
+- Type: ObjectId
+- Ref: OrderItem
+
+### timestamps
+- createdAt
+- updatedAt
+
+### Pre-save Hook (Behavior)
+- **Passwords:** hashed on creation or whenever modified
+- **Security answers:** hashed whenever modified or new (including when updating question/answer)
+- **Next():** signals Mongoose to continue saving after asynchronous operations
+
+### Explanation:
+- `SALT_ROUNDS:` number of bcrypt rounds used to hash passwords/answers; higher = more secure but slower
+- `toJSON transform:` removes password and sensitive fields from API responses
+- `next():` must be called at the end of pre('save') to allow Mongoose to continue saving the document
