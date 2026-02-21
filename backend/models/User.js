@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const bcrypt = require('bcrypt');
 
-const SALT_ROUNDS = 6; // number of salt rounds for bcrypt hashing
+const SALT_ROUNDS = 10; // number of salt rounds for bcrypt hashing
 
 const SECURITY_QUESTIONS = [
     "What is your mother's maiden name?",
@@ -69,9 +69,9 @@ userSchema.pre('save', async function(next) {
     }
 
     // hash any security answers that are modified or new
-    for (let sq of this.securityQuestions) {
+    for (const sq of this.securityQuestions) {
         // only hash if the answer is new or modified
-        if (sq.isModified && sq.isModified('answer')) {
+        if (sq.isNew || sq.isModified('answer')) {
             sq.answer = await bcrypt.hash(sq.answer, SALT_ROUNDS);
         }
     }
