@@ -3,7 +3,8 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken")
 
 module.exports = {
-  createUser
+  createUser,
+  loginUser, 
 }
 
 async function createUser( req, res) {
@@ -24,14 +25,35 @@ async function createUser( req, res) {
   }
 }
 
+async function loginUser(req, res) {
+  try {
+    if(!req.body.email || !req.body.password){
+      return res.stuatus(400).json({message: "Missing Credentials"})
+    }
+    const email = req.body.email?.trim().toLowerCase();
+    const password = req.body.password;
+    const user = await User.findOne({email});
+    if (!user) return res.status(400).json({message: "Bad Credentials"});
+    const match = await bcrypt.compare(password, user.password);
+    if(!match) return res.status(400).json({message: "Bad Credentials"})
+    const token = createJWT({
+      userId: user._id,
+      account: user.account
+    });
+    res.status(200).json({token, user})
+  } catch (error) {
+    res.status(500).json({message: error.message})
+  }
+}
+
 
 /*-- Helper Functions --*/
 
-function createJWT(userPayload) {
+function createJWT(userPayload, expiresIn = '24h') {
   return jwt.sign(
     // data payload
     userPayload,
     process.env.SECRET,
-    { expiresIn: '24h' }
+    { expiresIn}
   );
 }
