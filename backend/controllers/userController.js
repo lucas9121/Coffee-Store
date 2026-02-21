@@ -21,7 +21,7 @@ async function createUser(req, res) {
     });
   } catch (error) {
     if(error.code === 11000) return res.status(400).json({message: "Email already in use"})
-    res.status(400).json({message: error.message})
+    res.status(500).json({message: error.message})
   }
 }
 
