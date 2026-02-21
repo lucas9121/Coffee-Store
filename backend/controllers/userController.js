@@ -7,7 +7,7 @@ module.exports = {
   loginUser, 
 }
 
-async function createUser( req, res) {
+async function createUser(req, res) {
   try {
     const userData = {...req.body, account: 'user'} // prevents account type frontend hack
     const newUser = await User.create(userData)
@@ -28,14 +28,14 @@ async function createUser( req, res) {
 async function loginUser(req, res) {
   try {
     if(!req.body.email || !req.body.password){
-      return res.stuatus(400).json({message: "Missing Credentials"})
+      return res.status(400).json({message: "Missing Credentials"})
     }
-    const email = req.body.email?.trim().toLowerCase();
+    const email = req.body.email.trim().toLowerCase();
     const password = req.body.password;
     const user = await User.findOne({email});
-    if (!user) return res.status(400).json({message: "Bad Credentials"});
+    if (!user) return res.status(401).json({message: "Bad Credentials"});
     const match = await bcrypt.compare(password, user.password);
-    if(!match) return res.status(400).json({message: "Bad Credentials"})
+    if(!match) return res.status(401).json({message: "Bad Credentials"})
     const token = createJWT({
       userId: user._id,
       account: user.account
@@ -50,10 +50,5 @@ async function loginUser(req, res) {
 /*-- Helper Functions --*/
 
 function createJWT(userPayload, expiresIn = '24h') {
-  return jwt.sign(
-    // data payload
-    userPayload,
-    process.env.SECRET,
-    { expiresIn}
-  );
+  return jwt.sign( userPayload, process.env.SECRET, { expiresIn});
 }
