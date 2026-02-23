@@ -1,4 +1,4 @@
-const {createUser, loginUser} = require("../../controllers/userController");
+const {createUser, loginUser, getCurrentUser} = require("../../controllers/userController");
 const User = require("../../models/User");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt")
@@ -245,4 +245,88 @@ describe("loginUser", () => {
     expect(res.json).toHaveBeenCalledWith({message: "Bad Credentials"});
     expect(jwt.sign).not.toHaveBeenCalled();
   });
-})
+});
+
+describe("getCurrentUser", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  // Test 1 - Find current user
+  it("should return the current user", async () => {
+    const req = { 
+      user: {
+        userId: " 507f191e810c19729de860ea",
+        account: "user"
+      }
+    };
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+    const dbUser = {
+      _id: "507f191e810c19729de860ea",
+      name: "Alice",
+      email: "alice@email.com",
+      password: "$2b$06$fakehash",
+      account: "user",
+      securityQuestions: [
+        {question: "What was your first car?"},
+        {question: "What is the name of your first pet?"}
+      ]
+    };
+
+    User.findById.mockResolvedValue(dbUser);
+
+    await getCurrentUser(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({user: dbUser});
+  });
+
+  // Test 2 - No user found
+  it("should return 401 if no user found", async () => {
+    const req = { 
+      user: {
+        userId: " 507f191e810c19729de860ea",
+        account: "user"
+      }
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+
+    User.findById.mockResolvedValue(null);
+    
+    await getCurrentUser(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({message: "No user found"});
+  });
+
+  // Test 3 - Unknown error
+  it("should return 500 on error", async () => {
+    const req = {
+      user: {
+        userId: " 507f191e810c19729de860ea",
+        account: "user"
+      }
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+
+    const dbError = new Error("DB Fail");
+
+    User.findById.mockRejectedValue(dbError);
+
+    await getCurrentUser(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({message: "DB Fail"})
+  });
+});
