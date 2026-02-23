@@ -1,6 +1,6 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken")
+const {createJWT} = require("../utils/token")
 
 module.exports = {
   createUser,
@@ -56,11 +56,4 @@ async function getCurrentUser(req, res) {
   } catch (error) {
     res.status(500).json({message: error.message})
   }
-}
-
-
-/*-- Helper Functions --*/
-
-function createJWT(userPayload, expiresIn = '24h') {
-  return jwt.sign( userPayload, process.env.SECRET, { expiresIn});
 }
