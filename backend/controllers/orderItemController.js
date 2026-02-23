@@ -12,9 +12,9 @@ module.exports = {
 async function getAllOrderItems(req, res) {
   try {
     const orderItems = await OrderItem.find();
-    res.status(200).json(orderItems);
+    return res.status(200).json(orderItems);
   } catch (error) {
-    res.status(500).json({message: "Server error"})
+    return res.status(500).json({message: "Server error"})
   }
 }
 
@@ -23,21 +23,21 @@ async function getOrderItem(req, res) {
     const id = req.params.id;
     const orderItem = await OrderItem.findById(id)
     if(!orderItem) return res.status(404).json({message: "Item not found"})
-    res.status(200).json(orderItem)
+    return res.status(200).json(orderItem)
   } catch (error) {
-    res.status(400).json({message: "Invalid ID"});
+    return res.status(400).json({message: "Invalid ID"});
   }
 }
 
 async function createItem(req, res) {
   try {
     const orderItem = await OrderItem.create(req.body);
-    res.status(201).json(orderItem)
+    return res.status(201).json(orderItem)
   } catch (error) {
     if(error.name === "ValidationError"){
       return res.status(400).json({message: error.message})
     }
-    res.status(500).json({message: "Server error"})
+    return res.status(500).json({message: "Server error"})
   }
 }
 
@@ -52,9 +52,9 @@ async function updateOrderItem(req, res) {
       { new:true, runValidators: true }
     );
     if(!updatedOrderItem) return res.status(404).json({message: "Item not found"});
-    res.status(200).json(updatedOrderItem);
+    return res.status(200).json(updatedOrderItem);
   } catch (error) {
-    res.status(400).json({message: error.message});
+    return res.status(400).json({message: error.message});
   };
 }
 
@@ -65,8 +65,8 @@ async function deleteOrderItem(req, res) {
     };
     const deleteItem = await OrderItem.findByIdAndDelete(req.params.id);
     if(!deleteItem) return res.status(404).json({message: "Item not found"});
-    res.status(204).send()
+    return res.status(204).send()
   } catch (error) {
-    res.status(400).json({message: error.message})
+    return res.status(400).json({message: error.message})
   }
 }

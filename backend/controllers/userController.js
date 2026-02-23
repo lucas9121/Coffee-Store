@@ -23,7 +23,7 @@ async function createUser(req, res) {
     });
   } catch (error) {
     if(error.code === 11000) return res.status(400).json({message: "Email already in use"})
-    res.status(500).json({message: error.message})
+    return res.status(500).json({message: error.message})
   }
 }
 
@@ -44,7 +44,7 @@ async function loginUser(req, res) {
     });
     res.status(200).json({token, user})
   } catch (error) {
-    res.status(500).json({message: error.message})
+    return res.status(500).json({message: error.message})
   }
 }
 
@@ -55,7 +55,7 @@ async function getCurrentUser(req, res) {
     if(!user) return res.status(401).json({message: "No user found"})
     res.status(200).json({user})
   } catch (error) {
-    res.status(500).json({message: error.message})
+    return res.status(500).json({message: error.message})
   }
 }
 

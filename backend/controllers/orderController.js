@@ -46,9 +46,9 @@ async function createOrder(req, res){
       orderItems,
       totalPrice: finalPrice
     });
-    res.status(201).json(order);
+    return res.status(201).json(order);
   } catch (error) {
-    res.status(500).json(error.message);
+    return res.status(500).json(error.message);
   }
 };
 
@@ -57,9 +57,9 @@ async function getOrder(req, res){
     const id = req.params.id;
     const order = await Order.findById(id)
     if(!order) return res.status(404).json({message: "Order not found"});
-    res.status(200).json(order);
+    return res.status(200).json(order);
   } catch (error) {
-    res.status(400).json({message: "Invalid ID"});
+    return res.status(400).json({message: "Invalid ID"});
     console.log("Invalid ID", error.message);
   }
 };
@@ -76,9 +76,9 @@ async function updateOrder(req, res){
       { new:true, runValidators: true }
     );
     if(!updatedOrder) return res.status(404).json({message: "Order not found"});
-    res.status(200).json(updatedOrder);
+    return res.status(200).json(updatedOrder);
   } catch (error) {
-    res.status(400).json({message: error.message});
+    return res.status(400).json({message: error.message});
   };
 };
 
@@ -96,10 +96,10 @@ async function updateOrderStatus(req, res){
 
     if(!updatedOrder) return res.status(404).json({message: "Order not found"});
 
-    res.status(200).json(updatedOrder);
+    return res.status(200).json(updatedOrder);
 
   } catch (error) {
-    res.status(400).json({message: error.message});
+    return res.status(400).json({message: error.message});
   };
 };
 
@@ -111,8 +111,8 @@ async function deleteOrder(req, res) {
 
     const eraseOrder = await Order.findByIdAndDelete(req.params.id);
     if(!eraseOrder) return res.status(404).json({message: "Order not found"});
-    res.status(204).send()
+    return res.status(204).send()
   } catch (error) {
-    res.status(400).json({message: error.message})
+    return res.status(400).json({message: error.message})
   }
 }

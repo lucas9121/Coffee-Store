@@ -29,9 +29,9 @@ async function getStoreSettings(req, res) {
         }
       });
     };
-    res.status(200).json(store);
+    return res.status(200).json(store);
   } catch (error) {
-    res.status(500).json({message: error.message});
+    return res.status(500).json({message: error.message});
   };
 };
 
@@ -39,9 +39,9 @@ async function getStoreSettings(req, res) {
 async function getStoreStatus(req, res) {
   try {
     const store = await StoreSettings.findOne();
-    res.status(200).json({isOpen: isStoreOpen(store)});
+    return res.status(200).json({isOpen: isStoreOpen(store)});
   } catch (error) {
-    res.status(500).json({message: error.message});
+    return res.status(500).json({message: error.message});
   };
 };
 
@@ -53,9 +53,9 @@ async function updateWeeklySchedule (req, res) {
     { $set: req.body },
     { new: true }
   );
-    res.status(200).json(updateStore);
+    return res.status(200).json(updateStore);
   } catch (error) {
-    res.status(500).json({message: error.message});
+    return res.status(500).json({message: error.message});
   };
 };
 
@@ -76,8 +76,8 @@ async function setManualOverride (req, res) {
       },
       { new: true }
     );
-    res.status(200).json(updatedStore);
+    return res.status(200).json(updatedStore);
   } catch (error) {
-    res.status(500).json({message: error.message});
+    return res.status(500).json({message: error.message});
   };
 };
