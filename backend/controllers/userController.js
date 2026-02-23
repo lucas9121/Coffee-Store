@@ -5,7 +5,8 @@ const {createJWT} = require("../utils/token")
 module.exports = {
   createUser,
   loginUser,
-  getCurrentUser 
+  getCurrentUser,
+  updateUserPassword 
 }
 
 async function createUser(req, res) {
@@ -57,3 +58,28 @@ async function getCurrentUser(req, res) {
     res.status(500).json({message: error.message})
   }
 }
+
+async function updateUserPassword(req, res) {
+  try {
+    const userId = req.user.userId;
+    const {currentPassword, newPassword} = req.body;
+
+    if(!currentPassword || !newPassword){
+      return res.status(400).json({message: "Missing Credentials"})
+    };
+
+    const user = await User.findById(userId);
+    if(!user) return res.status(401).json({message: "No user found"});
+
+    const match = await bcrypt.compare(currentPassword, user.password);
+    if(!match) return res.status(401).json({message: "Bad Credentials"});
+
+    // Use pre('save') hook to hash new password
+    user.password = newPassword;
+    await user.save();
+    
+    return res.status(200).json({message: "Password updated"});
+  } catch (error) {
+    return res.status(500).json({message: error.message});
+  };
+};
