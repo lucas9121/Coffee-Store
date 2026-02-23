@@ -4,7 +4,8 @@ const jwt = require("jsonwebtoken")
 
 module.exports = {
   createUser,
-  loginUser, 
+  loginUser,
+  getCurrentUser 
 }
 
 async function createUser(req, res) {
@@ -41,6 +42,17 @@ async function loginUser(req, res) {
       account: user.account
     });
     res.status(200).json({token, user})
+  } catch (error) {
+    res.status(500).json({message: error.message})
+  }
+}
+
+async function getCurrentUser(req, res) {
+  try {
+    const userId = req.user.userId // token sent by login
+    const user = await User.findById(userId);
+    if(!user) return res.status(401).json({message: "No user found"})
+    res.status(200).json({user})
   } catch (error) {
     res.status(500).json({message: error.message})
   }
