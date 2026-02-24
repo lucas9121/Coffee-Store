@@ -5,7 +5,8 @@ const {
   updateUserPassword,
   updateUserProfile,
   toggleFavorites,
-  updateUserSecurityQuestion
+  updateUserSecurityQuestion,
+  deleteUser
 } = require("../../controllers/userController");
 const User = require("../../models/User");
 const jwt = require("jsonwebtoken");
@@ -1156,6 +1157,138 @@ describe("updateUserSecurityQuestion", () => {
 
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({ message: "DB Fail" });
+  });
+});
+
+
+
+describe("deleteUser", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  // Test 1- Successfull delete
+  it("should return 204 on successfull user delete", async() => {
+    const req = {
+      user: { userId: "507f191e810c19729de860ea"},
+      body: {password: "currentPassword123"}
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+      send: jest.fn()
+    };
+
+    const dbUser = {
+      _id: req.user.userId,
+      password: "$2b$06$fakehash",
+      deleteOne: jest.fn().mockResolvedValue(true),
+    };
+
+    User.findById.mockResolvedValue(dbUser);
+    bcrypt.compare.mockResolvedValue(true);
+
+    await deleteUser(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(204);
+    expect(res.send).toHaveBeenCalledTimes(1);
+    expect(dbUser.deleteOne).toHaveBeenCalledTimes(1);
+    expect(User.findById).toHaveBeenCalledWith(req.user.userId);
+    expect(bcrypt.compare).toHaveBeenCalledWith(req.body.password, dbUser.password);
+  });
+
+  // Test 2 - Missing password
+  it("should return 400 on missing credentials", async() => {
+    const req = {
+      user: { userId: "507f191e810c19729de860ea"},
+      body: {}
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+
+    await deleteUser(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({message: "Missing Credentials"});
+  });
+
+  // Test 3 - No user
+  it("should return 401 on no user found", async() => {
+    const req = {
+      user: { userId: "507f191e810c19729de860ea"},
+      body: {password: "currentPassword123"}
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+      send: jest.fn()
+    };
+
+    User.findById.mockResolvedValue(null);
+
+    await deleteUser(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({message: "No user found"});
+    expect(bcrypt.compare).not.toHaveBeenCalled();
+  });
+
+  // Test 4 - Wrong password
+  it("should return 401 on bad credentials", async() => {
+    const req = {
+      user: { userId: "507f191e810c19729de860ea"},
+      body: {password: "wrongpw"}
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+      send: jest.fn()
+    };
+
+    const dbUser = {
+      _id: req.user.userId,
+      password: "$2b$06$fakehash",
+      deleteOne: jest.fn(),
+    };
+
+    User.findById.mockResolvedValue(dbUser);
+    bcrypt.compare.mockResolvedValue(false);
+
+    await deleteUser(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({message: "Bad Credentials"});
+    expect(dbUser.deleteOne).not.toHaveBeenCalled();
+    expect(bcrypt.compare).toHaveBeenCalled();
+  });
+
+  // Test 5 - Server error
+  it("should return 500 on server error", async() => {
+    const req = {
+      user: { userId: "507f191e810c19729de860ea"},
+      body: {password: "currentPassword123"}
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+      send: jest.fn()
+    };
+
+    const dbError = new Error("DB Fail")
+
+    User.findById.mockRejectedValue(dbError);
+
+    await deleteUser(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({message: dbError.message});
   });
 });
 
