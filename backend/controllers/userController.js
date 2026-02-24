@@ -179,8 +179,8 @@ async function updateUserSecurityQuestion(req, res) {
     const match = await bcrypt.compare(req.body.password, user.password);
     if(!match) return res.status(401).json({message: "Bad Credentials"});
 
-    user.securityQuestions[index].question = newQuestion;
-    user.securityQuestions[index].answer = newAnswer;
+    user.securityQuestions[idx].question = newQuestion;
+    user.securityQuestions[idx].answer = newAnswer;
 
     await user.save();
 
