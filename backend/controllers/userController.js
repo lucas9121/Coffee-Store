@@ -2,12 +2,17 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const {createJWT} = require("../utils/token")
 
+// Needed for toogleFavorites function
+const OrderItem = require("../models/OrderItem") 
+const mongoose = require("mongoose")
+
 module.exports = {
   createUser,
   loginUser,
   getCurrentUser,
   updateUserPassword,
-  updateUserProfile 
+  updateUserProfile,
+  toggleFavorites 
 }
 
 async function createUser(req, res) {
@@ -110,3 +115,44 @@ async function updateUserProfile(req, res) {
     return res.status(500).json({message: error.message});
   };
 };
+
+async function toggleFavorites(req, res) {
+  try {
+    const userId = req.user?.userId;
+    if(!userId) return res.status(401).json({message: "Unauthorized"}); // guest user
+
+    const orderItemId = req.params.orderItemId;
+    // Validate id format
+    if (!mongoose.Types.ObjectId.isValid(orderItemId)) {
+      return res.status(400).json({ message: "Invalid item id" });
+    };
+
+    const user = await User.findById(userId);
+    if(!user) return res.status(401).json({message: "No user found"});
+
+    const orderItem = await OrderItem.findById(orderItemId);
+    if(!orderItem) return res.status(404).json({message: "No item found"});
+
+    const isFavorite = user.favorites.some(
+      (id )=> id.toString() === orderItemId
+    );
+
+    if(isFavorite){
+      user.favorites = user.favorites.filter(
+        (id) => id.toString() !== orderItemId
+      );
+    } else {
+      user.favorites.push(orderItemId)
+    }
+
+    await user.save();
+    
+    // action will be used for heart action display in frontend
+    const action = isFavorite ? "removed" : "added"
+
+    return res.status(200).json({favorites: user.favorites, action }) 
+
+  } catch (error) {
+    return res.status(500).json({message: error.message})
+  }
+}
