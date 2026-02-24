@@ -3,11 +3,16 @@ const {
   loginUser, 
   getCurrentUser, 
   updateUserPassword,
-  updateUserProfile
+  updateUserProfile,
+  toggleFavorites
 } = require("../../controllers/userController");
 const User = require("../../models/User");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt")
+
+// toggleFavorites test
+const OrderItem = require("../../models/OrderItem");
+jest.mock("../../models/OrderItem");
 
 jest.mock("../../models/User");
 jest.mock("bcrypt", () => ({
@@ -716,5 +721,236 @@ describe("updateUserProfile", () => {
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({message: dbError.message});
   });
-})
+});
+
+describe("toggleFavorites", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  // Test 1 - Successfully added to Favorites
+  it("should return 200 on adding to favorites", async () => {
+    const req = {
+      params: {orderItemId: "557f191e810c19729de860eb"},
+      user: {
+        userId: "507f191e810c19729de860ea",
+        account: "user"
+      }
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+
+    const dbUser = {
+      _id: "507f191e810c19729de860ea",
+      name: "Alice",
+      email: "alice@email.com",
+      password: "$2b$06$fakehash",
+      account: "user",
+      favorites: [],
+      save: jest.fn().mockResolvedValue(true)
+    };
+
+    const fakeOrderItem = {_id: "557f191e810c19729de860eb", name: "Latte", price: 5};
+
+    User.findById.mockResolvedValue(dbUser);
+    OrderItem.findById.mockResolvedValue(fakeOrderItem);
+
+    await toggleFavorites(req, res);
+
+    const payload = res.json.mock.calls[0][0];
+    
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ action: "added" })
+    );
+    expect(payload.favorites).toContain(req.params.orderItemId);
+    expect(dbUser.save).toHaveBeenCalledTimes(1)
+  });
+
+  // Test 2 - Successfully removed from Favorites
+  it("should return 200 on removing from favorites", async () => {
+    const req = {
+      params: {orderItemId: "557f191e810c19729de860eb"},
+      user: {
+        userId: "507f191e810c19729de860ea",
+        account: "user"
+      }
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+
+    const dbUser = {
+      _id: "507f191e810c19729de860ea",
+      name: "Alice",
+      email: "alice@email.com",
+      password: "$2b$06$fakehash",
+      account: "user",
+      favorites: ["557f191e810c19729de860eb"],
+      save: jest.fn().mockResolvedValue(true)
+    };
+
+    const fakeOrderItem = {_id: "557f191e810c19729de860eb", name: "Latte", price: 5};
+
+    User.findById.mockResolvedValue(dbUser);
+    OrderItem.findById.mockResolvedValue(fakeOrderItem);
+
+    await toggleFavorites(req, res);
+
+    const payload = res.json.mock.calls[0][0];
+    
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ action: "removed" })
+    );
+    expect(payload.favorites).not.toContain(req.params.orderItemId);
+    expect(dbUser.save).toHaveBeenCalledTimes(1)
+  });
+
+  // Test 3 - Unauthorized (no token)
+  it("should return 401 on unauthorized", async () => {
+    const req = {
+      params: {orderItemId: "557f191e810c19729de860eb"},
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+
+    await toggleFavorites(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({message: "Unauthorized"});
+    expect(User.findById).not.toHaveBeenCalled();
+    expect(OrderItem.findById).not.toHaveBeenCalled();
+  });
+  
+  // Test 4 - Invalid OrderItem ID
+  it("should return 400 on invalid order item ID ", async () => {
+    const req = {
+      params: {orderItemId: "Not Valid ID"},
+      user: {
+        userId: "507f191e810c19729de860ea",
+        account: "user"
+      }
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+
+    const dbUser = {
+      _id: "507f191e810c19729de860ea",
+      name: "Alice",
+      email: "alice@email.com",
+      password: "$2b$06$fakehash",
+      account: "user",
+      favorites: [],
+      save: jest.fn().mockResolvedValue(true)
+    };
+
+    const fakeOrderItem = {_id: "557f191e810c19729de860eb", name: "Latte", price: 5};
+
+    User.findById.mockResolvedValue(dbUser);
+    OrderItem.findById.mockResolvedValue(null);
+
+    await toggleFavorites(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({message: "Invalid item id"});
+    expect(dbUser.save).not.toHaveBeenCalled()
+  });
+
+  // Test 5 - User not found
+  it("should return 401 on no user found", async () => {
+    const req = {
+      params: {orderItemId: "557f191e810c19729de860eb"},
+      user: {
+        userId: "507f191e810c19729de860ea",
+        account: "user"
+      }
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+
+    User.findById.mockResolvedValue(null);
+
+    await toggleFavorites(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({message: "No user found"});
+    expect(OrderItem.findById).not.toHaveBeenCalled()
+  });
+
+  // Test 6 - OrderItem not found
+    it("should return 404 on order item not found", async () => {
+    const req = {
+      params: {orderItemId: "557f191e810c19729de860eb"},
+      user: {
+        userId: "507f191e810c19729de860ea",
+        account: "user"
+      }
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+
+    const dbUser = {
+      _id: "507f191e810c19729de860ea",
+      name: "Alice",
+      email: "alice@email.com",
+      password: "$2b$06$fakehash",
+      account: "user",
+      favorites: [],
+      save: jest.fn().mockResolvedValue(true)
+    };
+
+    User.findById.mockResolvedValue(dbUser);
+    OrderItem.findById.mockResolvedValue(null);
+
+    await toggleFavorites(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({message: "No item found"});
+    expect(dbUser.save).not.toHaveBeenCalled()
+  });
+
+  // Test - 7 DB error
+  it("should return 500 on server error", async () => {
+    const req = {
+      params: {orderItemId: "557f191e810c19729de860eb"},
+      user: {
+        userId: "507f191e810c19729de860ea",
+        account: "user"
+      }
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+
+    const dbError = new Error("DB Fail")
+
+    User.findById.mockRejectedValue(dbError);
+
+    await toggleFavorites(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({message: dbError.message});
+  });
+
+});
 
