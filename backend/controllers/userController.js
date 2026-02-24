@@ -6,7 +6,8 @@ module.exports = {
   createUser,
   loginUser,
   getCurrentUser,
-  updateUserPassword 
+  updateUserPassword,
+  updateUserProfile 
 }
 
 async function createUser(req, res) {
@@ -80,6 +81,32 @@ async function updateUserPassword(req, res) {
     
     return res.status(200).json({message: "Password updated"});
   } catch (error) {
+    return res.status(500).json({message: error.message});
+  };
+};
+
+async function updateUserProfile(req, res) {
+  try {
+    const userId = req.user.userId;
+    if(!req.body.password) return res.status(400).json({message: "Missing Credentials"});
+  
+    const user = await User.findById(userId);
+    if(!user) return res.status(401).json({message: "No user found"});
+  
+    const match = await bcrypt.compare(req.body.password, user.password);
+    if(!match) return res.status(401).json({message: "Bad Credentials"});
+
+    if (!req.body.name && !req.body.email) {
+      return res.status(400).json({ message: "No updates provided" });
+    }
+  
+    if(req.body.email) user.email = req.body.email.trim().toLowerCase();
+    if(req.body.name) user.name = req.body.name.trim();
+    await user.save();
+  
+    return res.status(200).json({user}); // shouldn't need a new token since id and account are the same
+  } catch (error) {
+    if(error.code === 11000) return res.status(400).json({message: "Email already in use"});
     return res.status(500).json({message: error.message});
   };
 };

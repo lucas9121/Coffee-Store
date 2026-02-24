@@ -2,7 +2,8 @@ const {
   createUser, 
   loginUser, 
   getCurrentUser, 
-  updateUserPassword
+  updateUserPassword,
+  updateUserProfile
 } = require("../../controllers/userController");
 const User = require("../../models/User");
 const jwt = require("jsonwebtoken");
@@ -509,4 +510,211 @@ describe("updateUserPassword", () => {
     expect(res.json).toHaveBeenCalledWith({message: dbError.message});
   });
 
+});
+
+describe("updateUserProfile", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  // Test 1 - Success name or email
+  const cases = [
+    {
+      label: "name", 
+      body: {name: "Jack"},
+      assert: (dbUser) => expect(dbUser.name).toBe("Jack")
+    },
+    {
+      label: "email", 
+      body: {email: "jack@email.com"},
+      assert: (dbUser) => expect(dbUser.email).toBe("jack@email.com")
+    }
+  ];
+  cases.forEach(({label, body, assert}) => {
+    it(`should return 200 on ${label} change`, async () => {
+      const req = {
+        user: {
+          userId: "507f191e810c19729de860ea",
+          account: "user"
+        },
+        body: {password: "currentPassword123", ...body}
+      };
+  
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn()
+      };
+  
+      const dbUser = {
+        _id: "507f191e810c19729de860ea",
+        name: "Alice",
+        email: "alice@email.com",
+        password: "$2b$06$fakehash",
+        account: "user",
+        save: jest.fn().mockResolvedValue(true) 
+      };
+  
+      User.findById.mockResolvedValue(dbUser);
+      bcrypt.compare.mockResolvedValue(true);
+      await updateUserProfile(req, res);
+  
+      expect(User.findById).toHaveBeenCalledWith(req.user.userId);
+      expect(bcrypt.compare).toHaveBeenCalledWith(req.body.password, dbUser.password);
+      assert(dbUser); // ensures name/email was updated
+      expect(dbUser.save).toHaveBeenCalledTimes(1);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({user: dbUser});
+    })
+  })
+
+  // Test 2 - Missing password
+  it("should return 400 on missing credentials", async () => {
+      const req = {
+        user: {
+          userId: "507f191e810c19729de860ea",
+          account: "user"
+        },
+        body: {name: "Jack"}
+      };
+  
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn()
+      };
+
+      await updateUserProfile(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({message: "Missing Credentials"})
+  })
+
+  // Test 3 - Password mismatch
+  it("should return 401 for bad credentials", async () => {
+    const req = {
+      user: {
+        userId: "507f191e810c19729de860ea",
+        account: "user"
+      },
+      body: {
+        password: "wrongPassword",
+        name: "Jack"
+      }
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+
+    const dbUser = {
+      _id: "507f191e810c19729de860ea",
+      name: "Alice",
+      email: "alice@email.com",
+      password: "$2b$06$fakehash",
+      account: "user",
+      save: jest.fn().mockResolvedValue(true) // should not be called here
+    };
+
+    User.findById.mockResolvedValue(dbUser);
+    bcrypt.compare.mockResolvedValue(false);
+
+    await updateUserProfile(req, res);
+
+    expect(bcrypt.compare).toHaveBeenCalledWith(req.body.password, dbUser.password);
+    expect(dbUser.save).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({message: "Bad Credentials"});
+  });
+
+  // Test 4 - No User found
+  it("should return 401 for missing user", async () => {
+    const req = {
+      user: {
+        userId: "507f191e810c19729de860ea",
+        account: "user"
+      },
+      body: {
+        password: "currentPassword123",
+        name: "Jack"
+      }
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+
+    User.findById.mockResolvedValue(null);
+    await updateUserProfile(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({message: "No user found"});
+  });
+
+  // Test 5 - Duplicate email on save
+  it("should return 400 for duplicate email", async () => {
+    const req = {
+      user: {
+        userId: "507f191e810c19729de860ea",
+        account: "user"
+      },
+      body: {
+        password: "currentPassword123",
+        email: "dup@email.com"
+      }
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+
+    const dupError = new Error("Duplicate Key");
+    dupError.code = 11000
+
+    const dbUser = {
+      _id: "507f191e810c19729de860ea",
+      name: "Alice",
+      email: "old@email.com",
+      password: "$2b$06$fakehash",
+      account: "user",
+      save: jest.fn().mockRejectedValue(dupError) 
+    };
+
+    User.findById.mockResolvedValue(dbUser)
+    bcrypt.compare.mockResolvedValue(true)
+    await updateUserProfile(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({message: "Email already in use"});
+  });
+
+  // Test 6 - Server error
+  it("should return 500 for server error", async () => {
+    const req = {
+      user: {
+        userId: "507f191e810c19729de860ea",
+        account: "user"
+      },
+      body: {
+        password: "currentPassword123",
+        name: "Jack"
+      }
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+
+    const dbError = new Error("DB Fail");
+
+    User.findById.mockRejectedValue(dbError);
+    await updateUserProfile(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({message: dbError.message});
+  });
 })
+
