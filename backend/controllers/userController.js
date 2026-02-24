@@ -12,7 +12,8 @@ module.exports = {
   getCurrentUser,
   updateUserPassword,
   updateUserProfile,
-  toggleFavorites 
+  toggleFavorites,
+  updateUserSecurityQuestion 
 }
 
 async function createUser(req, res) {
@@ -150,9 +151,43 @@ async function toggleFavorites(req, res) {
     // action will be used for heart action display in frontend
     const action = isFavorite ? "removed" : "added"
 
-    return res.status(200).json({favorites: user.favorites, action }) 
+    return res.status(200).json({favorites: user.favorites, action });
 
   } catch (error) {
     return res.status(500).json({message: error.message})
-  }
-}
+  };
+};
+
+async function updateUserSecurityQuestion(req, res) {
+  try {
+    const userId = req.user.userId;
+    const {password, index, newQuestion, newAnswer} = req.body;
+
+    if(!password || index === undefined || !newQuestion || !newAnswer){
+      return res.status(400).json({message: "Missing Credentials"});
+    };
+
+    // Check if idx is valid array position for one of the two security quesitons array
+    const idx = Number(index)
+    if(![0, 1].includes(idx)){
+      return res.status(400).json({message: "Invalid security question index"})
+    };
+
+    const user = await User.findById(userId);
+    if(!user) return res.status(401).json({message: "No user found"});
+
+    const match = await bcrypt.compare(req.body.password, user.password);
+    if(!match) return res.status(401).json({message: "Bad Credentials"});
+
+    user.securityQuestions[index].question = newQuestion;
+    user.securityQuestions[index].answer = newAnswer;
+
+    await user.save();
+
+    return res.status(200).json({message: "Security question and answer updated"})
+    
+  } catch (error) {
+    return res.status(500).json({message: error.message})
+  };
+};
+
