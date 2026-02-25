@@ -3,10 +3,11 @@ const express = require("express");
 
 jest.mock("../../controllers/userController", () => ({
   createUser: jest.fn((req, res) => res.status(201).json({ ok: true })),
+  loginUser: jest.fn((req, res) => res.status(200).json({ ok: true })),
 }));
 
 const userRoutes = require("../../routes/userRoutes");
-const { createUser } = require("../../controllers/userController");
+const { createUser, loginUser } = require("../../controllers/userController");
 
 describe("User Routes", () => {
   let app;
@@ -35,8 +36,23 @@ describe("User Routes", () => {
 
     expect(res.status).toBe(201);
     expect(res.body).toEqual({ ok: true });
-
     expect(createUser).toHaveBeenCalledTimes(1);
     expect(createUser.mock.calls[0][0].body).toEqual(reqBody); // route passed body through
+  });
+
+  // POST /login
+  it("POST /login should call loginUser", async() => {
+    const reqBody = {
+      email: "alice@email.com",
+      password: "password",
+    };
+
+    const res = await request(app).post("/users/login").send(reqBody);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ok: true});
+    expect(loginUser).toHaveBeenCalledTimes(1);
+    expect(createUser).toHaveBeenCalledTimes(0)
+    expect(loginUser.mock.calls[0][0].body).toEqual(reqBody);
   });
 });
