@@ -4,10 +4,20 @@ const express = require("express");
 jest.mock("../../controllers/userController", () => ({
   createUser: jest.fn((req, res) => res.status(201).json({ ok: true })),
   loginUser: jest.fn((req, res) => res.status(200).json({ ok: true })),
+  getCurrentUser: jest.fn((req, res) => res.status(200).json({ok: true}))
 }));
 
+// Router.use functions
+jest.mock("../../middleware/requireAuth", () => {
+  return (req, res, next) => {
+    // pretend token is valid
+    req.user = {userId: "507f191e810c19729de860ea", account: "user"};
+    next();
+  };
+});
+
 const userRoutes = require("../../routes/userRoutes");
-const { createUser, loginUser } = require("../../controllers/userController");
+const {createUser, loginUser, getCurrentUser} = require("../../controllers/userController");
 
 describe("User Routes", () => {
   let app;
@@ -52,7 +62,24 @@ describe("User Routes", () => {
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ok: true});
     expect(loginUser).toHaveBeenCalledTimes(1);
-    expect(createUser).toHaveBeenCalledTimes(0)
+    expect(createUser).toHaveBeenCalledTimes(0);
     expect(loginUser.mock.calls[0][0].body).toEqual(reqBody);
+  });
+
+  // GET /users/me
+  it("GET /users/me should call getCurrentUser", async() => {
+    const res = await request(app).get("/users/me")
+    
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ok: true});
+    expect(getCurrentUser).toHaveBeenCalledTimes(1);
+    expect(loginUser).toHaveBeenCalledTimes(0);
+    expect(createUser).toHaveBeenCalledTimes(0);
+    expect(getCurrentUser.mock.calls[0][0].user).toEqual(
+      expect.objectContaining({
+        userId: "507f191e810c19729de860ea", 
+        account: "user"
+      })
+    );
   });
 });
