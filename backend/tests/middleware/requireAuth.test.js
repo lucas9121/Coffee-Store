@@ -34,4 +34,19 @@ describe("requireAuth middleware", () => {
     expect(res.body).toEqual({ message: "Unauthorized" });
   });
 
+  // Test 3 - Wrong token
+  it("should return 401 if token is invalid", async () => {
+    jwt.verify.mockImplementation(() => {
+      throw new Error("bad token");
+    });
+
+    const res = await request(app)
+      .get("/protected")
+      .set("Authorization", "Bearer bad.token.here");
+
+    expect(jwt.verify).toHaveBeenCalledTimes(1);
+    expect(res.status).toBe(401);
+    expect(res.body).toEqual({ message: "Unauthorized" });
+  });
+
 });
