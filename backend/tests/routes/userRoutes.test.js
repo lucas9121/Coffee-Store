@@ -9,6 +9,7 @@ jest.mock("../../controllers/userController", () => ({
   updateUserProfile: jest.fn((req, res) => res.status(200).json({ok: true})),
   updateUserSecurityQuestion: jest.fn((req, res) => res.status(200).json({ok: true})),
   toggleFavorites: jest.fn((req, res) => res.status(200).json({ok: true})),
+  deleteUser: jest.fn((req, res) => res.status(204).send())
 }));
 
 // Router.use functions
@@ -28,7 +29,8 @@ const {
   updateUserPassword,
   updateUserProfile,
   updateUserSecurityQuestion,
-  toggleFavorites
+  toggleFavorites,
+  deleteUser
 } = require("../../controllers/userController");
 
 describe("User Routes", () => {
@@ -191,4 +193,24 @@ describe("User Routes", () => {
     );
   });
 
+  //DELETE /users/me
+  it("DELETE /users/me should call deleteUser", async() => {
+    const reqBody = {
+      password: "currentPassword123"
+    };
+
+    const res = await request(app).delete("/users/me").send(reqBody);
+
+    expect(res.status).toBe(204);
+    expect(res.body).toEqual({});
+    expect(deleteUser).toHaveBeenCalledTimes(1);
+    expect(deleteUser.mock.calls[0][0].method).toEqual("DELETE")
+    expect(deleteUser.mock.calls[0][0].body).toEqual(reqBody);
+    expect(deleteUser.mock.calls[0][0].user).toEqual(
+      expect.objectContaining({
+        userId: "507f191e810c19729de860ea", 
+        account: "user"
+      })
+    );
+  });
 });
