@@ -6,6 +6,7 @@ jest.mock("../../controllers/userController", () => ({
   loginUser: jest.fn((req, res) => res.status(200).json({ ok: true })),
   getCurrentUser: jest.fn((req, res) => res.status(200).json({ok: true})),
   updateUserPassword: jest.fn((req, res) => res.status(200).json({ok: true})),
+  updateUserProfile: jest.fn((req, res) => res.status(200).json({ok: true})),
 }));
 
 // Router.use functions
@@ -18,7 +19,7 @@ jest.mock("../../middleware/requireAuth", () => {
 });
 
 const userRoutes = require("../../routes/userRoutes");
-const {createUser, loginUser, getCurrentUser, updateUserPassword} = require("../../controllers/userController");
+const {createUser, loginUser, getCurrentUser, updateUserPassword, updateUserProfile} = require("../../controllers/userController");
 
 describe("User Routes", () => {
   let app;
@@ -85,7 +86,7 @@ describe("User Routes", () => {
   });
 
   // PATCH /users/me/password
-  it("PATCH /users/password should call ", async() => {
+  it("PATCH /users/me/password should call updateUserPassword", async() => {
     const reqBody = {
       currentPassword: "currentPassword123",
       newPassword: "newPassword123"
@@ -100,6 +101,28 @@ describe("User Routes", () => {
 
     //received req.user from mock requireAuth
     expect(updateUserPassword.mock.calls[0][0].user).toEqual(
+      expect.objectContaining({
+        userId: "507f191e810c19729de860ea", 
+        account: "user"
+      })
+    );
+  });
+
+  //PATCH /users/me/profile
+  it("PATCH /users/me/profile should call updateUserProfile", async() => {
+    const reqBody = {
+      name: "Jill",
+      email: "jill@email.com"
+    };
+
+    const res = await request(app).patch("/users/me/profile").send(reqBody);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ok: true});
+    expect(updateUserProfile).toHaveBeenCalledTimes(1);
+    expect(updateUserPassword).toHaveBeenCalledTimes(0);
+    expect(updateUserProfile.mock.calls[0][0].body).toEqual(reqBody);
+    expect(updateUserProfile.mock.calls[0][0].user).toEqual(
       expect.objectContaining({
         userId: "507f191e810c19729de860ea", 
         account: "user"
