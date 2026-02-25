@@ -25,4 +25,13 @@ describe("requireAuth middleware", () => {
     expect(res.body).toEqual({ message: "Unauthorized" });
   });
 
+  // Test 2 - Wrong header
+  it("should return 401 if auth header is not Bearer", async () => {
+    const res = await request(app)
+      .get("/protected")
+      .set("Authorization", "Token abc123");
+    expect(res.status).toBe(401);
+    expect(res.body).toEqual({ message: "Unauthorized" });
+  });
+
 });
