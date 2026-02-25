@@ -4,7 +4,8 @@ const express = require("express");
 jest.mock("../../controllers/userController", () => ({
   createUser: jest.fn((req, res) => res.status(201).json({ ok: true })),
   loginUser: jest.fn((req, res) => res.status(200).json({ ok: true })),
-  getCurrentUser: jest.fn((req, res) => res.status(200).json({ok: true}))
+  getCurrentUser: jest.fn((req, res) => res.status(200).json({ok: true})),
+  updateUserPassword: jest.fn((req, res) => res.status(200).json({ok: true})),
 }));
 
 // Router.use functions
@@ -17,7 +18,7 @@ jest.mock("../../middleware/requireAuth", () => {
 });
 
 const userRoutes = require("../../routes/userRoutes");
-const {createUser, loginUser, getCurrentUser} = require("../../controllers/userController");
+const {createUser, loginUser, getCurrentUser, updateUserPassword} = require("../../controllers/userController");
 
 describe("User Routes", () => {
   let app;
@@ -82,4 +83,28 @@ describe("User Routes", () => {
       })
     );
   });
+
+  // PATCH /users/me/password
+  it("PATCH /users/password should call ", async() => {
+    const reqBody = {
+      currentPassword: "currentPassword123",
+      newPassword: "newPassword123"
+    };
+
+    const res = await request(app).patch("/users/me/password").send(reqBody);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ok: true});
+    expect(updateUserPassword).toHaveBeenCalledTimes(1);
+    expect(updateUserPassword.mock.calls[0][0].body).toEqual(reqBody);
+
+    //received req.user from mock requireAuth
+    expect(updateUserPassword.mock.calls[0][0].user).toEqual(
+      expect.objectContaining({
+        userId: "507f191e810c19729de860ea", 
+        account: "user"
+      })
+    );
+  });
+
 });
