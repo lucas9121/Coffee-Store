@@ -222,4 +222,17 @@ describe("getAllUsers", () => {
     expect(User.find).not.toHaveBeenCalled();
     expect(User.countDocuments).not.toHaveBeenCalled();
   });
+
+  // Test 4 - Invalid limit
+  it("returns 400 for invalid limit", async () => {
+    const req = { query: { limit: "0" } };
+    const res = makeRes();
+
+    await getAllUsers(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ message: "Invalid limit" });
+    expect(User.find).not.toHaveBeenCalled();
+    expect(User.countDocuments).not.toHaveBeenCalled();
+  });
 });
