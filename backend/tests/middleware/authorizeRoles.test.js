@@ -52,4 +52,16 @@ describe("authorizeRoles middleware", () => {
     expect(res.body).toEqual({ message: "Forbidden" });
   });
 
+  // Test 3 - Success
+  it("returns 200 when user role is allowed", async () => {
+    const app = buildApp({
+      user: { userId: "507f191e810c19729de860ea", account: "admin" },
+    });
+
+    const res = await request(app).get("/protected");
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ ok: true });
+  });
+
 });
