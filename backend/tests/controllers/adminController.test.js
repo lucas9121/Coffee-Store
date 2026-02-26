@@ -59,4 +59,28 @@ describe("updateUserAccount", () => {
     expect(res.json).toHaveBeenCalledWith({message: "Invalid account type"});
     expect(User.findByIdAndUpdate).toHaveBeenCalledTimes(0);
   });
+
+  // Test 3 - User not found
+  it("should return 404 for no user found", async() => {
+    const req = {
+      params: {
+        userId: "507f191e810c19729de860ea"
+      },
+      body: {
+        account: "admin"
+      }
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+
+    User.findByIdAndUpdate.mockResolvedValue(null);
+
+    await updateUserAccount(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({message: "No user found"});
+  });
 })
