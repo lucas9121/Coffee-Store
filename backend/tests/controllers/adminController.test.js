@@ -209,4 +209,17 @@ describe("getAllUsers", () => {
       })
     );
   });
+
+  // Test 3 - Invalid page
+  it("returns 400 for invalid page", async () => {
+    const req = { query: { page: "0" } };
+    const res = makeRes();
+
+    await getAllUsers(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ message: "Invalid page" });
+    expect(User.find).not.toHaveBeenCalled();
+    expect(User.countDocuments).not.toHaveBeenCalled();
+  });
 });
