@@ -64,4 +64,23 @@ describe("authorizeRoles middleware", () => {
     expect(res.body).toEqual({ ok: true });
   });
 
+  // Test 4 - Accepts single role argument
+  it("accepts a single role string instead of an array", async () => {
+    const app = express();
+
+    app.use((req, res, next) => {
+      req.user = { userId: "507f191e810c19729de860ea", account: "admin" };
+      next();
+    });
+
+    // If your authorizeRoles supports string input, this should work:
+    app.get("/protected", authorizeRoles("admin"), (req, res) => {
+      res.status(200).json({ ok: true });
+    });
+
+    const res = await request(app).get("/protected");
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ ok: true });
+  });
 });
