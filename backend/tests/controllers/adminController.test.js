@@ -235,4 +235,17 @@ describe("getAllUsers", () => {
     expect(User.find).not.toHaveBeenCalled();
     expect(User.countDocuments).not.toHaveBeenCalled();
   });
+
+  // Test 5 - Invalid sortBy
+  it("returns 400 for invalid sortBy", async () => {
+    const req = { query: { sortBy: "password" } }; // not in whitelist
+    const res = makeRes();
+
+    await getAllUsers(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ message: "Invalid sortBy" });
+    expect(User.find).not.toHaveBeenCalled();
+    expect(User.countDocuments).not.toHaveBeenCalled();
+  });
 });
