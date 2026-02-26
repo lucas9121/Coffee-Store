@@ -1,7 +1,30 @@
-const { updateUserAccount } = require("../../controllers/adminController");
+const { updateUserAccount, getAllUsers } = require("../../controllers/adminController");
 const User = require("../../models/User");
 
 jest.mock("../../models/User");
+
+
+// GetAllUsers Functions
+/**
+ * Builds a fake mongoose query chain:
+ * User.find().select().sort().skip().limit() -> resolves users
+ */
+function makeQueryChain({ users = [] } = {}) {
+  return {
+    select: jest.fn().mockReturnThis(),
+    sort: jest.fn().mockReturnThis(),
+    skip: jest.fn().mockReturnThis(),
+    limit: jest.fn().mockResolvedValue(users),
+  };
+}
+
+function makeRes() {
+  return {
+    status: jest.fn().mockReturnThis(),
+    json: jest.fn(),
+  };
+}
+
 
 describe("updateUserAccount", () => {
   beforeEach(() => {
@@ -110,3 +133,46 @@ describe("updateUserAccount", () => {
     expect(res.json).toHaveBeenCalledWith({message: "DB Fail"});
   });
 })
+
+describe("getAllUsers", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  // Test 1 - Success (defaults)
+  it("returns 200 with users + pagination meta using defaults", async () => {
+    const req = { query: {} };
+    const res = makeRes();
+
+    const fakeUsers = [{ name: "user1" }, { name: "user2" }];
+    const query = makeQueryChain({ users: fakeUsers });
+
+    User.find.mockReturnValue(query);
+    User.countDocuments.mockResolvedValue(fakeUsers.length);
+
+    await getAllUsers(req, res);
+
+    // default paging
+    expect(query.skip).toHaveBeenCalledWith(0);   // (page 1 - 1) * 20
+    expect(query.limit).toHaveBeenCalledWith(20);
+
+    // default sorting
+    expect(query.sort).toHaveBeenCalledWith({ createdAt: -1 });
+
+    // sensitive fields excluded
+    expect(query.select).toHaveBeenCalledWith("-password -securityQuestions.answer");
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        users: fakeUsers,
+        page: 1,
+        limit: 20,
+        total: 2,
+        totalPages: 1,
+        sortBy: "createdAt",
+        sortDir: "desc",
+      })
+    );
+  });
+});
