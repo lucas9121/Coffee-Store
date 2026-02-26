@@ -42,6 +42,21 @@ describe("updateUserAccount", () => {
       {account: req.body.account},
       {new:true, runValidators: true}
     );
+  });
 
+  // Test 2 - Invalid account type
+  it("should return 400 for invalid account", async() => {
+    const req = {body: {account: "hacker"}};
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+
+    await updateUserAccount(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({message: "Invalid account type"});
+    expect(User.findByIdAndUpdate).toHaveBeenCalledTimes(0);
   });
 })
