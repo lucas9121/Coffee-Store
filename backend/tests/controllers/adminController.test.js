@@ -261,4 +261,22 @@ describe("getAllUsers", () => {
     expect(User.find).not.toHaveBeenCalled();
     expect(User.countDocuments).not.toHaveBeenCalled();
   });
+
+  // Test 7 - DB error in find chain
+  it("returns 500 when the users query fails", async () => {
+    const req = { query: {} };
+    const res = makeRes();
+
+    // Make the chain, but have limit() reject
+    const query = makeQueryChain({ users: [] });
+    query.limit.mockRejectedValue(new Error("DB Fail"));
+
+    User.find.mockReturnValue(query);
+    User.countDocuments.mockResolvedValue(0);
+
+    await getAllUsers(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ message: "DB Fail" });
+  });
 });
