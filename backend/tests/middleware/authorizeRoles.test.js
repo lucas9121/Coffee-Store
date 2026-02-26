@@ -39,4 +39,17 @@ describe("authorizeRoles middleware", () => {
     expect(res.body).toEqual({ message: "Unauthorized" });
   });
 
+  // Test 2 - Unauthorized account type
+  it("returns 403 when user role is not allowed", async () => {
+    const app = buildApp({
+      user: { userId: "507f191e810c19729de860ea", account: "user" },
+    });
+
+    const res = await request(app).get("/protected");
+
+    expect(res.status).toBe(403);
+    // Adjust message if your middleware uses a different one
+    expect(res.body).toEqual({ message: "Forbidden" });
+  });
+
 });
