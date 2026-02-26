@@ -83,4 +83,30 @@ describe("updateUserAccount", () => {
     expect(res.status).toHaveBeenCalledWith(404);
     expect(res.json).toHaveBeenCalledWith({message: "No user found"});
   });
+
+  // Test 4 Server error
+  it("should return 500 for server error", async() => {
+    const req = {
+      params: {
+        userId: "507f191e810c19729de860ea"
+      },
+      body: {
+        account: "admin"
+      }
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+
+    const dbError = new Error("DB Fail");
+
+    User.findByIdAndUpdate.mockRejectedValue(dbError);
+
+    await updateUserAccount(req, res)
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({message: "DB Fail"});
+  });
 })
