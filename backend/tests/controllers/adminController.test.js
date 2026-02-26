@@ -175,4 +175,38 @@ describe("getAllUsers", () => {
       })
     );
   });
+
+  // Test 2 - Success with custom sort/paging
+  it("returns 200 with correct skip/limit/sort when query params are provided", async () => {
+    const req = { query: { page: "2", limit: "10", sortBy: "name", sortDir: "asc" } };
+    const res = makeRes();
+
+    const fakeUsers = [{ name: "A" }, { name: "B" }];
+    const query = makeQueryChain({ users: fakeUsers });
+
+    User.find.mockReturnValue(query);
+    User.countDocuments.mockResolvedValue(25);
+
+    await getAllUsers(req, res);
+
+    // skip = (2 - 1) * 10 = 10
+    expect(query.skip).toHaveBeenCalledWith(10);
+    expect(query.limit).toHaveBeenCalledWith(10);
+
+    // name ascending
+    expect(query.sort).toHaveBeenCalledWith({ name: 1 });
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        users: fakeUsers,
+        page: 2,
+        limit: 10,
+        total: 25,
+        totalPages: 3,
+        sortBy: "name",
+        sortDir: "asc",
+      })
+    );
+  });
 });
