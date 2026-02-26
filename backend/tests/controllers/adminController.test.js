@@ -248,4 +248,17 @@ describe("getAllUsers", () => {
     expect(User.find).not.toHaveBeenCalled();
     expect(User.countDocuments).not.toHaveBeenCalled();
   });
+
+  // Test 6 - Invalid sortDir
+  it("returns 400 for invalid sortDir", async () => {
+    const req = { query: { sortDir: "up" } };
+    const res = makeRes();
+
+    await getAllUsers(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ message: "Invalid sortDir" });
+    expect(User.find).not.toHaveBeenCalled();
+    expect(User.countDocuments).not.toHaveBeenCalled();
+  });
 });
