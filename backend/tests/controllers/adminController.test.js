@@ -279,4 +279,19 @@ describe("getAllUsers", () => {
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({ message: "DB Fail" });
   });
+
+  // Test 8 - DB error in countDocuments
+  it("returns 500 when countDocuments fails", async () => {
+    const req = { query: {} };
+    const res = makeRes();
+
+    const query = makeQueryChain({ users: [] });
+    User.find.mockReturnValue(query);
+    User.countDocuments.mockRejectedValue(new Error("DB Fail"));
+
+    await getAllUsers(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ message: "DB Fail" });
+  });
 });
