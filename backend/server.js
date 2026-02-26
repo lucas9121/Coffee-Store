@@ -5,6 +5,7 @@ const orderRoutes = require("./routes/orderRoutes");
 const menuRoutes = require("./routes/menuRoutes");
 const storeSettings = require("./routes/storeSettingsRoutes");
 const userRoutes = require("./routes/userRoutes");
+const adminRoutes = require("./routes/adminRoutes")
 
 // Connect to DB
 connectDB();
@@ -14,6 +15,7 @@ app.use("/menu", menuRoutes);
 app.use("/orders", orderRoutes);
 app.use("/store", storeSettings)
 app.use("/users", userRoutes);
+app.use("/admin", adminRoutes)
 
 
 const PORT = process.env.PORT || 3002;
