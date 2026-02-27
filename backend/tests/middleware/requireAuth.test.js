@@ -49,7 +49,21 @@ describe("requireAuth middleware", () => {
     expect(res.body).toEqual({ message: "Unauthorized" });
   });
 
-  // Test 4 - Succesfull authorization
+  // Test 4 - Missing payload field
+  it("should return 401 if payload is missing required field", async () => {
+    const payload = { userId: "507f191e810c19729de860ea" };
+    jwt.verify.mockReturnValue(payload);
+
+    const res = await request(app)
+      .get("/protected")
+      .set("Authorization", "Bearer good.token");
+
+    expect(jwt.verify).toHaveBeenCalledWith("good.token", process.env.SECRET);
+    expect(res.status).toBe(401);
+    expect(res.body).toEqual({ message: "Unauthorized" });
+  });
+
+  // Test 5 - Succesfull authorization
   it("should call next and attach payload when token is valid", async () => {
     const payload = { userId: "507f191e810c19729de860ea", account: "user" };
     jwt.verify.mockReturnValue(payload);
@@ -62,5 +76,4 @@ describe("requireAuth middleware", () => {
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ ok: true, user: payload });
   });
-  
 });
