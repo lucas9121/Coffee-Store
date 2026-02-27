@@ -205,7 +205,7 @@ describe("createOrder", () => {
     Order.create.mockRejectedValue(new Error("Database failure"));
     await createOrder(req, res);
     expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith("Database failure");
+    expect(res.json).toHaveBeenCalledWith({message: "Database failure"});
   });
 });
 
