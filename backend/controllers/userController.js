@@ -1,6 +1,6 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
-const {createJWT} = require("../utils/token");
+const {createJWT, createRefreshToken, hashToken} = require("../utils/token");
 
 // Needed for toogleFavorites function
 const OrderItem = require("../models/OrderItem");
@@ -49,9 +49,25 @@ async function loginUser(req, res) {
     const match = await bcrypt.compare(password, user.password);
     if(!match) return res.status(401).json({message: "Bad Credentials"});
     const payload = {userId: user._id, account: user.account};
-    const expiresIn = user.account === "admin" ? "3H" : "24H";
+    const expiresIn = user.account === "admin" ? "3h" : "24h";
     const token = createJWT(payload, expiresIn);
-    res.status(200).json({token, user});
+
+    if(user.account === "admin" || user.account === "worker"){
+      // Cleanup if they previously had customer token
+      if (user.refreshTokenHash || user.refreshTokenExpiresAt) {
+        user.refreshTokenHash = undefined;
+        user.refreshTokenExpiresAt = undefined;
+        await user.save();
+      }
+      return res.status(200).json({token, user})
+    }
+
+    // customers have refresh token
+    const refreshToken = createRefreshToken();
+    user.refreshTokenHash = hashToken(refreshToken);
+    user.refreshTokenExpiresAt = new Date(Date.now() + 30 *24 * 60 *60 * 1000); // 30d
+    await user.save();
+    res.status(200).json({token, refreshToken, user});
   } catch (error) {
     return res.status(500).json({message: error.message});
   };
