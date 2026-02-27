@@ -4,6 +4,8 @@ const requireAuth = require("../middleware/requireAuth")
 const {
   createUser,
   loginUser,
+  logoutUser,
+  refreshAccessToken,
   getCurrentUser,
   updateUserPassword,
   updateUserProfile,
@@ -14,10 +16,12 @@ const {
 
 router.post("/", createUser);
 router.post("/login", loginUser);
+router.post("/refresh", refreshAccessToken);
 
 router.use("/me", requireAuth);
 
 router.get("/me", getCurrentUser);
+router.post("/me/logout", logoutUser);
 router.patch("/me/password", updateUserPassword);
 router.patch("/me/profile", updateUserProfile);
 router.patch("/me/security-question", updateUserSecurityQuestion);
