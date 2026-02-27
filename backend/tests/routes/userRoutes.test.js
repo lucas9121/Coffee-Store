@@ -28,6 +28,7 @@ const userRoutes = require("../../routes/userRoutes");
 const {
   createUser,
   loginUser,
+  logoutUser,
   refreshAccessToken,
   getCurrentUser,
   updateUserPassword,
@@ -82,6 +83,23 @@ describe("User Routes", () => {
     expect(loginUser).toHaveBeenCalledTimes(1);
     expect(createUser).toHaveBeenCalledTimes(0);
     expect(loginUser.mock.calls[0][0].body).toEqual(reqBody);
+  });
+
+  // POST /users/me/logout
+  it("POST /users/me/logout should call logoutUser", async () => {
+    const res = await request(app).post("/users/me/logout");
+
+    expect(res.status).toBe(204);
+    expect(res.body).toEqual({});
+    expect(logoutUser).toHaveBeenCalledTimes(1);
+
+    // req.user should exist because requireAuth mock runs for /me routes
+    expect(logoutUser.mock.calls[0][0].user).toEqual(
+      expect.objectContaining({
+        userId: "507f191e810c19729de860ea",
+        account: "user",
+      })
+    );
   });
 
   // POST /users/refresh
