@@ -254,6 +254,34 @@ Structure:
 - Type: ObjectId
 - Ref: OrderItem
 
+---
+
+### refreshTokenHash
+- Type: String
+- Optional
+- Only present for customer accounts (account: user)
+- Stores a SHA-256 hash of the refresh token
+- Plaintext refresh tokens are never stored
+
+---
+
+### refreshTokenExpiresAt
+- Type: Date
+- Optional
+- Determines refresh token expiration
+- Refresh token is invalid when:
+  currentDate > refreshTokenExpiresAt
+
+---
+
+### Refresh Token Notes
+- Refresh tokens are only issued to customers (account: user)
+- Workers and admins do not receive refresh tokens
+- Refresh tokens are revoked on logout by unsetting:
+  - refreshTokenHash
+  - refreshTokenExpiresAt
+- If a user account is promoted to worker or admin, any existing refresh token fields are removed on next login
+
 --- 
 
 ### timestamps
@@ -263,11 +291,11 @@ Structure:
 --- 
 
 ### Pre-save Hook (Behavior)
-- **Passwords:** hashed on creation or whenever modified
-- **Security answers:** hashed whenever modified or new (including when updating question/answer)
-- **Next():** signals Mongoose to continue saving after asynchronous operations
+- Passwords hashed on creation or whenever modified
+- Security answers hashed whenever modified or new (including when updating question/answer)
+- next() signals Mongoose to continue saving after asynchronous operations
 
 ### Explanation:
-- `SALT_ROUNDS:` number of bcrypt rounds used to hash passwords/answers; higher = more secure but slower
-- `toJSON transform:` removes password and sensitive fields from API responses
-- `next():` must be called at the end of pre('save') to allow Mongoose to continue saving the document
+- SALT_ROUNDS: number of bcrypt rounds used to hash passwords/answers
+- toJSON transform removes password and sensitive fields from API responses
+- next() must be called at the end of pre('save')
