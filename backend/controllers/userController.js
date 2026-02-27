@@ -119,7 +119,7 @@ async function refreshAccessToken(req, res) {
 
     // Issue a new access token
     const payload = { userId: user._id, account: user.account };
-    const token = createJWT(payload, accessExpiresIn);
+    const token = createJWT(payload, "24h");
 
     return res.status(200).json({ token });
   } catch (error) {
