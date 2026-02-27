@@ -5,10 +5,12 @@ const {createJWT, createRefreshToken, hashToken} = require("../utils/token");
 // Needed for toogleFavorites function
 const OrderItem = require("../models/OrderItem");
 const mongoose = require("mongoose");
+const { findById } = require("../models/Order");
 
 module.exports = {
   createUser,
   loginUser,
+  logoutUser,
   getCurrentUser,
   updateUserPassword,
   updateUserProfile,
@@ -72,6 +74,25 @@ async function loginUser(req, res) {
     return res.status(500).json({message: error.message});
   };
 };
+
+async function logoutUser(req, res) {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+    const user = await User.findById(userId);
+    if(!user) return res.status(401).json({message: "No user found"});
+
+    // Revoke refresh token if this account uses one (or just always unset)
+    await User.updateOne(
+      { _id: userId },
+      { $unset: { refreshTokenHash: 1, refreshTokenExpiresAt: 1 } }
+    );
+
+    return res.status(204).send();
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+}
 
 
 async function getCurrentUser(req, res) {
