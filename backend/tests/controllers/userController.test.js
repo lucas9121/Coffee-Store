@@ -1,6 +1,8 @@
 const {
   createUser, 
-  loginUser, 
+  loginUser,
+  logoutUser,
+  refreshAccessToken, 
   getCurrentUser, 
   updateUserPassword,
   updateUserProfile,
@@ -9,8 +11,8 @@ const {
   deleteUser
 } = require("../../controllers/userController");
 const User = require("../../models/User");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt")
+const { createJWT, createRefreshToken, hashToken } = require("../../utils/token");
+const bcrypt = require("bcrypt");
 
 // toggleFavorites test
 const OrderItem = require("../../models/OrderItem");
@@ -20,10 +22,20 @@ jest.mock("../../models/User");
 jest.mock("bcrypt", () => ({
   compare: jest.fn()
 }));
-jest.mock("jsonwebtoken", () => ({
-  sign: jest.fn()
+jest.mock("../../utils/token", () => ({
+  createJWT: jest.fn(),
+  createRefreshToken: jest.fn(),
+  hashToken: jest.fn(),
 }));
 
+
+function makeRes() {
+  return {
+    status: jest.fn().mockReturnThis(),
+    json: jest.fn(),
+    send: jest.fn(),
+  };
+}
 
 
 describe("createUser", () => {
@@ -60,16 +72,12 @@ describe("createUser", () => {
     }
 
     User.create.mockResolvedValue(newUser);
-    jwt.sign.mockReturnValue("fake-token");
+    createJWT.mockReturnValue("fake-token");
 
     await createUser(req, res);
 
-    expect(jwt.sign).toHaveBeenCalledWith(
-      { userId: newUser._id, account: newUser.account},
-      process.env.SECRET,
-      {expiresIn: "24h"}
-    )
-    expect(res.status).toHaveBeenCalledWith(201)
+    expect(createJWT).toHaveBeenCalledWith({ userId: newUser._id, account: newUser.account});
+    expect(res.status).toHaveBeenCalledWith(201);
     expect(res.json).toHaveBeenCalledWith({
       token: "fake-token",
       user: newUser
@@ -79,8 +87,8 @@ describe("createUser", () => {
     );
     expect(User.create).not.toHaveBeenCalledWith(
       expect.objectContaining({account: "admin"})
-    )
-  })
+    );
+  });
 
   // Test 2 - Duplicate email error
   it("should return error for duplicate email", async () => {
@@ -130,8 +138,8 @@ describe("createUser", () => {
     
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({message: unknownError.message})
-  })
-})
+  });
+});
 
 
 
@@ -142,6 +150,9 @@ describe("loginUser", () => {
 
   // Test 1 - login successfull
   it("should return token and user after successfull login", async () => {
+    createJWT.mockReturnValue("fake-token");
+    createRefreshToken.mockReturnValue("fake-refresh");
+    hashToken.mockReturnValue("hashed-refresh");
     const req = {
       body: {
         email: "  ALICE@email.com   ",
@@ -162,25 +173,31 @@ describe("loginUser", () => {
       securityQuestions: [
         {question: "What was your first car?"},
         {question: "What is the name of your first pet?"}
-      ]
-    }
+      ],
+      save: jest.fn().mockResolvedValue(true),
+      refreshTokenHash: undefined,
+      refreshTokenExpiresAt: undefined,
+    };
 
     User.findOne.mockResolvedValue(dbUser);
     bcrypt.compare.mockResolvedValue(true);
-    jwt.sign.mockReturnValue("fake-token");
+    createJWT.mockReturnValue("fake-token");
 
-    await loginUser(req, res)
+    await loginUser(req, res);
 
     expect(res.status).toHaveBeenCalledWith(200);
     expect(User.findOne).toHaveBeenCalledWith({email: "alice@email.com"});
     expect(User.findOne).not.toHaveBeenCalledWith({email: "  ALICE@email.com   "});
     expect(bcrypt.compare).toHaveBeenCalledWith("password", dbUser.password);
-    expect(jwt.sign).toHaveBeenCalledWith(
+    expect(createJWT).toHaveBeenCalledWith(
       { userId: dbUser._id, account: dbUser.account},
-      process.env.SECRET,
-      {expiresIn: "24h"}
+      "24h"
     );
-    expect(res.json).toHaveBeenCalledWith({token: "fake-token", user: dbUser});
+    expect(res.json).toHaveBeenCalledWith({
+      token: "fake-token",
+      refreshToken: "fake-refresh",
+      user: dbUser,
+    });
   });
 
   // Test 2 - Missing credentials
@@ -191,20 +208,20 @@ describe("loginUser", () => {
 
   missingCases.forEach(({label, body}) => {
     it(`should return 400 for missin ${label}`, async () => {
-      const req = {body}
+      const req = {body};
 
       const res = {
         status: jest.fn().mockReturnThis(),
         json: jest.fn()
       };
 
-      await loginUser(req, res)
+      await loginUser(req, res);
 
       expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({message: "Missing Credentials"})
+      expect(res.json).toHaveBeenCalledWith({message: "Missing Credentials"});
       expect(User.findOne).not.toHaveBeenCalled();
       expect(bcrypt.compare).not.toHaveBeenCalled();
-      expect(jwt.sign).not.toHaveBeenCalled();
+      expect(createJWT).not.toHaveBeenCalled();
     });
   });
 
@@ -224,13 +241,13 @@ describe("loginUser", () => {
 
     User.findOne.mockResolvedValue(null);
 
-    await loginUser(req, res)
+    await loginUser(req, res);
 
     expect(res.status).toHaveBeenCalledWith(401);
     expect(res.json).toHaveBeenCalledWith({message: "Bad Credentials"});
-    expect(bcrypt.compare).not.toHaveBeenCalled()
-    expect(jwt.sign).not.toHaveBeenCalled();
-  })
+    expect(bcrypt.compare).not.toHaveBeenCalled();
+    expect(createJWT).not.toHaveBeenCalled();
+  });
 
   // Test 4 - Password mismatch
     it("should return 400 if password is incorrect", async () => {
@@ -260,7 +277,190 @@ describe("loginUser", () => {
 
     expect(res.status).toHaveBeenCalledWith(401);
     expect(res.json).toHaveBeenCalledWith({message: "Bad Credentials"});
-    expect(jwt.sign).not.toHaveBeenCalled();
+    expect(createJWT).not.toHaveBeenCalled();
+  });
+});
+
+
+describe("refreshAccessToken", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  // Test 1 - Missing refresh token
+  it("returns 400 when refreshToken is missing", async () => {
+    const req = {body: {}};
+    const res = makeRes();
+
+    await refreshAccessToken(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({message: "Missing Credentials"});
+    expect(User.findOne).not.toHaveBeenCalled();
+  });
+
+  // Test 2 - Bad/unknown refresh token hash
+  it("returns 401 when refresh token is not found", async () => {
+    const req = {body: {refreshToken: "fake-refresh"}};
+    const res = makeRes();
+
+    hashToken.mockReturnValue("hashed-refresh");
+    User.findOne.mockResolvedValue(null);
+
+    await refreshAccessToken(req, res);
+
+    expect(hashToken).toHaveBeenCalledWith("fake-refresh");
+    expect(User.findOne).toHaveBeenCalledWith({refreshTokenHash: "hashed-refresh"});
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({message: "Unauthorized"});
+  });
+
+  // Test 3 - Forbidden if not customer
+  it("returns 403 when account is not user", async () => {
+    const req = {body: {refreshToken: "fake-refresh"}};
+    const res = makeRes();
+
+    hashToken.mockReturnValue("hashed-refresh");
+    User.findOne.mockResolvedValue({
+      _id: "507f191e810c19729de860ea",
+      account: "admin",
+      refreshTokenExpiresAt: new Date(Date.now() + 1000 * 60),
+    });
+
+    await refreshAccessToken(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.json).toHaveBeenCalledWith({message: "Forbidden"});
+    expect(createJWT).not.toHaveBeenCalled();
+  });
+
+  // Test 4 - Expired token
+  it("returns 401 when refresh token is expired", async () => {
+    const req = {body: {refreshToken: "fake-refresh"}};
+    const res = makeRes();
+
+    hashToken.mockReturnValue("hashed-refresh");
+    User.findOne.mockResolvedValue({
+      _id: "507f191e810c19729de860ea",
+      account: "user",
+      refreshTokenExpiresAt: new Date(Date.now() - 1000), // expired
+    });
+
+    await refreshAccessToken(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({message: "Unauthorized"});
+    expect(createJWT).not.toHaveBeenCalled();
+  });
+
+  // Test 5 - Success
+  it("returns 200 with a new access token", async () => {
+    const req = {body: {refreshToken: "fake-refresh"}};
+    const res = makeRes();
+
+    hashToken.mockReturnValue("hashed-refresh");
+
+    const dbUser = {
+      _id: "507f191e810c19729de860ea",
+      account: "user",
+      refreshTokenExpiresAt: new Date(Date.now() + 1000 * 60),
+    };
+
+    User.findOne.mockResolvedValue(dbUser);
+    createJWT.mockReturnValue("new-access-token");
+
+    await refreshAccessToken(req, res);
+
+    expect(createJWT).toHaveBeenCalledWith(
+      {userId: dbUser._id, account: "user"},
+      "24h"
+    );
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({token: "new-access-token"});
+  });
+
+  // Test 6 - DB error
+  it("returns 500 on server error", async () => {
+    const req = { body: { refreshToken: "fake-refresh" } };
+    const res = makeRes();
+
+    hashToken.mockReturnValue("hashed-refresh");
+    User.findOne.mockRejectedValue(new Error("DB Fail"));
+
+    await refreshAccessToken(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({message: "DB Fail"});
+  });
+});
+
+
+describe("logoutUser", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  // Test 1 - Unauthorized (missing req.user)
+  it("returns 401 when req.user is missing", async () => {
+    const req = {};
+    const res = makeRes();
+
+    await logoutUser(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({message: "Unauthorized"});
+    expect(User.findById).not.toHaveBeenCalled();
+  });
+
+  // Test 2 - No user found
+  it("returns 401 when user not found", async () => {
+    const req = {user: {userId: "507f191e810c19729de860ea"}};
+    const res = makeRes();
+
+    User.findById.mockResolvedValue(null);
+
+    await logoutUser(req, res);
+
+    expect(User.findById).toHaveBeenCalledWith("507f191e810c19729de860ea");
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({message: "No user found"});
+    expect(User.updateOne).not.toHaveBeenCalled();
+  });
+
+  // Test 3 - Success
+  it("returns 204 and unsets refresh token fields", async () => {
+    const userId = "507f191e810c19729de860ea";
+    const req = {user: {userId}};
+    const res = makeRes();
+
+    User.findById.mockResolvedValue({_id: userId});
+    User.updateOne.mockResolvedValue({acknowledged: true, modifiedCount: 1});
+
+    await logoutUser(req, res);
+
+    expect(User.findById).toHaveBeenCalledWith(userId);
+    expect(User.updateOne).toHaveBeenCalledWith(
+      {_id: userId},
+      {$unset: {refreshTokenHash: 1, refreshTokenExpiresAt: 1}}
+    );
+
+    expect(res.status).toHaveBeenCalledWith(204);
+    expect(res.send).toHaveBeenCalledTimes(1);
+  });
+
+  // Test 4 - Server error
+  it("returns 500 on server error", async () => {
+    const userId = "507f191e810c19729de860ea";
+    const req = {user: {userId}};
+    const res = makeRes();
+
+    User.findById.mockRejectedValue(new Error("DB Fail"));
+
+    await logoutUser(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({message: "DB Fail"});
   });
 });
 
