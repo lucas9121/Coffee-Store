@@ -10,6 +10,18 @@ jest.mock("../../models/Order");
 jest.mock("../../models/OrderItem") // POST test
 jest.mock("../../models/StoreSettings") // POST test
 
+// Middleware Mock for createOrder and deleteOrder
+jest.mock("../../middleware/requireAuth", () => {
+  return (req, res, next) => {
+    req.user = { userId: "507f191e810c19729de860ea", account: "admin" }; // or "worker"
+    next();
+  };
+});
+
+jest.mock("../../middleware/authorizeRoles", () => {
+  return () => (req, res, next) => next();
+});
+
 const orderRoutes = require("../../routes/orderRoutes");
 app.use("/orders", orderRoutes); // Add routes
 
