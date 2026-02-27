@@ -46,7 +46,9 @@ const userSchema = new Schema({
             answer: { type: String, required: true } // will be hashed once on creation
         }],
         validate: [arr => arr.length === 2, "You must select exactly 2 security questions"]
-    }
+    },
+    refreshTokenHash: {Type: String},
+    refreshTokenExpiresAt: {type: Date}
 }, 
 {
     timestamps: true,
@@ -55,7 +57,9 @@ const userSchema = new Schema({
             delete ret.password; // hide password in JSON responses
             ret.securityQuestions = ret.securityQuestions.map(sq => ({
                 question: sq.question // only send question without answer
-            }))
+            }));
+            delete ret.refreshTokenHash;
+            delete ret.refreshTokenExpiresAt;
             return ret;
         }
     }
