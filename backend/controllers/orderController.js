@@ -1,4 +1,5 @@
 const Order = require('../models/Order');
+const User = require("../models/User"); //createOrder
 const mongoose = require("mongoose")
 const OrderItem = require("../models/OrderItem")
 const StoreSettings = require("../models/StoreSettings")
@@ -23,8 +24,14 @@ async function createOrder(req, res){
     if (!settings || !isStoreOpen(settings)) {
       return res.status(403).json({ message: "Store is currently closed" });
     }
+
     const {customerName, orderItems} = req.body;
+
+    const userId = req.user?.userId;
+    const user = userId ? await User.findById(userId) : null;
+
     let finalPrice = 0;
+    const purchasedItemIds = []
     for(const orderItem of orderItems) {
 
       // Fetch real item from DB
@@ -38,6 +45,8 @@ async function createOrder(req, res){
 
       // Add to running total
       finalPrice += (price * quantity)
+
+      purchasedItemIds.push(String(orderItem.item))
     }
 
     // Create order ONCE with trusted values
@@ -46,9 +55,28 @@ async function createOrder(req, res){
       orderItems,
       totalPrice: finalPrice
     });
+
+    // Update user's recent purchases (only if logged in & user exists)
+    if (user) {
+      // Make unique while preserving order of appearance in this order
+      const uniquePurchased = [...new Set(purchasedItemIds)];
+
+      for (const id of uniquePurchased) {
+        // remove if already present
+        user.recent = user.recent.filter((x) => String(x) !== id);
+        // add to front (newest first)
+        user.recent.unshift(id);
+      }
+
+      // keep max 5
+      user.recent = user.recent.slice(0, 5);
+
+      await user.save();
+    }
+
     return res.status(201).json(order);
   } catch (error) {
-    return res.status(500).json(error.message);
+    return res.status(500).json({message: error.message});
   }
 };
 
@@ -60,7 +88,6 @@ async function getOrder(req, res){
     return res.status(200).json(order);
   } catch (error) {
     return res.status(400).json({message: "Invalid ID"});
-    console.log("Invalid ID", error.message);
   }
 };
 
