@@ -46,6 +46,37 @@ describe("Admin Routes", () => {
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ok: true});
     expect(updateUserAccount).toHaveBeenCalledTimes(1);
-    expect(updateUserAccount.mock.calls[0][0].body).toEqual(reqBody)
+    expect(updateUserAccount.mock.calls[0][0].body).toEqual(reqBody);
+    expect(updateUserAccount.mock.calls[0][0].params).toEqual(
+      expect.objectContaining({ userId: reqBody._id })
+    );
   });
+
+  // GET /admin/users
+  it("GET /admin/users should return all users", async() => {
+    const fakeUsers = [{ name: "User1" }, { name: "User2" }];
+    const reqBody = {
+      users: fakeUsers,
+      page: 2,
+      limit: 10,
+      total: 25,
+      totalPages: 3,
+      sortBy: "name",
+      sortDir: "asc",
+    };
+
+    const res = await request(app)
+      .get("/admin/users")
+      .query({ page: "2", limit: "10", sortBy: "name", sortDir: "asc" })
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ok: true});
+    expect(getAllUsers).toHaveBeenCalledTimes(1);
+    expect(getAllUsers.mock.calls[0][0].query).toEqual({
+      page: "2",
+      limit: "10",
+      sortBy: "name",
+      sortDir: "asc"
+    })
+  })
 });
