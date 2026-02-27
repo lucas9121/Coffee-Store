@@ -25,45 +25,61 @@ backend/
 │   ├── orderController.js
 │   ├── orderItemController.js
 │   ├── storeSettingsControllers.js
-│   └── userController.js (empty – in progress)
+│   ├── userController.js
+│   └── adminController.js
 │
 ├── models/
 │   ├── Order.js
 │   ├── OrderItem.js
 │   ├── StoreSettings.js
-│   └── User.js (empty – in progress)
+│   └── User.js
 │
 ├── routes/
 │   ├── orderRoutes.js
-│   ├── menuRoutes.js
+│   ├── orderItemRoutes.js
 │   ├── storeSettingsRoutes.js
-│   └── userRoutes.js (planned)
+│   ├── userRoutes.js
+│   ├── adminRoutes.js
+│   └── menuRoutes.js
 │
-├── tests/
-│   ├── controllers/
-│   │   ├── orderController.test.js
-│   │   ├── orderItemController.test.js
-│   │   ├── storeSettingsControllers.test.js
-│   │   └── userController.test.js
-│   │
-│   ├── models/
-│   │   ├── Order.test.js
-│   │   ├── OrderItem.test.js
-│   │   ├── StoreSettings.test.js
-│   │   └── User.test.js
-│   │
-│   └── routes/
-│       ├── orderRoutes.test.js
-│       ├── menuRoutes.test.js
-│       ├── storeSettingsRoutes.test.js
-│       └── userRoutes.test.js
+├── middleware/
+│   ├── requireAuth.js
+│   └── authorizeRoles.js
+│
+├── utils/
+│   ├── isStoreOpen.js
+│   └── token.js
 │
 ├── config/
 │   └── db.js          # MongoDB connection logic
 │
-├── utils/             
-│   └── isStoreOpen.js         
+│
+├── tests/
+│   │
+│   ├── controllers/
+│   │   ├── adminController.test.js
+│   │   ├── orderController.test.js
+│   │   ├── orderItemController.test.js
+│   │   ├── storeSettingsController.test.js
+│   │   └── userController.test.js
+│   │
+│   ├── middleware/
+│   │   ├── authorizeRoles.test.js
+│   │   └── requireAuth.test.js
+│   │
+│   ├── routes/
+│   │   ├── adminRoutes.test.js
+│   │   ├── orderItemRoutes.test.js
+│   │   ├── orderRoutes.test.js
+│   │   └── userRoutes.test.js
+│   │
+│   └── schemas/
+│       ├── orderSchema.test.js
+│       ├── orderItemSchema.test.js
+│       ├── storeSettings.test.js
+│       └── user.test.js
+│
 ├── app.js             # Express app + middleware setup
 ├── server.js          # Server entry point
-└── .nvmrc             # Node version (v20.11.0)
+└── .nvmrc             # Node version (v24.14.0)
 ```
