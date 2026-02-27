@@ -11,6 +11,7 @@ module.exports = {
   createUser,
   loginUser,
   logoutUser,
+  refreshAccessToken,
   getCurrentUser,
   updateUserPassword,
   updateUserProfile,
@@ -92,7 +93,39 @@ async function logoutUser(req, res) {
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
-}
+};
+
+
+async function refreshAccessToken(req, res) {
+  try {
+    const { refreshToken } = req.body;
+    if (!refreshToken) {
+      return res.status(400).json({ message: "Missing Credentials" });
+    }
+
+    const hashed = hashToken(refreshToken);
+
+    const user = await User.findOne({ refreshTokenHash: hashed });
+    if (!user) return res.status(401).json({ message: "Unauthorized" });
+
+    // Only customers may refresh
+    if (user.account !== "user") {
+      return res.status(403).json({ message: "Forbidden" });
+    };
+
+    if (!user.refreshTokenExpiresAt || user.refreshTokenExpiresAt < new Date()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    };
+
+    // Issue a new access token
+    const payload = { userId: user._id, account: user.account };
+    const token = createJWT(payload, accessExpiresIn);
+
+    return res.status(200).json({ token });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  };
+};
 
 
 async function getCurrentUser(req, res) {
