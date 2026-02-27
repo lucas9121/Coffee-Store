@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto")
 
 function createJWT(userPayload, expiresIn = '24h') {
   return jwt.sign( userPayload, process.env.SECRET, { expiresIn});
