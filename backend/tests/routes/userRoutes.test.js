@@ -4,6 +4,8 @@ const express = require("express");
 jest.mock("../../controllers/userController", () => ({
   createUser: jest.fn((req, res) => res.status(201).json({ ok: true })),
   loginUser: jest.fn((req, res) => res.status(200).json({ ok: true })),
+  logoutUser: jest.fn((req, res) => res.status(204).send()),
+  refreshAccessToken: jest.fn((req, res) => res.status(200).json({ ok: true })),
   getCurrentUser: jest.fn((req, res) => res.status(200).json({ok: true})),
   updateUserPassword: jest.fn((req, res) => res.status(200).json({ok: true})),
   updateUserProfile: jest.fn((req, res) => res.status(200).json({ok: true})),
@@ -21,10 +23,12 @@ jest.mock("../../middleware/requireAuth", () => {
   };
 });
 
+
 const userRoutes = require("../../routes/userRoutes");
 const {
   createUser,
   loginUser,
+  refreshAccessToken,
   getCurrentUser,
   updateUserPassword,
   updateUserProfile,
@@ -78,6 +82,18 @@ describe("User Routes", () => {
     expect(loginUser).toHaveBeenCalledTimes(1);
     expect(createUser).toHaveBeenCalledTimes(0);
     expect(loginUser.mock.calls[0][0].body).toEqual(reqBody);
+  });
+
+  // POST /users/refresh
+  it("POST /users/refresh should call refreshAccessToken", async () => {
+    const reqBody = { refreshToken: "fake-refresh" };
+
+    const res = await request(app).post("/users/refresh").send(reqBody);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ ok: true });
+    expect(refreshAccessToken).toHaveBeenCalledTimes(1);
+    expect(refreshAccessToken.mock.calls[0][0].body).toEqual(reqBody);
   });
 
   // GET /users/me
