@@ -10,4 +10,4 @@ router.use(authorizeRoles("admin"))
 router.get("/users", getAllUsers);
 router.patch("/users/:userId/account", updateUserAccount);
 
-moduler.exports = router
+module.exports = router
