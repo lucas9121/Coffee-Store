@@ -25,13 +25,13 @@
   - Middleware
   - Schemas
 - API contracts documented
-
-## In Progress
 - Database seed data (development)
 - Mobile wireframe (Expo / React Native)
 
-## Planned
+## In Progress
 - Mobile build steps (mobile-first)
+
+## Planned
 - Admin web frontend
 - CI/CD pipeline
 - Deployment
