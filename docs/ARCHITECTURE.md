@@ -44,7 +44,8 @@ backend/
 │
 ├── middleware/
 │   ├── requireAuth.js
-│   └── authorizeRoles.js
+│   ├── authorizeRoles.js
+│   └── optionalAuth.js
 │
 ├── utils/
 │   ├── isStoreOpen.js
@@ -65,7 +66,8 @@ backend/
 │   │
 │   ├── middleware/
 │   │   ├── authorizeRoles.test.js
-│   │   └── requireAuth.test.js
+│   │   ├── requireAuth.test.js
+│   │   └── optionalAuth.test.js
 │   │
 │   ├── routes/
 │   │   ├── adminRoutes.test.js
