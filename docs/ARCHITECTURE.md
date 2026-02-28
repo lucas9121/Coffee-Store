@@ -5,14 +5,14 @@ Monorepo Structure
 ```churchKiosk/
 │
 ├── apps/
+│   ├── admin-web/     # Vite React admin dashboard
 │   ├── mobile/        # Expo React Native app
-│   └── admin-web/     # Vite React admin dashboard
+│   └── .nvmrc         # Node version (v24.14.0)
 │
 ├── backend/           # Express + MongoDB API
 ├── docs/
 ├── .gitignore
-├── README.md
-└── package.json
+└── README.md
 
 
 ------------------------------------------------------
@@ -82,6 +82,7 @@ backend/
 │       └── user.test.js
 │
 ├── app.js             # Express app + middleware setup
+├── package.json
 ├── server.js          # Server entry point
 └── .nvmrc             # Node version (v24.14.0)
 ```
