@@ -51,4 +51,16 @@ describe("optionalAuth middleware", () => {
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ user: null });
   });
+
+  // Test 4 - Missing field (account)
+  it("treats request as guest when payload is missing required fields", async () => {
+    jwt.verify.mockReturnValue({ userId: "123" }); // missing account
+
+    const res = await request(app)
+      .get("/test")
+      .set("Authorization", "Bearer token");
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ user: null });
+  });
 });
