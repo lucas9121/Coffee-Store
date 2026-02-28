@@ -66,11 +66,11 @@ const userSchema = new Schema({
 });
 
 // Pre-save hook to hash password and initial security answers
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function() {
     // hash password if it’s new or changed
     if (this.isModified('password')) {
         this.password = await bcrypt.hash(this.password, SALT_ROUNDS);
-    }
+    };
 
     // hash any security answers that are modified or new
     for (const sq of this.securityQuestions) {
@@ -78,9 +78,7 @@ userSchema.pre('save', async function(next) {
         if (sq.isNew || sq.isModified('answer')) {
             sq.answer = await bcrypt.hash(sq.answer, SALT_ROUNDS);
         }
-    }
-
-    next(); // continue saving
+    };
 });
 
 module.exports = mongoose.model('User', userSchema);
