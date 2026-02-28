@@ -37,4 +37,18 @@ describe("optionalAuth middleware", () => {
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ user: { userId: "123", account: "user" } });
   });
+
+  // Test 3 - Invalid token
+  it("treats request as guest when token is invalid", async () => {
+    jwt.verify.mockImplementation(() => {
+      throw new Error("bad token");
+    });
+
+    const res = await request(app)
+      .get("/test")
+      .set("Authorization", "Bearer bad.token");
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ user: null });
+  });
 });
