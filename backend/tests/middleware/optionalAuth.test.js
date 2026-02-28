@@ -24,4 +24,17 @@ describe("optionalAuth middleware", () => {
     expect(res.body).toEqual({ user: null });
     expect(jwt.verify).not.toHaveBeenCalled();
   });
+
+  // Test 2 - User account
+  it("attaches req.user when token is valid", async () => {
+    jwt.verify.mockReturnValue({ userId: "123", account: "user" });
+
+    const res = await request(app)
+      .get("/test")
+      .set("Authorization", "Bearer good.token");
+
+    expect(jwt.verify).toHaveBeenCalledWith("good.token", process.env.SECRET);
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ user: { userId: "123", account: "user" } });
+  });
 });
