@@ -140,11 +140,11 @@ async function seed() {
   console.log("🕒 Setting createdAt spread across last 90 days...");
   // Update createdAt AFTER creation
   for (const u of users) {
-    const createdAt = daysAgo(randInt(0, 90));
-    await User.updateOne(
+    const createdAt = daysAgo(randInt(0, 60));
+    // Write directly to MongoDB to bypass Mongoose timestamp behavior
+    await User.collection.updateOne(
       { _id: u._id },
-      { $set: { createdAt, updatedAt: createdAt } },
-      { timestamps: false }
+      { $set: { createdAt, updatedAt: createdAt } }
     );
   }
 
