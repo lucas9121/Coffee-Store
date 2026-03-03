@@ -1,9 +1,16 @@
 import React, {createContext, useContext, useMemo, useState} from "react";
 
-const AuthContext = createContext(null);
+type AccountType = "guest" | "user" | "worker";
 
-export function AuthProvider({children}){
-  const [accountType, setAccountType] = useState("guest");
+type AuthContextValue = {
+  accountType: AccountType;
+  setAccountType: React.Dispatch<React.SetStateAction<AccountType>>;
+}
+
+const AuthContext = createContext<AuthContextValue | null>(null);
+
+export function AuthProvider({children} : {children: React.ReactNode}){
+  const [accountType, setAccountType] = useState<AccountType>("guest");
 
   const value = useMemo(() => ({accountType, setAccountType}), [accountType]);
 
