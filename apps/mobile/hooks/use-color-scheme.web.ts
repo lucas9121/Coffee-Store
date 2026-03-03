@@ -1,21 +1,21 @@
 import { useEffect, useState } from 'react';
 import { useColorScheme as useRNColorScheme } from 'react-native';
+import { useThemeMode } from '@/context/ThemeContext';
 
-/**
- * To support static rendering, this value needs to be re-calculated on the client side for web
- */
+
 export function useColorScheme() {
   const [hasHydrated, setHasHydrated] = useState(false);
+  const {themeMode} = useThemeMode();
 
   useEffect(() => {
     setHasHydrated(true);
   }, []);
 
-  const colorScheme = useRNColorScheme();
+  const phoneScheme = useRNColorScheme() ?? "light";
 
-  if (hasHydrated) {
-    return colorScheme;
-  }
+  const finalPhoneScheme = hasHydrated ? phoneScheme : "light";
 
-  return 'light';
+  if(themeMode === "light") return "light";
+  if(themeMode === "dark") return "dark";
+  return finalPhoneScheme
 }
