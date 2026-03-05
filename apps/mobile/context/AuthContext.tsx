@@ -1,4 +1,5 @@
 import React, {createContext, useContext, useMemo, useState, useEffect} from "react";
+import { getRefreshToken } from "@/services/tokenStorage";
 
 type AccountType = "guest" | "user" | "worker";
 
@@ -12,6 +13,8 @@ type AuthContextValue = {
   
   isInitializing: boolean;
   setIsInitializing: React.Dispatch<React.SetStateAction<boolean>>;
+
+  hasRefreshToken: boolean;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -20,11 +23,16 @@ export function AuthProvider({children} : {children: React.ReactNode}){
   const [accountType, setAccountType] = useState<AccountType>("guest");
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState<boolean>(true);
+  const [hasRefreshToken, setHasRefreshToken] = useState<boolean>(false);
 
   // bootstrapAuth can use state setters directly from inside AuthProvider.
   async function bootstrapAuth(): Promise<void> {
+    const refreshToken = await getRefreshToken();
+    console.log("Refresh token found:", refreshToken);
+    setHasRefreshToken(!!refreshToken);
     setIsInitializing(false);
-  }
+  };
+  
 
   useEffect(() => {
     bootstrapAuth();
@@ -37,9 +45,10 @@ export function AuthProvider({children} : {children: React.ReactNode}){
       accessToken,
       setAccessToken,
       isInitializing,
-      setIsInitializing
+      setIsInitializing,
+      hasRefreshToken,
     }), 
-    [accountType, accessToken, isInitializing]
+    [accountType, accessToken, isInitializing, hasRefreshToken]
   );
 
   return( 
