@@ -1,4 +1,4 @@
-import React, {createContext, useContext, useMemo, useState} from "react";
+import React, {createContext, useContext, useMemo, useState, useEffect} from "react";
 
 type AccountType = "guest" | "user" | "worker";
 
@@ -19,7 +19,16 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({children} : {children: React.ReactNode}){
   const [accountType, setAccountType] = useState<AccountType>("guest");
   const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [isInitializing, setIsInitializing] = useState<boolean>(true)
+  const [isInitializing, setIsInitializing] = useState<boolean>(true);
+
+  // bootstrapAuth can use state setters directly from inside AuthProvider.
+  async function bootstrapAuth(): Promise<void> {
+    setIsInitializing(false);
+  }
+
+  useEffect(() => {
+    bootstrapAuth();
+  }, [])
 
   const value = useMemo(
     () => ({
@@ -44,4 +53,4 @@ export function useAuth(){
   const ctx = useContext(AuthContext);
   if(!ctx) throw new Error("useAuth must be used inside AuthProvider");
   return ctx;
-}
+};
