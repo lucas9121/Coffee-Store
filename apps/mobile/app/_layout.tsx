@@ -3,9 +3,12 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
-import {AuthProvider} from "@/context/AuthContext" 
+import {AuthProvider, useAuth} from "@/context/AuthContext" 
 import { ThemeProviderCustom } from '@/context/ThemeContext';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+
+import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -13,6 +16,15 @@ export const unstable_settings = {
 
 function InnerLayout() {
   const colorScheme = useColorScheme();
+  const {isInitializing} = useAuth();
+
+  if(isInitializing){
+    return(
+      <ThemedView style={{flex: 1, alignItems: "center", justifyContent: "center"}}>
+        <ThemedText>Loading...</ThemedText>
+      </ThemedView>
+    );
+  };
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
@@ -22,13 +34,13 @@ function InnerLayout() {
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>
-);
+  );
 };
 
 export default function RootLayout() {
   return(
     <ThemeProviderCustom>
-      <AuthProvider>
+      <AuthProvider> 
         <InnerLayout />
       </AuthProvider>
     </ThemeProviderCustom>
