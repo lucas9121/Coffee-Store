@@ -1,5 +1,5 @@
 import React, {createContext, useContext, useMemo, useState, useEffect} from "react";
-import { getRefreshToken } from "@/services/tokenStorage";
+import { getRefreshToken, deleteRefreshToken } from "@/services/tokenStorage";
 
 type AccountType = "guest" | "user" | "worker";
 
@@ -15,6 +15,8 @@ type AuthContextValue = {
   setIsInitializing: React.Dispatch<React.SetStateAction<boolean>>;
 
   hasRefreshToken: boolean;
+
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -33,10 +35,17 @@ export function AuthProvider({children} : {children: React.ReactNode}){
     setIsInitializing(false);
   };
   
+  async function logout(): Promise<void> {
+    await deleteRefreshToken();
+    setAccessToken(null);
+    setAccountType("guest");
+    setHasRefreshToken(false);
+    setIsInitializing(false)
+  };
 
   useEffect(() => {
     bootstrapAuth();
-  }, [])
+  }, []);
 
   const value = useMemo(
     () => ({
@@ -47,6 +56,7 @@ export function AuthProvider({children} : {children: React.ReactNode}){
       isInitializing,
       setIsInitializing,
       hasRefreshToken,
+      logout
     }), 
     [accountType, accessToken, isInitializing, hasRefreshToken]
   );
@@ -63,3 +73,4 @@ export function useAuth(){
   if(!ctx) throw new Error("useAuth must be used inside AuthProvider");
   return ctx;
 };
+
