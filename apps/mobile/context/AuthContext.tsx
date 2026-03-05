@@ -1,5 +1,5 @@
 import React, {createContext, useContext, useMemo, useState, useEffect} from "react";
-import { getRefreshToken, deleteRefreshToken } from "@/services/tokenStorage";
+import { getRefreshToken, deleteRefreshToken, setRefreshToken } from "@/services/tokenStorage";
 
 type AccountType = "guest" | "user" | "worker";
 
@@ -17,7 +17,13 @@ type AuthContextValue = {
   hasRefreshToken: boolean;
 
   logout: () => Promise<void>;
-}
+
+  login: (
+    accessToken: string,
+    refreshToken: string,
+    accountType: AccountType
+  ) => Promise<void>;
+};
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
@@ -43,6 +49,18 @@ export function AuthProvider({children} : {children: React.ReactNode}){
     setIsInitializing(false)
   };
 
+  async function login(
+    accessToken: string,
+    refreshToken: string,
+    accountType: AccountType
+  ): Promise<void> {
+    await setRefreshToken(refreshToken);
+    setAccessToken(accessToken);
+    setAccountType(accountType);
+    setHasRefreshToken(true);
+    setIsInitializing(false);
+  };
+
   useEffect(() => {
     bootstrapAuth();
   }, []);
@@ -56,7 +74,8 @@ export function AuthProvider({children} : {children: React.ReactNode}){
       isInitializing,
       setIsInitializing,
       hasRefreshToken,
-      logout
+      logout,
+      login
     }), 
     [accountType, accessToken, isInitializing, hasRefreshToken]
   );
