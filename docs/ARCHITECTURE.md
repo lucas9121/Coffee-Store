@@ -16,6 +16,66 @@ Monorepo Structure
 
 
 ------------------------------------------------------
+Mobile App Structure
+------------------------------------------------------
+
+apps/mobile/
+│
+├── app/                              # Expo Router routes
+│   ├── _layout.tsx                   # Root navigation + providers wrapper
+│   ├── modal.tsx                     # Default Expo modal route (optional)
+│   └── (tabs)/                       # Bottom tab navigator group
+│       ├── _layout.tsx               # Tabs layout (Home / Orders / Settings)
+│       ├── index.tsx                 # Home tab screen (placeholder)
+│       ├── orders.tsx                # Orders tab screen (placeholder)
+│       └── settings.tsx              # Settings tab screen (placeholder)
+│
+├── context/                          # Global state providers (React Context)
+│   ├── AuthContext.js                # accountType (guest/user/worker)
+│   └── ThemeContext.tsx              # themeMode (system/light/dark)
+│
+├── assets/                           # Images/fonts (e.g., splash/loading image)
+│   └── images/
+│       └── ...                       # Your loading/splash image(s)
+│
+├── components/                       # Reusable UI components
+│   ├── themed-text.tsx               # ThemedText wrapper (light/dark aware)
+│   ├── themed-view.tsx               # ThemedView wrapper (light/dark aware)
+│   ├── external-link.tsx
+│   ├── haptic-tab.tsx                # Optional tab button w/ haptics
+│   ├── hello-wave.tsx
+│   ├── parallax-scroll-view.tsx
+│   └── ui/
+│       ├── collapsible.tsx
+│       ├── icon-symbol.ios.tsx
+│       └── icon-symbol.tsx
+│
+├── constants/
+│   └── theme.ts                      # Colors + Fonts (light/dark palettes)
+│
+├── hooks/
+│   ├── use-color-scheme.ts           # Native color scheme hook
+│   ├── use-color-scheme.web.ts       # Web hydration-safe color scheme hook
+│   └── use-theme-color.ts            # Theme color resolver helper
+│
+├── scripts/
+│   └── reset-project.js              # Expo template utility script (optional)
+│
+├── services/
+│   └── tokenStorage.ts
+│
+├── .vscode/                          # Local editor config (optional)
+│
+├── .gitignore
+├── README.md
+├── app.json                          # Expo config (icons/splash/etc.)
+├── eslint.config.js
+├── tsconfig.json
+├── package.json
+└── package-lock.json
+
+
+------------------------------------------------------
 Backend Structure
 ------------------------------------------------------
 
