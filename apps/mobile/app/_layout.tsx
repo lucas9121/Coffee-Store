@@ -3,7 +3,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
-import {AuthProvider} from "../context/AuthContext" 
+import {AuthProvider} from "@/context/AuthContext" 
 import { ThemeProviderCustom } from '@/context/ThemeContext';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
@@ -16,13 +16,11 @@ function InnerLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AuthProvider>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
       </Stack>
       <StatusBar style="auto" />
-      </AuthProvider>
     </ThemeProvider>
 );
 };
@@ -30,7 +28,9 @@ function InnerLayout() {
 export default function RootLayout() {
   return(
     <ThemeProviderCustom>
-      <InnerLayout />
+      <AuthProvider>
+        <InnerLayout />
+      </AuthProvider>
     </ThemeProviderCustom>
   )
 }
