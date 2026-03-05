@@ -1,5 +1,5 @@
 # Mobile Navigation
-
+```
 Navigation is implemented using Expo Router.
 
 Top level structure:
@@ -24,3 +24,4 @@ RootLayout
 All tabs are visible to every role.
 
 Content inside each tab changes based on accountType.
+```

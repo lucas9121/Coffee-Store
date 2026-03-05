@@ -10,7 +10,25 @@ Monorepo Structure
 │   └── .nvmrc         # Node version (v24.14.0)
 │
 ├── backend/           # Express + MongoDB API
+│
 ├── docs/
+│   ├── ARCHITECTURE.md        
+│   ├── PROJECT_STATUS.md 
+│   ├── SYSTEM_FLOW.md 
+│   │
+│   ├── backend/
+│   │   ├── API_CONTRACT.md
+│   │   ├── DATA_MODEL.md
+│   │   ├── ERD.md
+│   │   ├── ERD.png
+│   │   └── Store_Logic.md
+│   │
+│   └── mobile/
+│       ├── CONFIG.md
+│       ├── NAVIGATION.md
+│       ├── ROLES.md
+│       └──STATE_MANAGEMENT.md
+│
 ├── .gitignore
 └── README.md
 
@@ -31,7 +49,7 @@ apps/mobile/
 │       └── settings.tsx              # Settings tab screen (placeholder)
 │
 ├── context/                          # Global state providers (React Context)
-│   ├── AuthContext.js                # accountType (guest/user/worker)
+│   ├── AuthContext.tsx               # accountType (guest/user/worker)
 │   └── ThemeContext.tsx              # themeMode (system/light/dark)
 │
 ├── assets/                           # Images/fonts (e.g., splash/loading image)
