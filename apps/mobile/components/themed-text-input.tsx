@@ -36,7 +36,7 @@ export function ThemedTextInput({
 
   const borderColor = useThemeColor(
     {light: lightBorderColor, dark: darkBorderColor},
-    "text"
+    "border"
   );
 
   const placeholderTextColor = useThemeColor(
