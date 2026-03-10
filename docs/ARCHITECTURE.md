@@ -48,7 +48,7 @@ apps/mobile/
 │   │   ├── orders.tsx                # Orders tab screen (placeholder)
 │   │   └── settings.tsx              # Settings tab screen (placeholder)
 │   │
-│   ├── auth/                         
+│   ├── auth/                         #
 │       └── login.tsx   
 │
 ├── context/                          # Global state providers (React Context)
