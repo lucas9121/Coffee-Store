@@ -1,4 +1,5 @@
-import { TextInput, StyleSheet, type TextInputProps } from 'react-native';
+import { TextInput, View, StyleSheet, type TextInputProps, type ViewStyle } from 'react-native';
+import { ReactNode } from 'react';
 import { useThemeColor } from '@/hooks/use-theme-color';
 
 export type ThemedTextInputProps = TextInputProps & {
@@ -10,6 +11,8 @@ export type ThemedTextInputProps = TextInputProps & {
   darkBorderColor?: string;
   lightPlaceholderColor?: string;
   darkPlaceholderColor?: string;
+  rightAccessory?: ReactNode;
+  containerStyle?: ViewStyle;
 };
 
 export function ThemedTextInput({ 
@@ -22,6 +25,8 @@ export function ThemedTextInput({
   darkBorderColor,
   lightPlaceholderColor,
   darkPlaceholderColor,
+  rightAccessory,
+  containerStyle,
   ...otherProps 
 }: ThemedTextInputProps) {
   const textColor = useThemeColor(
@@ -45,25 +50,52 @@ export function ThemedTextInput({
   );
 
   return (
-    <TextInput style={[
-      styles.input,
-      { 
-        color: textColor,
-        backgroundColor,
-        borderColor
-      },
-      style
-    ]} 
-    placeholderTextColor={placeholderTextColor}
-    {...otherProps} />
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor,
+          borderColor
+        },
+        containerStyle
+      ]}
+    >
+      <TextInput 
+        style={[
+          styles.input,
+          { 
+            color: textColor
+          },
+          style
+        ]} 
+        placeholderTextColor={placeholderTextColor}
+        {...otherProps} 
+      />
+      
+      {rightAccessory ? (
+        <View style={styles.accessory}>{rightAccessory}</View>
+      ): null}
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  input: {
+  container: {
+    width: "100%",
     borderWidth: 1,
-    padding: 12,
     borderRadius: 8,
-    width: "100%"
+    flexDirection: "row",
+    alignItems: "center",
+    paddingLeft: 12,
+    paddingRight: 12,
+  },
+  input: {
+    flex: 1,
+    paddingVertical: 12,
+  },
+  accessory: {
+    marginLeft: 8,
+    alignItems: "center",
+    justifyContent: "center",
   }
-})
+});
