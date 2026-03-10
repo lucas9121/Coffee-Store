@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, Pressable } from "react-native";
 import { Button } from "@react-navigation/elements";
 import { useRouter } from "expo-router";
 
-import {ThemedView} from "@/components/themed-view";
+import { ThemedView } from "@/components/themed-view";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedTextInput } from "@/components/themed-text-input";
 import { useAuth } from "@/context/AuthContext";
@@ -14,6 +14,7 @@ export default function LoginScreen() {
   const { login } = useAuth();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   async function handleSubmit(): Promise<void> {
     console.log("Login form submitted: ", {email, password})
@@ -43,7 +44,16 @@ export default function LoginScreen() {
         placeholder="Password"
         value={password}
         onChangeText={setPassword}
-        secureTextEntry
+        secureTextEntry={!showPassword}
+        rightAccessory={
+          <Pressable
+            onPressIn={() => setShowPassword(true)}
+            onPressOut={() => setShowPassword(false)}
+            style={styles.eyeButton}
+          >
+            <ThemedText>👁️</ThemedText>
+          </Pressable>
+        }
       />
 
       <Button onPress={handleSubmit}>Log in</Button>
@@ -63,4 +73,8 @@ const styles = StyleSheet.create({
     padding: 24,
     gap: 12,
   },
-})
+  eyeButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+});
