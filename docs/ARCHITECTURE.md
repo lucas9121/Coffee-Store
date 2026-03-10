@@ -42,13 +42,13 @@ apps/mobile/
 ├── app/                              # Expo Router routes
 │   ├── _layout.tsx                   # Root navigation + providers wrapper
 │   ├── modal.tsx                     # Default Expo modal route (optional)
-│   ├── tabs/                         # Bottom tab navigator group
+│   ├── (tabs)/                       # Bottom tab navigator group
 │   │   ├── _layout.tsx               # Tabs layout (Home / Orders / Settings)
 │   │   ├── index.tsx                 # Home tab screen (placeholder)
 │   │   ├── orders.tsx                # Orders tab screen (placeholder)
 │   │   └── settings.tsx              # Settings tab screen (placeholder)
 │   │
-│   ├── auth/                         #
+│   └── (auth)/                       
 │       └── login.tsx   
 │
 ├── context/                          # Global state providers (React Context)
@@ -62,6 +62,7 @@ apps/mobile/
 ├── components/                       # Reusable UI components
 │   ├── themed-text.tsx               # ThemedText wrapper (light/dark aware)
 │   ├── themed-view.tsx               # ThemedView wrapper (light/dark aware)
+│   ├── themed-text-input.tsx         # ThemedTextInput wrapper (light/dark aware)
 │   ├── external-link.tsx
 │   ├── haptic-tab.tsx                # Optional tab button w/ haptics
 │   ├── hello-wave.tsx
