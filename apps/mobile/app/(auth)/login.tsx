@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { TextInput, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { Button } from "@react-navigation/elements";
 import { useRouter } from "expo-router";
 
 import {ThemedView} from "@/components/themed-view";
 import { ThemedText } from "@/components/themed-text";
+import { ThemedTextInput } from "@/components/themed-text-input";
 import { useAuth } from "@/context/AuthContext";
 
 
@@ -19,32 +20,30 @@ export default function LoginScreen() {
   }
 
   async function handleUserLogin() {
-    await login("mock-access-teoken-user", "mock-refresh-token-user", "user");
+    await login("mock-access-token-user", "mock-refresh-token-user", "user");
     router.replace("/");
   };
 
   async function handleWorkerLogin() {
-    await login("mock-access-teoken-user", "mock-refresh-token-user", "worker");
+    await login("mock-access-token-user", "mock-refresh-token-user", "worker");
     router.replace("/");
   };
 
   return(
     <ThemedView style={styles.view} >
       <ThemedText type="title" >Login Screen</ThemedText>
-      <TextInput
+      <ThemedTextInput
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
         keyboardType="email-address"
-        style={styles.formText}
       />
-      <TextInput
+      <ThemedTextInput
         placeholder="Password"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
-        style={styles.formText}
       />
 
       <Button onPress={handleSubmit}>Log in</Button>
@@ -64,10 +63,4 @@ const styles = StyleSheet.create({
     padding: 24,
     gap: 12,
   },
-  formText: {
-    borderWidth: 1,
-    borderColor: "#999",
-    padding: 12,
-    borderRadius: 8,
-  }
 })
