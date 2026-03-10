@@ -16,7 +16,7 @@ export default function HomeScreen() {
   return(
     <ThemedView style={{flex: 1, alignItems: "center", justifyContent: "center"}}>
       <ThemedText type="title">{title}</ThemedText>
-      <ThemedText>{subtitle}</ThemedText>
+      <ThemedText type="subtitle">{subtitle}</ThemedText>
       <ThemedText>accountType: {accountType}</ThemedText>
     </ThemedView>
   )

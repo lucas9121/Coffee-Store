@@ -7,7 +7,7 @@ export default function OrdersScreen() {
 
   return(
     <ThemedView style={{flex: 1, alignItems: "center", justifyContent: "center"}}>
-      <ThemedText>{accountType === "worker" ? "Worker Orders" : "Order Menu"}</ThemedText>
+      <ThemedText type="title">{accountType === "worker" ? "Worker Orders" : "Order Menu"}</ThemedText>
       <ThemedText>accountType: {accountType}</ThemedText>
     </ThemedView>
   )
