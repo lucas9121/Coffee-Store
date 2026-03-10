@@ -2,26 +2,34 @@
 
 The mobile app supports three roles.
 
-guest
-user
-worker
+- `guest`
+- `user`
+- `worker`
 
-Guests
+## guest
 
-- Can browse menu
-- Can place orders
-- Cannot save favorites
-- Cannot access account features
+Guests:
 
-Users
+- can browse the menu
+- can place orders
+- cannot save favorites
+- cannot access account-only features
+- do not require login or tokens
 
-- Full customer functionality
-- Favorites
-- Recents
-- Order history
+## user
 
-Workers
+Users:
 
-- Order management
-- Store open/close controls
-- In-person order creation
+- full customer functionality
+- favorites
+- recents
+- order history
+- authenticated customer experience
+
+## worker
+
+Workers:
+
+- order management
+- store open / close controls
+- in-person order creation
