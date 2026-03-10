@@ -25,7 +25,7 @@ export default function LoginScreen() {
   };
 
   async function handleWorkerLogin() {
-    await login("mock-access-token-user", "mock-refresh-token-user", "worker");
+    await login("mock-access-token-worker", "mock-refresh-token-worker", "worker");
     router.replace("/");
   };
 
