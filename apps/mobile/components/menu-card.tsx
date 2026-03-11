@@ -1,16 +1,17 @@
-import { StyleSheet, Image } from "react-native";
+import { StyleSheet, Image, ImageSourcePropType } from "react-native";
 import { ThemedView } from "@/components/ui/themed-view";
 import { ThemedText } from "@/components/ui/themed-text";
 
 type MenuCardProps = {
   name: string;
-  image: any;
+  image: ImageSourcePropType | string;
 };
 
 export function MenuCard({ name, image }: MenuCardProps) {
+  const imageSource = typeof image === "string" ? {uri: image} : image
   return (
     <ThemedView style={styles.card}>
-      <Image source={image} style={styles.image} />
+      <Image source={imageSource} style={styles.image} />
       <ThemedText style={styles.name}>{name}</ThemedText>
     </ThemedView>
   );
