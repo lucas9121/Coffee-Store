@@ -3,19 +3,19 @@ import { ThemedText } from "@/components/ui/themed-text";
 import { Section } from "@/components/section";
 import { HorizontalList } from "@/components/horizontal-list";
 import { useAuth } from "@/context/AuthContext";
-import { ThemedView } from "@/components/ui/themed-view";
 import { StyleSheet } from "react-native";
+import { MenuCard } from "@/components/menu-card";
 
 const favoriteItems = [
-  { id: "1", name: "Latte" },
-  { id: "2", name: "Mocha" },
-  { id: "3", name: "Cappuccino" },
+  { id: "1", name: "Latte", image: require("@/assets/images/church-kiosk-temp-logo.png")},
+  { id: "2", name: "Mocha", image: require("@/assets/images/church-kiosk-temp-logo.png")},
+  { id: "3", name: "Cappuccino", image: require("@/assets/images/church-kiosk-temp-logo.png")},
 ];
 
 const recentItems = [
-  { id: "1", name: "Iced Coffee" },
-  { id: "2", name: "Blueberry Muffin" },
-  { id: "3", name: "Orange Juice" },
+  { id: "1", name: "Iced Coffee", image: require("@/assets/images/church-kiosk-temp-logo.png")},
+  { id: "2", name: "Blueberry Muffin", image: require("@/assets/images/church-kiosk-temp-logo.png")},
+  { id: "3", name: "Orange Juice", image: require("@/assets/images/church-kiosk-temp-logo.png")},
 ]
 
 export default function OrdersScreen() {
@@ -38,9 +38,7 @@ function renderCustomerOrders() {
           data={favoriteItems}
           keyExtractor={(item) => item.id}
           renderItem={({item}) => (
-            <ThemedView style={styles.card}>
-              <ThemedText>{item.name}</ThemedText>
-            </ThemedView>
+            <MenuCard name={item.name} image={item.image} />
           )}
         />
       </Section>
@@ -50,9 +48,7 @@ function renderCustomerOrders() {
           data={recentItems}
           keyExtractor={(item) => item.id}
           renderItem={({item}) => (
-            <ThemedView style={styles.card}>
-              <ThemedText>{item.name}</ThemedText>
-            </ThemedView>
+            <MenuCard name={item.name} image={item.image} />
           )}
         />
       </Section>
