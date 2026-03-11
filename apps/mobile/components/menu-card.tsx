@@ -1,15 +1,16 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Image } from "react-native";
 import { ThemedView } from "@/components/ui/themed-view";
 import { ThemedText } from "@/components/ui/themed-text";
 
 type MenuCardProps = {
   name: string;
+  image: any;
 };
 
-export function MenuCard({ name }: MenuCardProps) {
+export function MenuCard({ name, image }: MenuCardProps) {
   return (
     <ThemedView style={styles.card}>
-      <ThemedView style={styles.imagePlaceholder} />
+      <Image source={image} style={styles.image} />
       <ThemedText style={styles.name}>{name}</ThemedText>
     </ThemedView>
   );
@@ -22,11 +23,11 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingVertical: 12,
   },
-  imagePlaceholder: {
+  image: {
     width: 72,
     height: 72,
     borderRadius: 36,
-    borderWidth: 1,
+    resizeMode: "cover"
   },
   name: {
     textAlign: "center",
