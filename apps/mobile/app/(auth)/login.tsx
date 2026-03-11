@@ -3,9 +3,9 @@ import { StyleSheet, Pressable } from "react-native";
 import { Button } from "@react-navigation/elements";
 import { useRouter } from "expo-router";
 
-import { ThemedView } from "@/components/themed-view";
-import { ThemedText } from "@/components/themed-text";
-import { ThemedTextInput } from "@/components/themed-text-input";
+import { ThemedView } from "@/components/ui/themed-view";
+import { ThemedText } from "@/components/ui/themed-text";
+import { ThemedTextInput } from "@/components/ui/themed-text-input";
 import { useAuth } from "@/context/AuthContext";
 
 

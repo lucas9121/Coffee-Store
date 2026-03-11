@@ -1,5 +1,5 @@
 import { StyleSheet, type FlatListProps } from "react-native";
-import { ThemedFlatList } from "./themed-flat-list";
+import { ThemedFlatList } from "./ui/themed-flat-list";
 
 type HorizontalListProps<T> = FlatListProps<T>;
 

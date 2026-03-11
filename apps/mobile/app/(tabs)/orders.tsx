@@ -1,9 +1,9 @@
-import { ThemedScrollView } from "@/components/themed-scroll-view";
-import { ThemedText } from "@/components/themed-text";
+import { ThemedScrollView } from "@/components/ui/themed-scroll-view";
+import { ThemedText } from "@/components/ui/themed-text";
 import { Section } from "@/components/section";
 import { HorizontalList } from "@/components/horizontal-list";
 import { useAuth } from "@/context/AuthContext";
-import { ThemedView } from "@/components/themed-view";
+import { ThemedView } from "@/components/ui/themed-view";
 import { StyleSheet } from "react-native";
 
 const favoriteItems = [

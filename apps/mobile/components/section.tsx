@@ -1,6 +1,6 @@
 import { View, StyleSheet, type ViewProps } from "react-native";
-import { ThemedText } from "./themed-text";
-import { ThemedView } from "./themed-view";
+import { ThemedText } from "./ui/themed-text";
+import { ThemedView } from "./ui/themed-view";
 
 type SectionProps = ViewProps & {
   title: string;

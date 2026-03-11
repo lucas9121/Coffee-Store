@@ -9,8 +9,8 @@ import { ThemeProviderCustom } from '@/context/ThemeContext';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useThemeColor } from '@/hooks/use-theme-color';
 
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
+import { ThemedText } from '@/components/ui/themed-text';
+import { ThemedView } from '@/components/ui/themed-view';
 
 export const unstable_settings = {
   anchor: '(tabs)',
