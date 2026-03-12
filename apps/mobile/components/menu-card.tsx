@@ -19,7 +19,7 @@ export function MenuCard({ name, image }: MenuCardProps) {
 
 const styles = StyleSheet.create({
   card: {
-    width: 120,
+    width: 100,
     alignItems: "center",
     gap: 12,
     paddingVertical: 12,
@@ -32,5 +32,6 @@ const styles = StyleSheet.create({
   },
   name: {
     textAlign: "center",
+    textTransform: "capitalize"
   },
 });
