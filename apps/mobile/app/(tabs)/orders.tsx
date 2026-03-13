@@ -10,6 +10,7 @@ import { HorizontalList } from "@/components/horizontal-list";
 import { MenuCard } from "@/components/menu-card";
 
 import { useAuth } from "@/context/AuthContext";
+import { useCart } from "@/context/CartContext";
 
 
 const favoriteItems = [
@@ -100,20 +101,47 @@ const menuItems = [
   },
 ];
 
+type MenuListItem = {
+  id: string;
+  name: string;
+  price: number;
+  image: string | number;
+};
+
+type HandleAddToCart = (item: MenuListItem) => void;
+
 export default function OrdersScreen() {
   const { accountType } = useAuth();
   const borderColor = useThemeColor({}, "border");
+  const { setCartItems } = useCart();
+
+  function handleAddToCart(item: MenuListItem) {
+    setCartItems((prev) => {
+      const existing = prev.find((i) => i.id === item.id);
+
+      if (existing) {
+        return prev.map((i) =>
+          i.id === item.id
+            ? { ...i, quantity: i.quantity + 1 }
+            : i
+        );
+      }
+
+      return [...prev, { ...item, quantity: 1 }];
+    });
+  }
 
   if (accountType === "worker") {
     return renderWorkerOrders();
   }
 
-  return renderCustomerOrders(accountType, borderColor);
+  return renderCustomerOrders(accountType, borderColor, handleAddToCart);
 }
 
 function renderCustomerOrders(
   accountType: string, 
   borderColor: string,
+  handleAddToCart: HandleAddToCart
 ) {
   const menuCategories: string[] = [... new Set(menuItems.map((item) => item.category))]
 
@@ -131,6 +159,7 @@ function renderCustomerOrders(
               name={item.name} 
               image={item.image} 
               price={item.price}
+              onAddPress={() => handleAddToCart(item)}
             />
             )}
           />
@@ -147,6 +176,7 @@ function renderCustomerOrders(
               name={item.name} 
               image={item.image} 
               price={item.price}
+              onAddPress={() => handleAddToCart(item)}
             />
             )}
           />
@@ -169,6 +199,7 @@ function renderCustomerOrders(
                     name={item.name} 
                     image={item.image} 
                     price={item.price}
+                    onAddPress={() => handleAddToCart(item)}
                   />
                 )}
               />
