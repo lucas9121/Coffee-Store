@@ -1,12 +1,16 @@
+import { StyleSheet } from "react-native";
+
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { ThemedScrollView } from "@/components/ui/themed-scroll-view";
 import { ThemedText } from "@/components/ui/themed-text";
 import { ThemedView } from "@/components/ui/themed-view";
+
 import { Section } from "@/components/section";
 import { HorizontalList } from "@/components/horizontal-list";
-import { useAuth } from "@/context/AuthContext";
-import { StyleSheet } from "react-native";
 import { MenuCard } from "@/components/menu-card";
-import { useThemeColor } from "@/hooks/use-theme-color";
+
+import { useAuth } from "@/context/AuthContext";
+
 
 const favoriteItems = [
   { id: "1", name: "Latte", price: 4, image: require("@/assets/images/church-kiosk-temp-logo.png")},
@@ -98,7 +102,7 @@ const menuItems = [
 
 export default function OrdersScreen() {
   const { accountType } = useAuth();
-  const borderColor = useThemeColor({}, "border")
+  const borderColor = useThemeColor({}, "border");
 
   if (accountType === "worker") {
     return renderWorkerOrders();
@@ -107,8 +111,12 @@ export default function OrdersScreen() {
   return renderCustomerOrders(accountType, borderColor);
 }
 
-function renderCustomerOrders(accountType: string, borderColor: string) {
+function renderCustomerOrders(
+  accountType: string, 
+  borderColor: string,
+) {
   const menuCategories: string[] = [... new Set(menuItems.map((item) => item.category))]
+
   return (
     <ThemedScrollView contentContainerStyle={styles.screenContent}>
       <ThemedText type="title">Order Menu</ThemedText>
@@ -119,7 +127,11 @@ function renderCustomerOrders(accountType: string, borderColor: string) {
             data={favoriteItems}
             keyExtractor={(item) => item.id}
             renderItem={({item}) => (
-              <MenuCard name={item.name} image={item.image} price={item.price}/>
+              <MenuCard 
+              name={item.name} 
+              image={item.image} 
+              price={item.price}
+            />
             )}
           />
         </Section>
@@ -131,7 +143,11 @@ function renderCustomerOrders(accountType: string, borderColor: string) {
             data={recentItems}
             keyExtractor={(item) => item.id}
             renderItem={({item}) => (
-              <MenuCard name={item.name} image={item.image} price={item.price}/>
+              <MenuCard 
+              name={item.name} 
+              image={item.image} 
+              price={item.price}
+            />
             )}
           />
         </Section>
