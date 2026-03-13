@@ -9,15 +9,15 @@ import { MenuCard } from "@/components/menu-card";
 import { useThemeColor } from "@/hooks/use-theme-color";
 
 const favoriteItems = [
-  { id: "1", name: "Latte", image: require("@/assets/images/church-kiosk-temp-logo.png")},
-  { id: "2", name: "Mocha", image: require("@/assets/images/church-kiosk-temp-logo.png")},
-  { id: "3", name: "Cappuccino", image: require("@/assets/images/church-kiosk-temp-logo.png")},
+  { id: "1", name: "Latte", price: 4, image: require("@/assets/images/church-kiosk-temp-logo.png")},
+  { id: "2", name: "Mocha", price: 4, image: require("@/assets/images/church-kiosk-temp-logo.png")},
+  { id: "3", name: "Cappuccino", price: 4, image: require("@/assets/images/church-kiosk-temp-logo.png")},
 ];
 
 const recentItems = [
-  { id: "1", name: "Iced Coffee", image: require("@/assets/images/church-kiosk-temp-logo.png")},
-  { id: "2", name: "Blueberry Muffin", image: require("@/assets/images/church-kiosk-temp-logo.png")},
-  { id: "3", name: "Orange Juice", image: require("@/assets/images/church-kiosk-temp-logo.png")},
+  { id: "1", name: "Iced Coffee", price: 4, image: require("@/assets/images/church-kiosk-temp-logo.png")},
+  { id: "2", name: "Blueberry Muffin", price: 4, image: require("@/assets/images/church-kiosk-temp-logo.png")},
+  { id: "3", name: "Orange Juice", price: 4, image: require("@/assets/images/church-kiosk-temp-logo.png")},
 ]
 
 const menuItems = [
@@ -118,7 +118,7 @@ function renderCustomerOrders(borderColor: string) {
           data={favoriteItems}
           keyExtractor={(item) => item.id}
           renderItem={({item}) => (
-            <MenuCard name={item.name} image={item.image} />
+            <MenuCard name={item.name} image={item.image} price={item.price}/>
           )}
         />
       </Section>
@@ -128,7 +128,7 @@ function renderCustomerOrders(borderColor: string) {
           data={recentItems}
           keyExtractor={(item) => item.id}
           renderItem={({item}) => (
-            <MenuCard name={item.name} image={item.image} />
+            <MenuCard name={item.name} image={item.image} price={item.price}/>
           )}
         />
       </Section>
@@ -148,6 +148,7 @@ function renderCustomerOrders(borderColor: string) {
                   <MenuCard
                     name={item.name} 
                     image={item.image} 
+                    price={item.price}
                   />
                 )}
               />
