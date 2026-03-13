@@ -104,34 +104,38 @@ export default function OrdersScreen() {
     return renderWorkerOrders();
   }
 
-  return renderCustomerOrders(borderColor);
+  return renderCustomerOrders(accountType, borderColor);
 }
 
-function renderCustomerOrders(borderColor: string) {
+function renderCustomerOrders(accountType: string, borderColor: string) {
   const menuCategories: string[] = [... new Set(menuItems.map((item) => item.category))]
   return (
     <ThemedScrollView contentContainerStyle={styles.screenContent}>
       <ThemedText type="title">Order Menu</ThemedText>
 
-      <Section title="Favorites">
-        <HorizontalList
-          data={favoriteItems}
-          keyExtractor={(item) => item.id}
-          renderItem={({item}) => (
-            <MenuCard name={item.name} image={item.image} price={item.price}/>
-          )}
-        />
-      </Section>
+      {accountType === "user" && (
+        <Section title="Favorites">
+          <HorizontalList
+            data={favoriteItems}
+            keyExtractor={(item) => item.id}
+            renderItem={({item}) => (
+              <MenuCard name={item.name} image={item.image} price={item.price}/>
+            )}
+          />
+        </Section>
+      )}
 
-      <Section title="Recents">
-        <HorizontalList
-          data={recentItems}
-          keyExtractor={(item) => item.id}
-          renderItem={({item}) => (
-            <MenuCard name={item.name} image={item.image} price={item.price}/>
-          )}
-        />
-      </Section>
+      {accountType === "user" && (
+        <Section title="Recents">
+          <HorizontalList
+            data={recentItems}
+            keyExtractor={(item) => item.id}
+            renderItem={({item}) => (
+              <MenuCard name={item.name} image={item.image} price={item.price}/>
+            )}
+          />
+        </Section>
+      )}
 
       <Section title="Menu">
         {menuCategories.map((category) => {
