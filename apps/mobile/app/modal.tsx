@@ -5,6 +5,7 @@ import { ThemedText } from '@/components/ui/themed-text';
 import { ThemedView } from '@/components/ui/themed-view';
 import { CartItem } from '@/components/cart-item-row';
 import { useCart } from '@/context/CartContext';
+import { ThemedScrollView } from '@/components/ui/themed-scroll-view';
 
 export default function ModalScreen() {
   const { cartItems } = useCart();
@@ -14,46 +15,71 @@ export default function ModalScreen() {
     0
   );
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="title">Cart</ThemedText>
+    <ThemedScrollView contentContainerStyle={styles.container}>
+      <ThemedView style={styles.mainContainer}>
+        <ThemedView style={styles.cartInfo}>
+          <ThemedText type="title" style={styles.title}>Cart</ThemedText>
 
-      {cartItems.length === 0 && (
-        <ThemedText>Your cart is empty</ThemedText>
-      )}
+          {cartItems.length === 0 && (
+            <ThemedView style={styles.emptyCartInfo}>
+              <ThemedText type='defaultSemiBold'>Your cart is empty</ThemedText>
+            </ThemedView>
+          )}
 
-      {cartItems.map((item) => (
-        <CartItem key={item.id} item={item} />
-      ))}
+          {cartItems.map((item) => (
+            <CartItem key={item.id} item={item} />
+          ))}
 
-      {cartItems.length > 0 && (
-        <ThemedText>Subtotal: ${subtotal.toFixed(2)}</ThemedText>
-      )}
-
-      {cartItems.length > 0 && (
-        <Pressable
-          onPress={() => console.log("checkout")}
-        >
-          <ThemedText type='link'>Checkout</ThemedText>
-        </Pressable>
-      )}
+          {cartItems.length > 0 && (
+            <Pressable
+              onPress={() => console.log("checkout")}
+              style={styles.checkoutButton}
+            >
+              <ThemedText type='subtitle'>Checkout ${subtotal.toFixed(2)}</ThemedText>
+            </Pressable>
+          )}
+        </ThemedView>
       
-
-      <Link href="/" dismissTo style={styles.link}>
-        <ThemedText type="link">Close</ThemedText>
-      </Link>
-    </ThemedView>
+        <Link href="/" dismissTo style={styles.link}>
+          <ThemedText type="link" style={styles.linkText}>Close</ThemedText>
+        </Link>
+      </ThemedView>
+    </ThemedScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flexGrow: 1,
+    padding: 20,
+  },
+  mainContainer:{
+    flexGrow: 1,
+    justifyContent: "space-between",
+    gap: 10,
+  },
+  cartInfo: {
+    gap: 10,
+    flex: 1,
+  },
+  title: {
+    paddingBottom: 30,
+  },
+  emptyCartInfo: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 20,
+  },
+  checkoutButton: {
+    padding: 15,
+    borderRadius: 50,
+    backgroundColor: "#02c4ccba",
+    alignItems: "center",
   },
   link: {
-    marginTop: 15,
     paddingVertical: 15,
   },
+  linkText: {
+    textAlign: "center",
+  }
 });
