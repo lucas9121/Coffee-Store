@@ -1,6 +1,8 @@
-import { StyleSheet, Image } from "react-native";
+import { StyleSheet, Image, Pressable } from "react-native";
 import { ThemedView } from "./ui/themed-view";
 import { ThemedText } from "./ui/themed-text";
+
+import { useCart } from "@/context/CartContext";
 
 type MenuListItem = {
   id: string;
@@ -11,13 +13,50 @@ type MenuListItem = {
 };
 
 export function CartItem({item}: {item: MenuListItem}){
+  const {cartItems, setCartItems} = useCart()
   const imageSource = typeof item.image === "string" ? {uri: item.image} : item.image
+
+  function addQuantity() {
+    setCartItems((prev) => {
+      return prev.map((i) => 
+        i.id === item.id ?
+          {...i, quantity: i.quantity + 1} :
+        i
+      )
+    })
+  }
+
+  function reduceQuantity() {
+    setCartItems((prev) => {
+      const updatedCart = prev.map((i) =>{
+        return(
+          i.id === item.id ?
+            {...i, quantity: i.quantity - 1} :
+          i
+        )
+      })
+      return updatedCart.filter((item) => item.quantity > 0)
+    })
+  }
+
   return(
     <ThemedView style={styles.card}>
       <Image source={imageSource} style={styles.image}></Image>
       <ThemedText style={styles.name}>{item.name}</ThemedText>
       <ThemedText style={styles.price}>${item.price.toFixed(2)}</ThemedText>
-      <ThemedText>Quantity: {item.quantity}</ThemedText>
+      <ThemedView style={styles.quantity}>
+        <Pressable 
+          onPress={() => reduceQuantity()}
+        >
+          <ThemedText>[-]</ThemedText>
+        </Pressable>
+        <ThemedText>{item.quantity}</ThemedText>
+        <Pressable 
+          onPress={() => addQuantity()}
+        >
+          <ThemedText>[+]</ThemedText>
+        </Pressable>
+      </ThemedView>
     </ThemedView>
   )
 };
@@ -45,4 +84,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 14
   },
+  quantity: {
+    flexDirection: "row",
+    gap: 8,
+  }
 });
