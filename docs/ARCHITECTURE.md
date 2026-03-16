@@ -60,20 +60,24 @@ apps/mobile/
 │       └── ...                       # Your loading/splash image(s)
 │
 ├── components/                       # Reusable UI components
-│   ├── themed-text.tsx               # ThemedText wrapper (light/dark aware)
-│   ├── themed-view.tsx               # ThemedView wrapper (light/dark aware)
-│   ├── themed-text-input.tsx         # ThemedTextInput wrapper (light/dark aware)
-│   ├── external-link.tsx
-│   ├── haptic-tab.tsx                # Optional tab button w/ haptics
-│   ├── hello-wave.tsx
-│   ├── parallax-scroll-view.tsx
-│   └── ui/
-│       ├── collapsible.tsx
-│       ├── icon-symbol.ios.tsx
-│       └── icon-symbol.tsx
+│   ├── ui/                           # Base themed UI primitives
+│   │   ├── themed-text.tsx           # ThemedText wrapper (light/dark aware)
+│   │   ├── themed-view.tsx           # ThemedView wrapper (light/dark aware)
+│   │   ├── themed-scroll-view.tsx    # ThemedScrollView wrapper
+│   │   ├── themed-text-input.tsx     # ThemedTextInput wrapper
+│   │   ├── collapsible.tsx
+│   │   ├── icon-symbol.tsx
+│   │   └── icon-symbol.ios.tsx
+│   ├── cart-button.tsx               # Floating cart button (opens cart modal)
+│   ├── horizontal-list.tsx           # Reusable horizontal FlatList wrapper
+│   ├── menu-card.tsx                 # Menu item card component
+│   ├── section.tsx                   # Section container with title
+│   ├── customer-orders-content.tsx   # Customer Orders tab UI
+│   └── worker-orders-content.tsx     # Worker Orders tab UI
 │
 ├── constants/
-│   └── theme.ts                      # Colors + Fonts (light/dark palettes)
+│   ├── theme.ts                      # Colors + fonts (light/dark palettes)
+│   └── mock-menu-data.ts             # Temporary menu data (to be replaced by API)
 │
 ├── hooks/
 │   ├── use-color-scheme.ts           # Native color scheme hook
