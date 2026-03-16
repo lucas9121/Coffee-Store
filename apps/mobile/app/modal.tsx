@@ -3,13 +3,25 @@ import { StyleSheet } from 'react-native';
 
 import { ThemedText } from '@/components/ui/themed-text';
 import { ThemedView } from '@/components/ui/themed-view';
+import { CartItem } from '@/components/cart-item-row';
+import { useCart } from '@/context/CartContext';
 
 export default function ModalScreen() {
+  const { cartItems } = useCart()
   return (
     <ThemedView style={styles.container}>
-      <ThemedText type="title">Cart modal placeholder</ThemedText>
+      <ThemedText type="title">Cart</ThemedText>
+
+      {cartItems.length === 0 && (
+        <ThemedText>Your cart is empty</ThemedText>
+      )}
+
+      {cartItems.map((item) => (
+        <CartItem key={item.id} item={item} />
+      ))}
+
       <Link href="/" dismissTo style={styles.link}>
-        <ThemedText type="link">Go to home screen</ThemedText>
+        <ThemedText type="link">Close</ThemedText>
       </Link>
     </ThemedView>
   );
