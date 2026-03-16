@@ -71,7 +71,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingVertical: 8,
     borderTopWidth: 2,
-    borderColor: "red",
   },
   cardInfo: {
     flex: 1,
