@@ -1,7 +1,7 @@
 import { StyleSheet, Image, Pressable } from "react-native";
 import { ThemedView } from "./ui/themed-view";
 import { ThemedText } from "./ui/themed-text";
-
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { useCart } from "@/context/CartContext";
 
 type MenuListItem = {
@@ -13,7 +13,8 @@ type MenuListItem = {
 };
 
 export function CartItem({item}: {item: MenuListItem}){
-  const {cartItems, setCartItems} = useCart()
+  const { setCartItems} = useCart()
+  const borderColor = useThemeColor({}, "border");
   const imageSource = typeof item.image === "string" ? {uri: item.image} : item.image
 
   function addQuantity() {
@@ -40,7 +41,7 @@ export function CartItem({item}: {item: MenuListItem}){
   }
 
   return(
-    <ThemedView style={styles.card}>
+    <ThemedView style={[styles.card, {borderColor: borderColor}]}>
       <Image source={imageSource} style={styles.image}></Image>
       <ThemedView style={styles.cardInfo}>
         <ThemedText style={styles.name}>{item.name}</ThemedText>
