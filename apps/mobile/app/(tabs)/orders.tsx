@@ -113,7 +113,9 @@ type HandleAddToCart = (item: MenuListItem) => void;
 export default function OrdersScreen() {
   const { accountType } = useAuth();
   const borderColor = useThemeColor({}, "border");
-  const { setCartItems } = useCart();
+  const { cartItems, setCartItems } = useCart();
+
+  const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
   function handleAddToCart(item: MenuListItem) {
     setCartItems((prev) => {
@@ -135,19 +137,24 @@ export default function OrdersScreen() {
     return renderWorkerOrders();
   }
 
-  return renderCustomerOrders(accountType, borderColor, handleAddToCart);
+  return renderCustomerOrders(accountType, borderColor, handleAddToCart, cartCount);
 }
 
 function renderCustomerOrders(
   accountType: string, 
   borderColor: string,
-  handleAddToCart: HandleAddToCart
+  handleAddToCart: HandleAddToCart,
+  cartCount: number
 ) {
   const menuCategories: string[] = [... new Set(menuItems.map((item) => item.category))]
 
   return (
     <ThemedScrollView contentContainerStyle={styles.screenContent}>
       <ThemedText type="title">Order Menu</ThemedText>
+      
+      {cartCount > 0 && (
+        <ThemedText>Cart Items: {cartCount}</ThemedText>
+      )}
 
       {accountType === "user" && (
         <Section title="Favorites">
