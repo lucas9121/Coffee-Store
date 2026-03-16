@@ -7,7 +7,12 @@ import { CartItem } from '@/components/cart-item-row';
 import { useCart } from '@/context/CartContext';
 
 export default function ModalScreen() {
-  const { cartItems } = useCart()
+  const { cartItems } = useCart();
+
+  const subtotal = cartItems.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0
+  );
   return (
     <ThemedView style={styles.container}>
       <ThemedText type="title">Cart</ThemedText>
@@ -19,6 +24,10 @@ export default function ModalScreen() {
       {cartItems.map((item) => (
         <CartItem key={item.id} item={item} />
       ))}
+
+      {cartItems.length > 0 && (
+        <ThemedText>Subtotal: ${subtotal.toFixed(2)}</ThemedText>
+      )}
 
       <Link href="/" dismissTo style={styles.link}>
         <ThemedText type="link">Close</ThemedText>
