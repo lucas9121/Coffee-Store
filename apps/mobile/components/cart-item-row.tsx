@@ -42,20 +42,22 @@ export function CartItem({item}: {item: MenuListItem}){
   return(
     <ThemedView style={styles.card}>
       <Image source={imageSource} style={styles.image}></Image>
-      <ThemedText style={styles.name}>{item.name}</ThemedText>
-      <ThemedText style={styles.price}>${item.price.toFixed(2)}</ThemedText>
-      <ThemedView style={styles.quantity}>
-        <Pressable 
-          onPress={() => reduceQuantity()}
-        >
-          <ThemedText>[-]</ThemedText>
-        </Pressable>
-        <ThemedText>{item.quantity}</ThemedText>
-        <Pressable 
-          onPress={() => addQuantity()}
-        >
-          <ThemedText>[+]</ThemedText>
-        </Pressable>
+      <ThemedView style={styles.cardInfo}>
+        <ThemedText style={styles.name}>{item.name}</ThemedText>
+        <ThemedText style={styles.price}>${item.price.toFixed(2)}</ThemedText>
+        <ThemedView style={styles.quantity}>
+          <Pressable 
+            onPress={() => reduceQuantity()}
+          >
+            <ThemedText>[-]</ThemedText>
+          </Pressable>
+          <ThemedText>{item.quantity}</ThemedText>
+          <Pressable 
+            onPress={() => addQuantity()}
+          >
+            <ThemedText>[+]</ThemedText>
+          </Pressable>
+        </ThemedView>
       </ThemedView>
     </ThemedView>
   )
@@ -63,12 +65,15 @@ export function CartItem({item}: {item: MenuListItem}){
 
 const styles = StyleSheet.create({
   card: {
-    width: 140,
+    flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    paddingTop: 16,
-    paddingBottom: 8,
-    paddingHorizontal: 8,
+    justifyContent: "space-between",
+    paddingVertical: 8,
+    borderTopWidth: 2,
+    borderColor: "red",
+  },
+  cardInfo: {
+    flex: 1,
   },
   image: {
     width: 84,
@@ -78,7 +83,7 @@ const styles = StyleSheet.create({
   },
   name: {
     textAlign: "center",
-    textTransform: "capitalize"
+    textTransform: "capitalize",
   },
   price: {
     textAlign: "center",
@@ -87,5 +92,6 @@ const styles = StyleSheet.create({
   quantity: {
     flexDirection: "row",
     gap: 8,
+    justifyContent: "center"
   }
 });
