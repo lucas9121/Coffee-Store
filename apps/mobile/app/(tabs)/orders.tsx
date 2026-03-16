@@ -8,6 +8,7 @@ import { ThemedView } from "@/components/ui/themed-view";
 import { Section } from "@/components/section";
 import { HorizontalList } from "@/components/horizontal-list";
 import { MenuCard } from "@/components/menu-card";
+import { CartButton } from "@/components/cart-button";
 
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
@@ -62,72 +63,75 @@ function renderCustomerOrders(
   const menuCategories: string[] = [... new Set(menuItems.map((item) => item.category))]
 
   return (
-    <ThemedScrollView contentContainerStyle={styles.screenContent}>
-      <ThemedText type="title">Order Menu</ThemedText>
-      
-      {cartCount > 0 && (
-        <ThemedText>Cart Items: {cartCount}</ThemedText>
-      )}
+    <ThemedView style={{flex: 1}}>
+      <ThemedScrollView contentContainerStyle={styles.screenContent}>
+        <ThemedText type="title">Order Menu</ThemedText>
+        
+        {cartCount > 0 && (
+          <ThemedText>Cart Items: {cartCount}</ThemedText>
+        )}
 
-      {accountType === "user" && (
-        <Section title="Favorites">
-          <HorizontalList
-            data={favoriteItems}
-            keyExtractor={(item) => item.id}
-            renderItem={({item}) => (
-              <MenuCard 
-              name={item.name} 
-              image={item.image} 
-              price={item.price}
-              onAddPress={() => handleAddToCart(item)}
-            />
-            )}
-          />
-        </Section>
-      )}
-
-      {accountType === "user" && (
-        <Section title="Recents">
-          <HorizontalList
-            data={recentItems}
-            keyExtractor={(item) => item.id}
-            renderItem={({item}) => (
-              <MenuCard 
-              name={item.name} 
-              image={item.image} 
-              price={item.price}
-              onAddPress={() => handleAddToCart(item)}
-            />
-            )}
-          />
-        </Section>
-      )}
-
-      <Section title="Menu">
-        {menuCategories.map((category) => {
-          const filtredMenuItems = menuItems.filter(item => 
-            item.category.toLowerCase() === category.toLowerCase()
-          )
-          return(
-            <ThemedView key={category} style={[styles.categoryBlock, {borderColor}]}>
-              <ThemedText type="defaultSemiBold" style={{textTransform: "capitalize"}}>{category}</ThemedText>
-              <HorizontalList 
-                data={filtredMenuItems}
-                keyExtractor={(item) => item.id}
-                renderItem={({item}) => (
-                  <MenuCard
-                    name={item.name} 
-                    image={item.image} 
-                    price={item.price}
-                    onAddPress={() => handleAddToCart(item)}
-                  />
-                )}
+        {accountType === "user" && (
+          <Section title="Favorites">
+            <HorizontalList
+              data={favoriteItems}
+              keyExtractor={(item) => item.id}
+              renderItem={({item}) => (
+                <MenuCard 
+                name={item.name} 
+                image={item.image} 
+                price={item.price}
+                onAddPress={() => handleAddToCart(item)}
               />
-            </ThemedView>
-          )
-        })}
-      </Section>
-    </ThemedScrollView>
+              )}
+            />
+          </Section>
+        )}
+
+        {accountType === "user" && (
+          <Section title="Recents">
+            <HorizontalList
+              data={recentItems}
+              keyExtractor={(item) => item.id}
+              renderItem={({item}) => (
+                <MenuCard 
+                name={item.name} 
+                image={item.image} 
+                price={item.price}
+                onAddPress={() => handleAddToCart(item)}
+              />
+              )}
+            />
+          </Section>
+        )}
+
+        <Section title="Menu">
+          {menuCategories.map((category) => {
+            const filtredMenuItems = menuItems.filter(item => 
+              item.category.toLowerCase() === category.toLowerCase()
+            )
+            return(
+              <ThemedView key={category} style={[styles.categoryBlock, {borderColor}]}>
+                <ThemedText type="defaultSemiBold" style={{textTransform: "capitalize"}}>{category}</ThemedText>
+                <HorizontalList 
+                  data={filtredMenuItems}
+                  keyExtractor={(item) => item.id}
+                  renderItem={({item}) => (
+                    <MenuCard
+                      name={item.name} 
+                      image={item.image} 
+                      price={item.price}
+                      onAddPress={() => handleAddToCart(item)}
+                    />
+                  )}
+                />
+              </ThemedView>
+            )
+          })}
+        </Section>
+      </ThemedScrollView>
+      <CartButton />
+    </ThemedView>
   );
 }
 
