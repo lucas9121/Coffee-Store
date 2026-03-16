@@ -1,5 +1,5 @@
 import { Link } from 'expo-router';
-import { StyleSheet } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 
 import { ThemedText } from '@/components/ui/themed-text';
 import { ThemedView } from '@/components/ui/themed-view';
@@ -28,6 +28,15 @@ export default function ModalScreen() {
       {cartItems.length > 0 && (
         <ThemedText>Subtotal: ${subtotal.toFixed(2)}</ThemedText>
       )}
+
+      {cartItems.length > 0 && (
+        <Pressable
+          onPress={() => console.log("checkout")}
+        >
+          <ThemedText type='link'>Checkout</ThemedText>
+        </Pressable>
+      )}
+      
 
       <Link href="/" dismissTo style={styles.link}>
         <ThemedText type="link">Close</ThemedText>
