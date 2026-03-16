@@ -20,7 +20,7 @@ type MenuListItem = {
 
 type HandleAddToCart = (item: MenuListItem) => void;
 
-export function renderCustomerOrders(
+export function CustomerOrdersContent(
   accountType: string, 
   borderColor: string,
   handleAddToCart: HandleAddToCart,
