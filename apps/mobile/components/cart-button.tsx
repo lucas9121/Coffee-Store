@@ -13,7 +13,7 @@ export function CartButton(){
   if(cartCount > 0){
     return <Pressable 
       style={styles.cartButton}
-      onPress={() => router.push("/modal")}
+      onPress={() => router.push("/cart")}
     >
       <ThemedText>🛒 {cartCount.toString()}</ThemedText>
     </Pressable>

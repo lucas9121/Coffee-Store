@@ -16,7 +16,7 @@ export default function GuestCheckoutScreen() {
 
     // Send the name back to the cart modal
     router.replace({
-      pathname: "/modal",
+      pathname: "/cart",
       params: { guestName: guestName.trim() },
     });
   }
