@@ -38,6 +38,7 @@ function InnerLayout() {
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+          <Stack.Screen name="guest-checkout" options={{ presentation: "modal", title: "Guest Checkout" }} />
         </Stack>
         <StatusBar style="auto" />
       </ThemeProvider>
