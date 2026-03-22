@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { StyleSheet, Pressable } from "react-native";
 import { Button } from "@react-navigation/elements";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 
 import { ThemedView } from "@/components/ui/themed-view";
 import { ThemedText } from "@/components/ui/themed-text";
@@ -16,8 +16,16 @@ export default function LoginScreen() {
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
+  const params = useLocalSearchParams<{ fromCheckout?: string }>();
+  const fromCheckout = params.fromCheckout === "true";
+
   async function handleSubmit(): Promise<void> {
     console.log("Login form submitted: ", {email, password})
+    if (fromCheckout) {
+      router.replace("/cart");
+    } else {
+      router.replace("/");
+    }
   }
 
   async function handleUserLogin() {
@@ -57,6 +65,12 @@ export default function LoginScreen() {
       />
 
       <Button onPress={handleSubmit}>Log in</Button>
+
+      {fromCheckout && (
+        <Button onPress={() => router.push("/guest-checkout")}>
+          Continue as Guest
+        </Button>
+      )}
 
       <ThemedText type="subtitle">Dev shortcuts</ThemedText>
       <Button onPress={handleUserLogin}>Log In as User</Button>
