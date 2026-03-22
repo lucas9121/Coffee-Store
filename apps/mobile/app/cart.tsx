@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, useLocalSearchParams, useRouter } from 'expo-router';
 import { Pressable, StyleSheet } from 'react-native';
 import { ThemedText } from '@/components/ui/themed-text';
@@ -11,9 +12,10 @@ import { ThemedScrollView } from '@/components/ui/themed-scroll-view';
 
 export default function ModalScreen() {
   const { cartItems, setCartItems } = useCart();
-  const { accountType, accessToken } = useAuth()
+  const { accountType, accessToken } = useAuth();
   const router = useRouter();
   const { guestName } = useLocalSearchParams<{ guestName?: string }>();
+  const [orderSuccess, setOrderSuccess] = useState(false);
 
   const subtotal = cartItems.reduce(
     (total, item) => total + item.price * item.quantity,
@@ -102,10 +104,25 @@ export default function ModalScreen() {
     try {
       await createOrder(payload);
       setCartItems([]);
-      router.replace("/");
+      setOrderSuccess(true)
     } catch (error) {
       console.log(error);
     }
+  }
+
+  if (orderSuccess) {
+    return (
+      <ThemedView style={styles.emptyCartInfo}>
+        <ThemedText type="title">Order placed successfully</ThemedText>
+
+        <Pressable
+          onPress={() => router.replace("/")}
+          style={styles.checkoutButton}
+        >
+          <ThemedText type="subtitle">Done</ThemedText>
+        </Pressable>
+      </ThemedView>
+    );
   }
 
   return (
