@@ -13,7 +13,7 @@ import { createOrder } from '@/services/orders-api';
 
 export default function ModalScreen() {
   const { cartItems, setCartItems } = useCart();
-  const { accountType, accessToken } = useAuth();
+  const { accountType } = useAuth();
   const router = useRouter();
   const { guestName } = useLocalSearchParams<{ guestName?: string }>();
   const [orderSuccess, setOrderSuccess] = useState(false);
@@ -22,44 +22,6 @@ export default function ModalScreen() {
     (total, item) => total + item.price * item.quantity,
     0
   );
-
-  
-  // This will be a separate file called send request and function will be exported
-  async function sendRequest(
-    url: string,
-    method: string = 'GET',
-    payload: object | null = null
-  ) {
-    const options: RequestInit = { method };
-
-    if (payload) {
-      options.headers = { 'Content-Type': 'application/json' };
-      options.body = JSON.stringify(payload);
-    }
-
-    if (accessToken) {
-      options.headers = {
-        ...(options.headers || {}),
-        Authorization: `Bearer ${accessToken}`,
-      };
-    }
-
-    try {
-      const res = await fetch(url, options);
-
-      if (res.ok) {
-        return res.json();
-      } else {
-        const errorResponse = await res.json();
-        console.error('Error Response:', errorResponse);
-        throw new Error(`Request failed with status ${res.status}`);
-      }
-    } catch (error) {
-      console.error('Request Error ', error);
-      throw new Error('Request failed. Please check your network connection and try again.');
-    }
-  };
-
 
   async function resolveCheckoutCustomer(): Promise<{ customerName: string } | null> {
     if (accountType === "user") {
