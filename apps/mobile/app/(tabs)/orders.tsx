@@ -41,7 +41,14 @@ export default function OrdersScreen() {
     return WorkerOrdersContent();
   }
 
-  return CustomerOrdersContent(accountType, borderColor, handleAddToCart, cartCount);
+  return (
+  <CustomerOrdersContent
+    accountType={accountType}
+    borderColor={borderColor}
+    handleAddToCart={handleAddToCart}
+    cartCount={cartCount}
+  />
+);
 }
 
 
