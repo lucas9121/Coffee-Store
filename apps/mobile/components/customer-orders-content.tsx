@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 
 import { ThemedView } from "./ui/themed-view";
@@ -8,8 +9,9 @@ import { Section } from "./section";
 import { HorizontalList } from "./horizontal-list";
 import { MenuCard } from "./menu-card";
 import { CartButton } from "./cart-button";
+import { getMenuItems } from "@/services/menu-api";
 
-import { menuItems, favoriteItems, recentItems } from "@/constants/mock-menu-data";
+import { favoriteItems, recentItems } from "@/constants/mock-menu-data";
 
 type MenuListItem = {
   id: string;
@@ -20,12 +22,56 @@ type MenuListItem = {
 
 type HandleAddToCart = (item: MenuListItem) => void;
 
-export function CustomerOrdersContent(
-  accountType: string, 
-  borderColor: string,
-  handleAddToCart: HandleAddToCart,
-  cartCount: number
+type MenuItem = {
+  id: string;
+  name: string;
+  price: number;
+  image: string | number;
+  category: string;
+  inStock: boolean;
+};
+
+type CustomerOrdersContentProps = {
+  accountType: string;
+  borderColor: string;
+  handleAddToCart: HandleAddToCart;
+  cartCount: number;
+};
+
+
+
+
+export function CustomerOrdersContent({
+  accountType,
+  borderColor,
+  handleAddToCart,
+  cartCount,
+} : CustomerOrdersContentProps
 ) {
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  
+  async function loadMenuItems(): Promise<void>{
+    try {
+      const data = await getMenuItems();
+      setMenuItems(
+        data.map((item: any) => ({
+          id: item._id,
+          name: item.name,
+          price: item.price,
+          image: require("@/assets/images/church-kiosk-temp-logo.png"),
+          category: item.category,
+          inStock: item.inStock,
+        }))
+      );
+    } catch (error) {
+      console.error(error);
+    };
+  };
+
+  useEffect(() => {
+    loadMenuItems();
+  },[]);
+
   const menuCategories: string[] = [... new Set(menuItems.map((item) => item.category))]
 
   return (
