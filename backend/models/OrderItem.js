@@ -7,7 +7,7 @@ const orderItemSchema = new Schema({
   price: {type: Number, required: true},
   image: {type: String},
   category: {
-    type: string,
+    type: String,
     enum: ["coffee", "juice", "food", "dessert"]
   },
   inStock: {type: Boolean, default: true}
