@@ -6,6 +6,10 @@ const orderItemSchema = new Schema({
   name: {type: String, required: true},
   price: {type: Number, required: true},
   image: {type: String},
+  category: {
+    type: string,
+    enum: ["coffee", "juice", "food", "dessert"]
+  },
   inStock: {type: Boolean, default: true}
 }, {timestamps: true});
 
