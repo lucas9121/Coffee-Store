@@ -1,22 +1,22 @@
-import { useAuth } from "@/context/AuthContext";
+
 
 export async function sendRequest(
   url: string,
   method: string = 'GET',
-  payload: object | null = null
+  payload: object | null = null,
+  token: string | null = null
 ) {
   const options: RequestInit = { method };
-  const { accessToken } = useAuth();
 
   if (payload) {
     options.headers = { 'Content-Type': 'application/json' };
     options.body = JSON.stringify(payload);
   }
 
-  if (accessToken) {
+  if (token) {
     options.headers = {
       ...(options.headers || {}),
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${token}`,
     };
   }
 

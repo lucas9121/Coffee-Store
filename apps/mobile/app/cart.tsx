@@ -13,7 +13,7 @@ import { createOrder } from '@/services/orders-api';
 
 export default function ModalScreen() {
   const { cartItems, setCartItems } = useCart();
-  const { accountType } = useAuth();
+  const { accountType, accessToken } = useAuth();
   const router = useRouter();
   const { guestName } = useLocalSearchParams<{ guestName?: string }>();
   const [orderSuccess, setOrderSuccess] = useState(false);
@@ -54,7 +54,7 @@ export default function ModalScreen() {
     };
 
     try {
-      await createOrder(payload);
+      await createOrder(payload, accessToken);
       setCartItems([]);
       setOrderSuccess(true)
     } catch (error) {
