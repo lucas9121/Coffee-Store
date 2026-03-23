@@ -7,6 +7,7 @@ import { CartItem } from '@/components/cart-item-row';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { ThemedScrollView } from '@/components/ui/themed-scroll-view';
+import { createOrder } from '@/services/orders-api';
 
 
 
@@ -57,18 +58,7 @@ export default function ModalScreen() {
       console.error('Request Error ', error);
       throw new Error('Request failed. Please check your network connection and try again.');
     }
-  }
-
-
-  // this will also be a separate file called carts-api that will export all functions like get/create/etc
-  // it will import send request from send request file. 
-  const BASE_URL = `${process.env.EXPO_PUBLIC_API_URL}/orders`
-  async function createOrder(payload:{
-    customerName: string;
-    orderItems: { item: string; quantity: number}[];
-  }){
-      return await sendRequest(BASE_URL, "POST", payload)
-  }
+  };
 
 
   async function resolveCheckoutCustomer(): Promise<{ customerName: string } | null> {
