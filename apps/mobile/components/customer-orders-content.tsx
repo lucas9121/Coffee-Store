@@ -10,6 +10,7 @@ import { HorizontalList } from "./horizontal-list";
 import { MenuCard } from "./menu-card";
 import { CartButton } from "./cart-button";
 import { getMenuItems } from "@/services/menu-api";
+import { getStoreStatus } from "@/services/store-settings";
 
 import { favoriteItems, recentItems } from "@/constants/mock-menu-data";
 
@@ -49,6 +50,15 @@ export function CustomerOrdersContent({
 } : CustomerOrdersContentProps
 ) {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [isStoreOpen, setIsStoreOpen] = useState<boolean>(false)
+  async function storeStatus() {
+    try {
+      const status = await getStoreStatus()
+      setIsStoreOpen(status.isOpen)
+    } catch (error) {
+      console.error(error)
+    }
+  }
   
   async function loadMenuItems(): Promise<void>{
     try {
@@ -70,6 +80,7 @@ export function CustomerOrdersContent({
 
   useEffect(() => {
     loadMenuItems();
+    storeStatus()
   },[]);
 
   const menuCategories: string[] = [... new Set(menuItems.map((item) => item.category))]
@@ -78,7 +89,7 @@ export function CustomerOrdersContent({
     <ThemedView style={{flex: 1}}>
       <ThemedScrollView contentContainerStyle={styles.screenContent}>
         <ThemedText type="title">Order Menu</ThemedText>
-        
+        {!isStoreOpen && <ThemedText type="subtitle">Store is currently closed</ThemedText>}
         {cartCount > 0 && (
           <ThemedText>Cart Items: {cartCount}</ThemedText>
         )}
@@ -93,6 +104,7 @@ export function CustomerOrdersContent({
                 name={item.name} 
                 image={item.image} 
                 price={item.price}
+                isOpen={isStoreOpen}
                 onAddPress={() => handleAddToCart(item)}
               />
               )}
@@ -110,6 +122,7 @@ export function CustomerOrdersContent({
                 name={item.name} 
                 image={item.image} 
                 price={item.price}
+                isOpen={isStoreOpen}
                 onAddPress={() => handleAddToCart(item)}
               />
               )}
@@ -133,6 +146,7 @@ export function CustomerOrdersContent({
                       name={item.name} 
                       image={item.image} 
                       price={item.price}
+                      isOpen={isStoreOpen}
                       onAddPress={() => handleAddToCart(item)}
                     />
                   )}
