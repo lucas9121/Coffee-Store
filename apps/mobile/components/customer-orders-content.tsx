@@ -9,10 +9,12 @@ import { Section } from "./section";
 import { HorizontalList } from "./horizontal-list";
 import { MenuCard } from "./menu-card";
 import { CartButton } from "./cart-button";
+
 import { getMenuItems } from "@/services/menu-api";
 import { getStoreStatus } from "@/services/store-settings";
+import { getCurrentUser } from "@/services/user-api";
 
-import { favoriteItems, recentItems } from "@/constants/mock-menu-data";
+import { useAuth } from "@/context/AuthContext";
 
 type MenuListItem = {
   id: string;
@@ -41,7 +43,6 @@ type CustomerOrdersContentProps = {
 
 
 
-
 export function CustomerOrdersContent({
   accountType,
   borderColor,
@@ -50,15 +51,20 @@ export function CustomerOrdersContent({
 } : CustomerOrdersContentProps
 ) {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-  const [isStoreOpen, setIsStoreOpen] = useState<boolean>(false)
+  const [isStoreOpen, setIsStoreOpen] = useState<boolean>(false);
+  const [userFavorites, setUserFavorites] = useState<MenuItem[]>([]);
+  const [userRecent, setUserRecent] = useState<MenuItem[]>([]);
+  const [isUser, setIsUser] = useState<boolean>(false);
+  const {accessToken} = useAuth()
+
   async function storeStatus() {
     try {
-      const status = await getStoreStatus()
-      setIsStoreOpen(status.isOpen)
+      const status = await getStoreStatus();
+      setIsStoreOpen(status.isOpen);
     } catch (error) {
-      console.error(error)
-    }
-  }
+      console.error(error);
+    };
+  };
   
   async function loadMenuItems(): Promise<void>{
     try {
@@ -78,12 +84,30 @@ export function CustomerOrdersContent({
     };
   };
 
+  async function getUserInfo(){
+    try {
+      if(accountType === "user"){
+        setIsUser(true);
+        const userInfo = await getCurrentUser(accessToken);
+        setUserRecent(menuItems.filter(item => userInfo.user.recent.includes(item.id)));
+        setUserFavorites(menuItems.filter(item => userInfo.user.favorites.includes(item.id)));
+      };
+      
+    } catch (error) {
+      console.error(error);
+    };
+  };
+
   useEffect(() => {
     loadMenuItems();
-    storeStatus()
+    storeStatus();
   },[]);
 
-  const menuCategories: string[] = [... new Set(menuItems.map((item) => item.category))]
+  useEffect(() => {
+    if(menuItems.length > 0 ) getUserInfo()
+  }, [menuItems, accessToken, accountType])
+
+  const menuCategories: string[] = [... new Set(menuItems.map((item) => item.category))];
 
   return (
     <ThemedView style={{flex: 1}}>
@@ -97,7 +121,7 @@ export function CustomerOrdersContent({
         {accountType === "user" && (
           <Section title="Favorites">
             <HorizontalList
-              data={favoriteItems}
+              data={userFavorites}
               keyExtractor={(item) => item.id}
               renderItem={({item}) => (
                 <MenuCard 
@@ -105,6 +129,7 @@ export function CustomerOrdersContent({
                 image={item.image} 
                 price={item.price}
                 isOpen={isStoreOpen}
+                isUser={isUser}
                 onAddPress={() => handleAddToCart(item)}
               />
               )}
@@ -115,7 +140,7 @@ export function CustomerOrdersContent({
         {accountType === "user" && (
           <Section title="Recents">
             <HorizontalList
-              data={recentItems}
+              data={userRecent}
               keyExtractor={(item) => item.id}
               renderItem={({item}) => (
                 <MenuCard 
@@ -123,6 +148,7 @@ export function CustomerOrdersContent({
                 image={item.image} 
                 price={item.price}
                 isOpen={isStoreOpen}
+                isUser={isUser}
                 onAddPress={() => handleAddToCart(item)}
               />
               )}
@@ -147,6 +173,8 @@ export function CustomerOrdersContent({
                       image={item.image} 
                       price={item.price}
                       isOpen={isStoreOpen}
+                      isUser={isUser}
+                      isFavorite={isUser && userFavorites.some(fav => fav.id === item.id)}
                       onAddPress={() => handleAddToCart(item)}
                     />
                   )}
