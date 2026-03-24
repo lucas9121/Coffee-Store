@@ -7,11 +7,12 @@ type MenuCardProps = {
   image: ImageSourcePropType | string;
   price: number;
   isFavorite?: boolean;
+  isOpen: boolean;
   onFavoritePress?: () => void;
   onAddPress?: () => void;
 };
 
-export function MenuCard({ name, image, price, isFavorite, onFavoritePress, onAddPress }: MenuCardProps) {
+export function MenuCard({ name, image, price, isFavorite, isOpen, onFavoritePress, onAddPress }: MenuCardProps) {
   const imageSource = typeof image === "string" ? {uri: image} : image
   return (
     <ThemedView style={styles.card}>
@@ -21,7 +22,7 @@ export function MenuCard({ name, image, price, isFavorite, onFavoritePress, onAd
       <Image source={imageSource} style={styles.image} />
       <ThemedText style={styles.name}>{name}</ThemedText>
       <ThemedText style={styles.price}>${price.toFixed(2)}</ThemedText>
-      <Pressable style={styles.addButton} onPress={() => onAddPress?.()}>
+      <Pressable style={isOpen ? styles.addButton:  styles.disabledButton} onPress={() => onAddPress?.()} disabled={!isOpen}>
         <ThemedText>Add</ThemedText>
       </Pressable>
     </ThemedView>
@@ -64,5 +65,13 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     backgroundColor: "red",
     borderRadius: 10,
+  },
+  disabledButton: {
+    marginTop: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: "red",
+    borderRadius: 10,
+    opacity: .5,
   }
 });
