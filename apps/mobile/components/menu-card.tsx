@@ -8,17 +8,20 @@ type MenuCardProps = {
   price: number;
   isFavorite?: boolean;
   isOpen: boolean;
+  isUser: boolean;
   onFavoritePress?: () => void;
   onAddPress?: () => void;
 };
 
-export function MenuCard({ name, image, price, isFavorite, isOpen, onFavoritePress, onAddPress }: MenuCardProps) {
+export function MenuCard({ name, image, price, isFavorite, isOpen, isUser, onFavoritePress, onAddPress }: MenuCardProps) {
   const imageSource = typeof image === "string" ? {uri: image} : image
   return (
     <ThemedView style={styles.card}>
-      <Pressable style={styles.favoriteButton} onPress={() => onFavoritePress?.()}>
-        <ThemedText>{isFavorite ? "♥" : "♡"}</ThemedText>
-      </Pressable>
+      {isUser && 
+        <Pressable style={styles.favoriteButton} onPress={() => onFavoritePress?.()}>
+          <ThemedText>{isFavorite ? "♥" : "♡"}</ThemedText>
+        </Pressable>
+      }
       <Image source={imageSource} style={styles.image} />
       <ThemedText style={styles.name}>{name}</ThemedText>
       <ThemedText style={styles.price}>${price.toFixed(2)}</ThemedText>
