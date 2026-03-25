@@ -38,6 +38,22 @@ Creates a new order.
 
 ---
 
+## GET /orders
+
+Fetch all orders.
+
+### Auth
+- Requires authentication
+- Allowed roles:
+  - worker
+  - admin
+
+### Responses
+200 → array of orders
+500 → server error
+
+---
+
 ## GET /orders/:id
 
 Fetch a single order by ID.
