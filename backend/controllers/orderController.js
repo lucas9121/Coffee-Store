@@ -9,6 +9,7 @@ const isStoreOpen = require("../utils/isStoreOpen");
 module.exports = {
   createOrder,
   getOrder,
+  getAllOrders,
   updateOrder,
   updateOrderStatus,
   deleteOrder
@@ -90,6 +91,15 @@ async function getOrder(req, res){
     return res.status(400).json({message: "Invalid ID"});
   }
 };
+
+async function getAllOrders(req, res){
+  try {
+    const orders = await Order.find().sort({createdAt: -1});
+    return res.status(200).json(orders)
+  } catch (error) {
+    return res.status(500).json({message: "Server error"})
+  }
+}
 
 async function updateOrder(req, res){
   try {
