@@ -36,7 +36,6 @@ export function AuthProvider({children} : {children: React.ReactNode}){
   // bootstrapAuth can use state setters directly from inside AuthProvider.
   async function bootstrapAuth(): Promise<void> {
     const refreshToken = await getRefreshToken();
-    console.log("Refresh token found:", refreshToken);
     setHasRefreshToken(!!refreshToken);
     setIsInitializing(false);
   };
@@ -51,13 +50,18 @@ export function AuthProvider({children} : {children: React.ReactNode}){
 
   async function login(
     accessToken: string,
-    refreshToken: string,
+    refreshToken: string | null = null,
     accountType: AccountType
   ): Promise<void> {
-    await setRefreshToken(refreshToken);
+    if (refreshToken) {
+      await setRefreshToken(refreshToken);
+      setHasRefreshToken(true);
+    } else {
+      await deleteRefreshToken();
+      setHasRefreshToken(false);
+    }
     setAccessToken(accessToken);
     setAccountType(accountType);
-    setHasRefreshToken(true);
     setIsInitializing(false);
   };
 
