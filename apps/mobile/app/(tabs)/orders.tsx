@@ -50,6 +50,7 @@ export default function OrdersScreen() {
   return (
   <CustomerOrdersContent
     accountType={accountType}
+    token={accessToken}
     borderColor={borderColor}
     handleAddToCart={handleAddToCart}
     cartCount={cartCount}

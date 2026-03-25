@@ -14,8 +14,6 @@ import { getMenuItems } from "@/services/menu-api";
 import { getStoreStatus } from "@/services/store-settings";
 import { getCurrentUser } from "@/services/user-api";
 
-import { useAuth } from "@/context/AuthContext";
-
 type MenuListItem = {
   id: string;
   name: string;
@@ -39,6 +37,7 @@ type CustomerOrdersContentProps = {
   borderColor: string;
   handleAddToCart: HandleAddToCart;
   cartCount: number;
+  token: string | null
 };
 
 
@@ -48,6 +47,7 @@ export function CustomerOrdersContent({
   borderColor,
   handleAddToCart,
   cartCount,
+  token
 } : CustomerOrdersContentProps
 ) {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -55,7 +55,6 @@ export function CustomerOrdersContent({
   const [userFavorites, setUserFavorites] = useState<MenuItem[]>([]);
   const [userRecent, setUserRecent] = useState<MenuItem[]>([]);
   const [isUser, setIsUser] = useState<boolean>(false);
-  const {accessToken} = useAuth()
 
   async function storeStatus() {
     try {
@@ -88,7 +87,7 @@ export function CustomerOrdersContent({
     try {
       if(accountType === "user"){
         setIsUser(true);
-        const userInfo = await getCurrentUser(accessToken);
+        const userInfo = await getCurrentUser(token);
         setUserRecent(menuItems.filter(item => userInfo.user.recent.includes(item.id)));
         setUserFavorites(menuItems.filter(item => userInfo.user.favorites.includes(item.id)));
       };
@@ -105,7 +104,7 @@ export function CustomerOrdersContent({
 
   useEffect(() => {
     if(menuItems.length > 0 ) getUserInfo()
-  }, [menuItems, accessToken, accountType])
+  }, [menuItems, token, accountType])
 
   const menuCategories: string[] = [... new Set(menuItems.map((item) => item.category))];
 
