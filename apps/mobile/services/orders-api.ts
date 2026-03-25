@@ -11,3 +11,7 @@ export async function createOrder(
 ) {
     return await sendRequest(BASE_URL, "POST", payload, token)
 }
+
+export async function getAllOrders(token: string | null){
+  return await sendRequest(BASE_URL, "GET", null, token)
+}
