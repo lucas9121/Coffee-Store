@@ -3,10 +3,11 @@ const router = express.Router();
 const requireAuth = require("../middleware/requireAuth");
 const authorizeRoles = require("../middleware/authorizeRoles");
 const optionalAuth = require("../middleware/optionalAuth");
-const {createOrder, getOrder, updateOrderStatus, deleteOrder} = require("../controllers/orderController");
+const {createOrder, getOrder, getAllOrders, updateOrderStatus, deleteOrder} = require("../controllers/orderController");
 
 
 router.post('/', optionalAuth, createOrder);
+router.get("/", requireAuth, authorizeRoles(["worker", "admin"]), getAllOrders);
 router.get('/:id', getOrder);
 router.patch('/:id/status', requireAuth, authorizeRoles(["worker", "admin"]), updateOrderStatus)
 router.delete('/:id', requireAuth, authorizeRoles(["worker", "admin"]), deleteOrder)
