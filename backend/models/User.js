@@ -47,7 +47,7 @@ const userSchema = new Schema({
         }],
         validate: [arr => arr.length === 2, "You must select exactly 2 security questions"]
     },
-    refreshTokenHash: {Type: String},
+    refreshTokenHash: {type: String},
     refreshTokenExpiresAt: {type: Date}
 }, 
 {
