@@ -15,7 +15,7 @@ type MenuListItem = {
 };
 
 export default function OrdersScreen() {
-  const { accountType } = useAuth();
+  const { accountType, accessToken } = useAuth();
   const borderColor = useThemeColor({}, "border");
   const { cartItems, setCartItems } = useCart();
 
@@ -38,7 +38,13 @@ export default function OrdersScreen() {
   }
 
   if (accountType === "worker") {
-    return WorkerOrdersContent();
+    return(
+      <WorkerOrdersContent 
+      accountType={accountType}
+      borderColor={borderColor}
+      token={accessToken}
+      />
+    )
   }
 
   return (
