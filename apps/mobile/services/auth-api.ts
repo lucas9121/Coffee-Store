@@ -7,6 +7,21 @@ type LoginPayload = {
   password: string;
 };
 
+
+export type SignupPayload = {
+  name: string;
+  email: string;
+  password: string;
+  securityQuestions: {
+    question: string;
+    answer: string;
+  }[];
+};
+
 export async function loginUser(payload: LoginPayload) {
   return await sendRequest(`${BASE_URL}/login`, "POST", payload);
-}
+};
+
+export async function signupUser(payload: SignupPayload) {
+  return await sendRequest(`${BASE_URL}`, "POST", payload);
+};
