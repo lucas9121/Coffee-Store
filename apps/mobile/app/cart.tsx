@@ -17,6 +17,8 @@ export default function ModalScreen() {
   const router = useRouter();
   const { guestName } = useLocalSearchParams<{ guestName?: string }>();
   const [orderSuccess, setOrderSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [checkoutError, setCheckoutError] = useState("");
 
   const subtotal = cartItems.reduce(
     (total, item) => total + item.price * item.quantity,
@@ -44,10 +46,12 @@ export default function ModalScreen() {
     // Stop here if redirected customer to login / guest flow
     if (!customer) return;
 
+    setCheckoutError("");
+    setIsSubmitting(true);
+
     const payload = {
       customerName: customer.customerName,
       orderItems: cartItems.map((item) => ({
-        // This must eventually be a REAL backend OrderItem _id
         item: item.id,
         quantity: item.quantity,
       })),
@@ -58,9 +62,12 @@ export default function ModalScreen() {
       setCartItems([]);
       setOrderSuccess(true)
     } catch (error) {
-      console.log(error);
-    }
-  }
+      setCheckoutError("Could not place order. Please try again.")
+      console.error(error);
+    } finally {
+      setIsSubmitting(false)
+    };
+  };
 
   if (orderSuccess) {
     return (
@@ -93,12 +100,17 @@ export default function ModalScreen() {
             <CartItem key={item.id} item={item} />
           ))}
 
+          {checkoutError ? (
+            <ThemedText>{checkoutError}</ThemedText>
+          ) : null}
+
           {cartItems.length > 0 && (
             <Pressable
-              onPress={() => handleCheckout()}
+              onPress={handleCheckout}
               style={styles.checkoutButton}
+              disabled={isSubmitting}
             >
-              <ThemedText type='subtitle'>Checkout ${subtotal.toFixed(2)}</ThemedText>
+              <ThemedText type='subtitle'>{isSubmitting ? "Placing order..." : `Checkout $${subtotal.toFixed(2)}`}</ThemedText>
             </Pressable>
           )}
         </ThemedView>
