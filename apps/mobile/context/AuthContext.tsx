@@ -20,7 +20,7 @@ type AuthContextValue = {
 
   login: (
     accessToken: string,
-    refreshToken: string,
+    refreshToken: string | null,
     accountType: AccountType
   ) => Promise<void>;
 };
