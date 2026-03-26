@@ -18,6 +18,7 @@ export default function SettingsScreen() {
         <ThemedText type="title" >Settings Screen</ThemedText>
         <ThemedText>accountType: {accountType}</ThemedText>
         <Button onPress={() => router.push("/login")}>Log In</Button>
+        <Button onPress={() => router.push("/signup")}>Sign up</Button>
       </ThemedView>
     );
   };
