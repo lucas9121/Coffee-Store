@@ -1,15 +1,22 @@
 import { useState } from "react";
-import { StyleSheet, Pressable } from "react-native";
-import { Picker } from "@react-native-picker/picker";
+import { 
+  StyleSheet, 
+  Pressable, 
+  Modal, 
+  TouchableWithoutFeedback, 
+  Keyboard, 
+  KeyboardAvoidingView, 
+  Platform } from "react-native";
 import { Button } from "@react-navigation/elements";
 import { useRouter } from "expo-router";
 
 import { ThemedView } from "@/components/ui/themed-view";
+import { ThemedScrollView } from "@/components/ui/themed-scroll-view";
 import { ThemedText } from "@/components/ui/themed-text";
 import { ThemedTextInput } from "@/components/ui/themed-text-input";
-
 import { signupUser } from "@/services/auth-api";
 import { useAuth } from "@/context/AuthContext";
+import { useThemeColor } from "@/hooks/use-theme-color";
 
 export default function SignUpScreen(){
   const router = useRouter();
@@ -20,10 +27,14 @@ export default function SignUpScreen(){
   const [answer1, setAnswer1] = useState<string>("");
   const [question2, setQuestion2] = useState<string>("");
   const [answer2, setAnswer2] = useState<string>("");
+  const [questionModalVisible, setQuestionModalVisible] = useState(false);
+  const [activeQuestionField, setActiveQuestionField] = useState<1 | 2 | null>(null);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [signUpError, setSignUpError] = useState("");
-  const [showPassword, setShowPassword] = useState<boolean>(false);
   const { login } = useAuth();
+  const borderColor = useThemeColor({}, "border");
+  const backgroundColor = useThemeColor({}, "background")
 
   const questions = [
     "What is your mother's maiden name?",
@@ -36,14 +47,11 @@ export default function SignUpScreen(){
 
   async function handleSubmit() {
     setSignUpError("");
-    if (question1 === question2) {
-      setSignUpError("Please select two different security questions.");
-      return;
-    }
-    if(!name) return setSignUpError("Please fill in name field.");
-    if(!email) return setSignUpError("Please fill in email field.");
-    if(!password) return setSignUpError("Please fill in password field.");
-    if(!answer1.length || !answer2) return setSignUpError("Please fill in answer field.");
+    if(!name) return setSignUpError("Please complete all fields before continuing.");
+    if(!email) return setSignUpError("Please make sure all fields are filled correctly.");
+    if(!password) return setSignUpError("Please complete all fields before continuing.");
+    if(!answer1.length || !answer2) return setSignUpError("Please complete all fields before continuing.");
+    if (question1 === question2) return setSignUpError("Please select two different security questions.");
     
     setIsSubmitting(true);
 
@@ -69,90 +77,194 @@ export default function SignUpScreen(){
     }
   };
 
+  function openQuestionPicker(field: 1 | 2) {
+  setActiveQuestionField(field);
+  setQuestionModalVisible(true);
+  }
+
+  function handleSelectQuestion(question: string) {
+    if (activeQuestionField === 1) {
+      setQuestion1(question);
+    } else if (activeQuestionField === 2) {
+      setQuestion2(question);
+    }
+
+    setQuestionModalVisible(false);
+    setActiveQuestionField(null);
+  }
+
     return(
-      <ThemedView style={styles.view} >
-        <ThemedText type="title">Signup Screen</ThemedText>
-        <ThemedTextInput
-          placeholder="Name"
-          value={name}
-          onChangeText={setName}
-        />
-        <ThemedTextInput
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
-        />
-        <ThemedTextInput
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry={!showPassword}
-          rightAccessory={
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <KeyboardAvoidingView 
+          style={{flex: 1}}
+          behavior={Platform.OS === "ios" ? "padding": undefined}
+        >
+          <ThemedScrollView contentContainerStyle={styles.view} keyboardShouldPersistTaps="handled">
+            <ThemedText type="title">Signup Screen</ThemedText>
+            <ThemedTextInput
+              placeholder="Name"
+              value={name}
+              onChangeText={setName}
+            />
+            <ThemedTextInput
+              placeholder="Email"
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              keyboardType="email-address"
+            />
+            <ThemedTextInput
+              placeholder="Password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+              rightAccessory={
+                <Pressable
+                  onPressIn={() => setShowPassword(true)}
+                  onPressOut={() => setShowPassword(false)}
+                  style={styles.eyeButton}
+                >
+                  <ThemedText>👁️</ThemedText>
+                </Pressable>
+              }
+            />
+            <ThemedText> Security Question 1</ThemedText>
             <Pressable
-              onPressIn={() => setShowPassword(true)}
-              onPressOut={() => setShowPassword(false)}
-              style={styles.eyeButton}
+              onPress={() => openQuestionPicker(1)}
+              style={[
+                styles.questionField,
+                {
+                  borderColor,
+                  backgroundColor,
+                },
+              ]}
+              >
+                <ThemedText>
+                  {question1 || "Select a question..."}
+                </ThemedText>
+              </Pressable>
+            <ThemedTextInput
+              placeholder="Answer"
+              value={answer1}
+              onChangeText={setAnswer1}
+              autoCapitalize="none"
+            />
+            <ThemedText> Security Question 2</ThemedText>
+            <Pressable
+              onPress={() => openQuestionPicker(2)}
+              style={[
+                styles.questionField,
+                {
+                  borderColor,
+                  backgroundColor,
+                },
+              ]}
+              >
+                <ThemedText>
+                  {question2 || "Select a question..."}
+                </ThemedText>
+              </Pressable>
+            <ThemedTextInput
+              placeholder="Answer"
+              value={answer2}
+              onChangeText={setAnswer2}
+              autoCapitalize="none"
+            />
+      
+            <Button onPress={handleSubmit}>
+              {isSubmitting ? "Signing up..." : "Sign up"}
+            </Button>
+      
+            {signUpError ? <ThemedText style={styles.errorText}>{signUpError}</ThemedText> : null}
+
+            <Modal
+              visible={questionModalVisible}
+              transparent
+              animationType="slide"
+              onRequestClose={() => {
+                setQuestionModalVisible(false);
+                setActiveQuestionField(null);
+              }}
             >
-              <ThemedText>👁️</ThemedText>
-            </Pressable>
-          }
-        />
-        <Picker
-          selectedValue={question1}
-          onValueChange={(itemValue) => setQuestion1(itemValue)}
-          >
-            <Picker.Item label="Select a question..." value="" />
-            {questions.map((q) => (
-              <Picker.Item key={q} label={q} value={q} />
-            ))}
-          </Picker>
-        <ThemedTextInput
-          placeholder="Answer"
-          value={answer1}
-          onChangeText={setAnswer1}
-          autoCapitalize="none"
-        />
-        <Picker
-          selectedValue={question2}
-          onValueChange={(itemValue) => setQuestion2(itemValue)}
-          >
-            <Picker.Item label="Select a question..." value="" />
-            {questions.map((q) => (
-              <Picker.Item key={q} label={q} value={q} />
-            ))}
-          </Picker>
-        <ThemedTextInput
-          placeholder="Answer"
-          value={answer2}
-          onChangeText={setAnswer2}
-          autoCapitalize="none"
-        />
-  
-        <Button onPress={handleSubmit}>
-          {isSubmitting ? "Signing up..." : "Sign up"}
-        </Button>
-  
-        {signUpError ? <ThemedText style={styles.errorText}>{signUpError}</ThemedText> : null}
-  
-      </ThemedView>
+              <ThemedView style={styles.modalOverlay}>
+                <ThemedView style={styles.modalContent}>
+                  <ThemedText type="subtitle">Select a security question</ThemedText>
+
+                  {questions.map((q) => (
+                    <Pressable
+                      key={q}
+                      onPress={() => handleSelectQuestion(q)}
+                      style={styles.questionOption}
+                    >
+                      <ThemedText>{q}</ThemedText>
+                    </Pressable>
+                  ))}
+
+                  <Pressable
+                    onPress={() => {
+                      setQuestionModalVisible(false);
+                      setActiveQuestionField(null);
+                    }}
+                    style={styles.cancelButton}
+                  >
+                    <ThemedText>Cancel</ThemedText>
+                  </Pressable>
+                </ThemedView>
+              </ThemedView>
+            </Modal>
+          </ThemedScrollView>
+        </KeyboardAvoidingView>
+      </TouchableWithoutFeedback>
+
     )
 }
 
 const styles = StyleSheet.create({
   view: {
-    flex: 1, 
-    alignItems: "center", 
-    justifyContent: "center",
+    flexGrow: 1,
     padding: 24,
     gap: 12,
+    justifyContent: "center"
   },
+
   eyeButton: {
     paddingHorizontal: 12,
     paddingVertical: 10,
   },
+
   errorText:{
     color: "red",
-  }
+  },
+
+  questionField: {
+  width: "100%",
+  paddingHorizontal: 12,
+  paddingVertical: 14,
+  borderWidth: 1,
+  borderRadius: 8,
+  },
+
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: "rgba(0,0,0,0.35)",
+  },
+
+  modalContent: {
+    padding: 24,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    gap: 12,
+  },
+
+  questionOption: {
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+  },
+
+  cancelButton: {
+    marginTop: 8,
+    paddingVertical: 12,
+    alignItems: "center",
+  },
 });
