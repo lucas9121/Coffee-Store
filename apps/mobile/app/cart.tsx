@@ -6,6 +6,7 @@ import { ThemedView } from '@/components/ui/themed-view';
 import { CartItem } from '@/components/cart-item-row';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
+import { useOrder } from '@/context/OrderContext';
 import { ThemedScrollView } from '@/components/ui/themed-scroll-view';
 import { createOrder } from '@/services/orders-api';
 
@@ -13,7 +14,8 @@ import { createOrder } from '@/services/orders-api';
 
 export default function ModalScreen() {
   const { cartItems, setCartItems } = useCart();
-  const { accountType, accessToken, setLatestOrder } = useAuth();
+  const { accountType, accessToken} = useAuth();
+  const {setLatestOrder} = useOrder();
   const router = useRouter();
   const { guestName } = useLocalSearchParams<{ guestName?: string }>();
   const [orderSuccess, setOrderSuccess] = useState(false);
