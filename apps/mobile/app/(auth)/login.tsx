@@ -89,6 +89,8 @@ export default function LoginScreen() {
         {isSubmitting ? "Logging in..." : "Log in"}
       </Button>
 
+      <ThemedText type="link" onPress={() => router.push("/forgot-password")}>Forgot Password</ThemedText>
+
       {loginError ? <ThemedText style={styles.errorText}>{loginError}</ThemedText> : null}
 
       {fromCheckout && (
