@@ -9,6 +9,7 @@ import { ThemeProviderCustom } from '@/context/ThemeContext';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { CartProvider } from '@/context/CartContext';
+import { OrderProvider } from '@/context/OrderContext';
 
 import { ThemedText } from '@/components/ui/themed-text';
 import { ThemedView } from '@/components/ui/themed-view';
@@ -50,11 +51,13 @@ export default function RootLayout() {
   return(
     <ThemeProviderCustom>
       <SafeAreaProvider>
-        <CartProvider>
-          <AuthProvider> 
-            <InnerLayout />
-          </AuthProvider>
-        </CartProvider>
+        <OrderProvider>
+          <CartProvider>
+            <AuthProvider> 
+              <InnerLayout />
+            </AuthProvider>
+          </CartProvider>
+        </OrderProvider>
       </SafeAreaProvider>
     </ThemeProviderCustom>
   )
