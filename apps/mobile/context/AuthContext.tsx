@@ -1,5 +1,6 @@
 import React, {createContext, useContext, useMemo, useState, useEffect} from "react";
 import { getRefreshToken, deleteRefreshToken, setRefreshToken } from "@/services/tokenStorage";
+import { logoutUser } from "@/services/auth-api";
 
 type AccountType = "guest" | "user" | "worker";
 
@@ -41,11 +42,20 @@ export function AuthProvider({children} : {children: React.ReactNode}){
   };
   
   async function logout(): Promise<void> {
-    await deleteRefreshToken();
-    setAccessToken(null);
-    setAccountType("guest");
-    setHasRefreshToken(false);
-    setIsInitializing(false)
+    try {
+      // call backend only if there is a real token
+      if(accessToken && !accessToken.startsWith("mock-")) {
+        await logoutUser(accessToken);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      await deleteRefreshToken();
+      setAccessToken(null);
+      setAccountType("guest");
+      setHasRefreshToken(false);
+      setIsInitializing(false);
+    }
   };
 
   async function login(
