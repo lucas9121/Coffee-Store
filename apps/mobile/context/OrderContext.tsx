@@ -1,16 +1,16 @@
 import React, { useState, useMemo, useContext, createContext } from "react";
 
 type OrderContextValue = {
-    latestOrder: string | null;
-    setLatestOrder: React.Dispatch<React.SetStateAction<string | null>>;
+    latestOrderId: string | null;
+    setLatestOrderId: React.Dispatch<React.SetStateAction<string | null>>;
 };
 
 const OrderContext = createContext<OrderContextValue | null>(null);
 
 export function OrderProvider({children}: {children: React.ReactNode}){
-  const [latestOrder, setLatestOrder] = useState<string | null>(null);
+  const [latestOrderId, setLatestOrderId] = useState<string | null>(null);
 
-  const value = useMemo(() => ({latestOrder, setLatestOrder}), [latestOrder]);
+  const value = useMemo(() => ({latestOrderId, setLatestOrderId}), [latestOrderId]);
 
   return<OrderContext.Provider value={value}>{children}</OrderContext.Provider>;
 }

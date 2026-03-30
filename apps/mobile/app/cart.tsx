@@ -15,7 +15,7 @@ import { createOrder } from '@/services/orders-api';
 export default function ModalScreen() {
   const { cartItems, setCartItems } = useCart();
   const { accountType, accessToken} = useAuth();
-  const {setLatestOrder} = useOrder();
+  const {setLatestOrderId} = useOrder();
   const router = useRouter();
   const { guestName } = useLocalSearchParams<{ guestName?: string }>();
   const [orderSuccess, setOrderSuccess] = useState(false);
@@ -63,7 +63,7 @@ export default function ModalScreen() {
       const order = await createOrder(payload, accessToken);
       setCartItems([]);
       setOrderSuccess(true)
-      setLatestOrder(order._id)
+      setLatestOrderId(order._id)
     } catch (error) {
       setCheckoutError("Could not place order. Please try again.")
       console.error(error);
