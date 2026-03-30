@@ -10,7 +10,7 @@ export default function PasswordRecovery() {
     <ThemedView style={styles.view}>
       <ThemedText type="title">Forgot Password</ThemedText>
       <ThemedText>Password recovery will be added later.</ThemedText>
-      <Button onPress={() => router.replace("/login")}>Login</Button>
+      <Button onPress={() => router.replace("/login")}>Back to Login</Button>
     </ThemedView>
   )
 }
