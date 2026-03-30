@@ -16,6 +16,6 @@ export async function getAllOrders(token: string | null){
   return await sendRequest(BASE_URL, "GET", null, token)
 }
 
-export async function getOrdersById(id: string){
+export async function getOrderById(id: string){
   return await sendRequest(`${BASE_URL}/${id}`, "GET")
 }

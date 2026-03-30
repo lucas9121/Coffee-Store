@@ -8,7 +8,7 @@ import { Section } from "@/components/section";
 
 import {useAuth} from "../../context/AuthContext";
 import { useOrder } from "@/context/OrderContext";
-import { getOrdersById } from "@/services/orders-api";
+import { getOrderById } from "@/services/orders-api";
 
 type LatestOrder = {
   _id: string;
@@ -31,7 +31,7 @@ export default function HomeScreen() {
     }
     try {
       setIsLoading(true);
-      const order = await getOrdersById(latestOrderId);
+      const order = await getOrderById(latestOrderId);
       setLatestOrder(order);
       setHasError(false)
     } catch (error) {
