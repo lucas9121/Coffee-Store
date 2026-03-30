@@ -25,3 +25,7 @@ export async function loginUser(payload: LoginPayload) {
 export async function signupUser(payload: SignupPayload) {
   return await sendRequest(`${BASE_URL}`, "POST", payload);
 };
+
+export async function logoutUser(token: string | null){
+  return await sendRequest(`${BASE_URL}/me/logout`, "POST", null, token)
+}
