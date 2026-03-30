@@ -17,6 +17,9 @@ type AuthContextValue = {
 
   hasRefreshToken: boolean;
 
+  latestOrder: string | null;
+  setLatestOrder: React.Dispatch<React.SetStateAction<string | null>>;
+
   logout: () => Promise<void>;
 
   login: (
@@ -33,6 +36,7 @@ export function AuthProvider({children} : {children: React.ReactNode}){
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState<boolean>(true);
   const [hasRefreshToken, setHasRefreshToken] = useState<boolean>(false);
+  const [latestOrder, setLatestOrder] = useState<string | null>(null)
 
   // bootstrapAuth can use state setters directly from inside AuthProvider.
   async function bootstrapAuth(): Promise<void> {
@@ -88,6 +92,8 @@ export function AuthProvider({children} : {children: React.ReactNode}){
       isInitializing,
       setIsInitializing,
       hasRefreshToken,
+      latestOrder,
+      setLatestOrder,
       logout,
       login
     }), 
