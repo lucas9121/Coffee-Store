@@ -34,6 +34,11 @@ export default function LoginScreen() {
       const refreshToken = data.refreshToken ?? null;
       const accountType = data.user.account;
 
+      if (accountType === "admin") {
+        setLoginError("Login failed. Please check your credentials.");
+        return;
+      }
+
       await login(accessToken, refreshToken, accountType);
 
       if (fromCheckout) {
