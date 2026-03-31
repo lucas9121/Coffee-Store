@@ -85,17 +85,16 @@ export function CustomerOrdersContent({
 
   async function getUserInfo(){
     try {
-      if(accountType === "user"){
-        setIsUser(true);
-        const userInfo = await getCurrentUser(token);
-        setRecentIds(userInfo.user.recent.map((id: any) => id.toString()));
-        setFavoriteIds(userInfo.user.favorites.map((id: any) => id.toString()));
-      } else {
+      if(accountType !== "user"){
         setIsUser(false);
         setRecentIds([]);
         setFavoriteIds([]);
         return;
-      }  
+      } 
+      setIsUser(true);
+      const userInfo = await getCurrentUser(token);
+      setRecentIds(userInfo.user.recent.map((id: any) => id.toString()));
+      setFavoriteIds(userInfo.user.favorites.map((id: any) => id.toString()));
     } catch (error) {
       console.error(error);
     };
