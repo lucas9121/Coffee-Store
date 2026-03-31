@@ -84,7 +84,10 @@ async function createOrder(req, res){
 async function getOrder(req, res){
   try {
     const id = req.params.id;
-    const order = await Order.findById(id).populate("orderItems.item");
+    const order = await Order.findById(id).populate(
+      "orderItems.item",
+      "name image category price inStock"
+    );
     if(!order) return res.status(404).json({message: "Order not found"});
     return res.status(200).json(order);
   } catch (error) {
