@@ -108,6 +108,6 @@ const styles = StyleSheet.create({
     gap: 24,
   },
   errorText: {
-    color: "#ff6b6b", // softer red
+    color: "#ff6b6b",
   },
 });
