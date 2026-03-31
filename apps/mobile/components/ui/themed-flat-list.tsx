@@ -10,5 +10,5 @@ export type ThemedFlatListProps<T> = FlatListProps<T> & {
 export function ThemedFlatList<T>({ style, lightColor, darkColor, ...otherProps }: ThemedFlatListProps<T>) {
   const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
 
-  return <FlatList style={[{ flex: 1, backgroundColor }, style]} {...otherProps} />;
+  return <FlatList style={[{ backgroundColor }, style]} {...otherProps} />;
 }

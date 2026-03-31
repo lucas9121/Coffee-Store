@@ -52,8 +52,8 @@ export function CustomerOrdersContent({
 ) {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [isStoreOpen, setIsStoreOpen] = useState<boolean>(false);
-  const [userFavorites, setUserFavorites] = useState<MenuItem[]>([]);
-  const [userRecent, setUserRecent] = useState<MenuItem[]>([]);
+  const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
+  const [recentIds, setRecentIds] = useState<string[]>([]);
   const [isUser, setIsUser] = useState<boolean>(false);
 
   async function storeStatus() {
@@ -88,10 +88,14 @@ export function CustomerOrdersContent({
       if(accountType === "user"){
         setIsUser(true);
         const userInfo = await getCurrentUser(token);
-        setUserRecent(menuItems.filter(item => userInfo.user.recent.includes(item.id)));
-        setUserFavorites(menuItems.filter(item => userInfo.user.favorites.includes(item.id)));
-      };
-      
+        setRecentIds(userInfo.user.recent.map((id: any) => id.toString()));
+        setFavoriteIds(userInfo.user.favorites.map((id: any) => id.toString()));
+      } else {
+        setIsUser(false);
+        setRecentIds([]);
+        setFavoriteIds([]);
+        return;
+      }  
     } catch (error) {
       console.error(error);
     };
@@ -107,6 +111,8 @@ export function CustomerOrdersContent({
   }, [menuItems, token, accountType])
 
   const menuCategories: string[] = [... new Set(menuItems.map((item) => item.category))];
+  const userRecent = menuItems.filter(item => recentIds.includes(item.id));
+  const userFavorites = menuItems.filter(item => favoriteIds.includes(item.id));
 
   return (
     <ThemedView style={{flex: 1}}>
@@ -173,7 +179,7 @@ export function CustomerOrdersContent({
                       price={item.price}
                       isOpen={isStoreOpen}
                       isUser={isUser}
-                      isFavorite={isUser && userFavorites.some(fav => fav.id === item.id)}
+                      isFavorite={isUser && favoriteIds.includes(item.id)}
                       onAddPress={() => handleAddToCart(item)}
                     />
                   )}
