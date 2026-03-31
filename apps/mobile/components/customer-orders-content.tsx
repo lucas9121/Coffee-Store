@@ -122,7 +122,7 @@ export function CustomerOrdersContent({
           <ThemedText>Cart Items: {cartCount}</ThemedText>
         )}
 
-        {accountType === "user" && (
+        {accountType === "user" && userFavorites.length > 0 && (
           <Section title="Favorites">
             <HorizontalList
               data={userFavorites}
@@ -141,7 +141,7 @@ export function CustomerOrdersContent({
           </Section>
         )}
 
-        {accountType === "user" && (
+        {accountType === "user" && userRecent.length > 0 && (
           <Section title="Recents">
             <HorizontalList
               data={userRecent}

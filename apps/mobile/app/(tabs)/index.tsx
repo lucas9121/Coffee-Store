@@ -73,7 +73,7 @@ export default function HomeScreen() {
         <ThemedText>Loading latest order...</ThemedText>
       ) : latestOrder ?(
         <Section title="Latest Order">
-          <ThemedText>Status: {latestOrder.status}</ThemedText>
+          <ThemedText style={{marginTop: 8}}>Status: {latestOrder.status}</ThemedText>
           {latestOrder.orderItems.map((orderItem, index) => (
             <ThemedText key={index}>
               {orderItem.item.name} x{orderItem.quantity}
