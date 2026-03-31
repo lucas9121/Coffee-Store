@@ -15,7 +15,13 @@ type LatestOrder = {
   customerName: string;
   status: string;
   totalPrice: number;
-}
+  orderItems: {
+    item: {
+      name: string;
+    };
+    quantity: number;
+  }[];
+};
 
 export default function HomeScreen() {
   const {accountType} = useAuth();
@@ -68,6 +74,11 @@ export default function HomeScreen() {
       ) : latestOrder ?(
         <Section title="Latest Order">
           <ThemedText>Status: {latestOrder.status}</ThemedText>
+          {latestOrder.orderItems.map((orderItem, index) => (
+            <ThemedText key={index}>
+              {orderItem.item.name} x{orderItem.quantity}
+            </ThemedText>
+          ))}
           <ThemedText>Total: ${latestOrder.totalPrice.toFixed(2)}</ThemedText>
         </Section>
       ) : hasError ? (
