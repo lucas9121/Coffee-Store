@@ -107,17 +107,9 @@ All store logic is enforced on the backend.
 
 ---
 
-## Notes
-
-- Backend is the source of truth for all business logic
-- Store availability is enforced server-side
-- Guest and authenticated flows are both supported
-- Designed for real-world usage with scalability and maintainability in mind
-
-
 ## Screenshots
 
-Scrennshots coming soon.
+Screenshots coming soon.
 
 <!-- ### Home Screen
 ![Home](./docs/images/home.png)
