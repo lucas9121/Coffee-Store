@@ -6,7 +6,6 @@ const OrderItem = require("../models/OrderItem");
 const Order = require("../models/Order");
 const StoreSettings = require("../models/StoreSettings");
 
-
 // Helpers
 function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -52,25 +51,55 @@ function pickTwoDifferentQuestions() {
   return [q1, q2];
 }
 
-
 // Seed Data
 const MENU = [
-  { name: "Coffee (Latte)", price: 4, image: "" },
-  { name: "Cappuccino", price: 5, image: "" },
-  { name: "Espresso", price: 2, image: "" },
-  { name: "Pao de Queijo", price: 1, image: "" },
-  { name: "Chocolate Cake", price: 5, image: "" },
-  { name: "Orange Juice", price: 5, image: "" },
-  { name: "Misto Quente", price: 4, image: "" },
+  { name: "Coffee", price: 4, image: "", category: "coffee" },
+  { name: "Latte", price: 6, image: "", category: "coffee" },
+  { name: "Espresso", price: 2, image: "", category: "coffee" },
+  { name: "Cappuccino", price: 6, image: "", category: "coffee" },
+  { name: "Iced Coffee", price: 7, image: "", category: "coffee" },
+  { name: "Pao de Queijo", price: 1, image: "", category: "food" },
+  { name: "Misto Quente", price: 6, image: "", category: "food" },
+  { name: "Orange Juice", price: 7, image: "", category: "juice" },
+  { name: "Chocolate Cake", price: 5, image: "", category: "dessert" },
 ];
 
-// Keep customerName length 2–10 
+// Keep customerName length 2–10
 const USER_NAMES = [
-  "Ana", "Bruno", "Carla", "Diego", "Elisa",
-  "Fabio", "Gabi", "Hugo", "Iris", "Joao",
-  "Kaya", "Lia", "Mia", "Noah", "Otto",
+  "Ana",
+  "Bruno",
+  "Carla",
+  "Diego",
+  "Elisa",
+  "Fabio",
+  "Gabi",
+  "Hugo",
+  "Iris",
+  "Joao",
+  "Kaya",
+  "Lia",
+  "Mia",
+  "Noah",
+  "Otto",
 ];
 
+const GUEST_NAMES = [
+  "Guest01",
+  "Guest02",
+  "Guest03",
+  "Guest04",
+  "Guest05",
+  "Guest06",
+  "Guest07",
+  "Guest08",
+  "Guest09",
+  "Guest10",
+  "Guest11",
+  "Guest12",
+  "Guest13",
+];
+
+const ORDER_SOURCES = ["MOBILE", "IN PERSON"];
 
 // Seed Function
 async function seed() {
@@ -104,17 +133,73 @@ async function seed() {
       name: i.name,
       price: i.price,
       image: i.image,
+      category: i.category,
       inStock: true,
     }))
   );
 
   const itemIds = orderItems.map((i) => i._id);
 
-  console.log("👤 Creating 15 users (all customers first)...");
   const password = "Password123!";
 
-  // Create users via User.create so pre('save') bcrypt hooks run
-  const users = [];
+  console.log("👑 Creating admin account...");
+  {
+    const [q1, q2] = pickTwoDifferentQuestions();
+
+    const admin = await User.create({
+      name: "Admin",
+      email: "admin@example.com",
+      password,
+      account: "admin",
+      securityQuestions: [
+        { question: q1, answer: "seedAnswer1" },
+        { question: q2, answer: "seedAnswer2" },
+      ],
+      favorites: [],
+      recent: [],
+    });
+
+    const createdAt = daysAgo(randInt(0, 60));
+    await User.collection.updateOne(
+      { _id: admin._id },
+      { $set: { createdAt, updatedAt: createdAt } }
+    );
+  }
+
+  console.log("🧑‍💼 Creating worker accounts...");
+  const workerNames = ["Worker", "Pedro", "Marcos"];
+  const workerEmails = [
+    "worker@example.com",
+    "pedro.worker@example.com",
+    "marcos.worker@example.com",
+  ];
+
+  for (let i = 0; i < workerNames.length; i++) {
+    const [q1, q2] = pickTwoDifferentQuestions();
+
+    const worker = await User.create({
+      name: workerNames[i],
+      email: workerEmails[i],
+      password,
+      account: "worker",
+      securityQuestions: [
+        { question: q1, answer: "seedAnswer1" },
+        { question: q2, answer: "seedAnswer2" },
+      ],
+      favorites: [],
+      recent: [],
+    });
+
+    const createdAt = daysAgo(randInt(0, 60));
+    await User.collection.updateOne(
+      { _id: worker._id },
+      { $set: { createdAt, updatedAt: createdAt } }
+    );
+  }
+
+  console.log("👤 Creating 15 customer users...");
+  const customerUsers = [];
+
   for (let i = 0; i < 15; i++) {
     const name = USER_NAMES[i];
     const email = makeEmail(name, i);
@@ -134,14 +219,12 @@ async function seed() {
       recent: [],
     });
 
-    users.push(user);
+    customerUsers.push(user);
   }
 
-  console.log("🕒 Setting createdAt spread across last 90 days...");
-  // Update createdAt AFTER creation
-  for (const u of users) {
+  console.log("🕒 Setting createdAt spread across last 60 days...");
+  for (const u of customerUsers) {
     const createdAt = daysAgo(randInt(0, 60));
-    // Write directly to MongoDB to bypass Mongoose timestamp behavior
     await User.collection.updateOne(
       { _id: u._id },
       { $set: { createdAt, updatedAt: createdAt } }
@@ -149,11 +232,9 @@ async function seed() {
   }
 
   console.log("⭐ Adding favorites (0–3) and recents (0–5)...");
-  // Reload users fresh (with correct timestamps)
-  const freshUsers = await User.find({}).lean();
+  const allUsers = await User.find({}).lean();
 
-  for (const u of freshUsers) {
-    // Some get neither, some only recents, etc.
+  for (const u of allUsers) {
     const favoritesCount = randInt(0, 3);
     const recentCount = randInt(0, 5);
 
@@ -166,25 +247,40 @@ async function seed() {
     );
   }
 
-  console.log("🧑‍💼 Upgrading 3 workers + 1 admin...");
-  // pick last 4 users to upgrade
-  const upgraded = await User.find({}).sort({ createdAt: 1 }).limit(4);
-  await User.updateOne({ _id: upgraded[0]._id }, { $set: { account: "admin" } });
-  await User.updateOne({ _id: upgraded[1]._id }, { $set: { account: "worker" } });
-  await User.updateOne({ _id: upgraded[2]._id }, { $set: { account: "worker" } });
-  await User.updateOne({ _id: upgraded[3]._id }, { $set: { account: "worker" } });
+  console.log("📱 Assigning source groups to customer users and guests...");
+  // Each person gets only one source type, never both.
+  const customerSourceMap = new Map();
+  const guestSourceMap = new Map();
 
-  console.log("🧾 Creating 25 orders (mix of user-like + guest)...");
-  const finalUsers = await User.find({}).sort({ createdAt: 1 });
+  const freshCustomerUsers = await User.find({ account: "user" }).sort({ createdAt: 1 });
 
+  for (const user of freshCustomerUsers) {
+    customerSourceMap.set(user._id.toString(), sampleOne(ORDER_SOURCES));
+  }
+
+  for (const guestName of GUEST_NAMES) {
+    guestSourceMap.set(guestName, sampleOne(ORDER_SOURCES));
+  }
+
+  console.log("🧾 Creating 25 orders (mix of customer users + guests)...");
   const ordersToCreate = [];
-  for (let i = 0; i < 25; i++) {
-    const fromUser = i < 12; // ~half from “users”, rest guests
-    const customerName = fromUser
-      ? sampleOne(finalUsers).name
-      : `Guest${String(i - 11).padStart(2, "0")}`; // Guest01 etc (<=10 chars)
 
-    // 1–4 items per order
+  for (let i = 0; i < 25; i++) {
+    const fromUser = i < 12; // about half customer users, rest guests
+
+    let customerName;
+    let source;
+
+    if (fromUser) {
+      const pickedUser = sampleOne(freshCustomerUsers);
+      customerName = pickedUser.name;
+      source = customerSourceMap.get(pickedUser._id.toString());
+    } else {
+      const guestName = sampleOne(GUEST_NAMES);
+      customerName = guestName;
+      source = guestSourceMap.get(guestName);
+    }
+
     const itemsInOrder = randInt(1, 4);
     const pickedItems = sampleManyUnique(orderItems, itemsInOrder);
 
@@ -202,16 +298,15 @@ async function seed() {
       0
     );
 
-    // Some variety in status
     const statusOptions = ["PLACED", "IN PROGRESS", "READY", "COMPLETED", "CANCELLED"];
     const status = sampleOne(statusOptions);
 
-    // Spread orders across last 30 days
     const createdAt = daysAgo(randInt(0, 30));
 
     ordersToCreate.push({
       customerName,
       status,
+      source,
       orderItems: orderItemsPayload,
       totalPrice,
       createdAt,
@@ -219,11 +314,13 @@ async function seed() {
     });
   }
 
-  // Insert orders with explicit timestamps
   await Order.insertMany(ordersToCreate);
 
   console.log("✅ Seed complete!");
+  console.log("Admin login: admin@example.com");
+  console.log("Worker login: worker@example.com");
   console.log("Login password for all users:", password);
+
   process.exit(0);
 }
 
