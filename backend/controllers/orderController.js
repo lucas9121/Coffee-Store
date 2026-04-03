@@ -97,7 +97,9 @@ async function getOrder(req, res){
 
 async function getAllOrders(req, res){
   try {
-    const orders = await Order.find().sort({createdAt: -1});
+    const orders = await Order.find()
+      .populate("orderItems.item", "name image price inStock")
+      .sort({createdAt: -1});
     return res.status(200).json(orders)
   } catch (error) {
     return res.status(500).json({message: "Server error"})
