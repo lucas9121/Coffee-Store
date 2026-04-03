@@ -56,6 +56,17 @@ export function CustomerOrdersContent({
   const [recentIds, setRecentIds] = useState<string[]>([]);
   const [isUser, setIsUser] = useState<boolean>(false);
 
+  const imageMap: Record<string, any> = {
+    coffee: require("@/assets/images/coffee.png"),
+    espresso: require("@/assets/images/espresso.png"),
+    cappuccino: require("@/assets/images/cappuccino.png"),
+    latte: require("@/assets/images/latte.jpg"),
+    "iced coffee": require("@/assets/images/iced-coffee.png"),
+    "orange juice": require("@/assets/images/orange-juice.png"),
+    "pao de queijo": require("@/assets/images/pao-de-queijo.jpg"),
+    "misto quente": require("@/assets/images/misto-quente.jpg"),
+  };
+
   async function storeStatus() {
     try {
       const status = await getStoreStatus();
@@ -73,7 +84,7 @@ export function CustomerOrdersContent({
           id: item._id,
           name: item.name,
           price: item.price,
-          image: require("@/assets/images/church-kiosk-temp-logo.png"),
+          image: imageMap[item.name.toLowerCase()] || require("@/assets/images/logo.jpg"),
           category: item.category,
           inStock: item.inStock,
         }))
