@@ -19,3 +19,11 @@ export async function getAllOrders(token: string | null){
 export async function getOrderById(id: string){
   return await sendRequest(`${BASE_URL}/${id}`, "GET")
 }
+
+export async function updateOrderStatus(
+  id: string,
+  status: string,
+  token: string | null
+) {
+  return await sendRequest(`${BASE_URL}/${id}/status`, "PATCH", {status}, token);
+}
