@@ -14,6 +14,10 @@ const orderSchema = new mongoose.Schema(
       enum: ["PLACED", "IN PROGRESS", "READY", "COMPLETED", "CANCELLED"], 
       default: "PLACED"
     },
+    source: {
+      type: String,
+      enum: ["MOBILE", "IN PERSON"]
+    },
     orderItems: [
       {
         item: {
