@@ -5,6 +5,7 @@ import { ThemedView } from "@/components/ui/themed-view";
 import { ThemedText } from "@/components/ui/themed-text";
 import { ThemedScrollView } from "@/components/ui/themed-scroll-view";
 import { Section } from "@/components/section";
+import WorkerHomeScreen from "@/components/worker-home-content";
 
 import {useAuth} from "../../context/AuthContext";
 import { useOrder } from "@/context/OrderContext";
@@ -24,7 +25,7 @@ type LatestOrder = {
 };
 
 export default function HomeScreen() {
-  const {accountType} = useAuth();
+  const {accountType, accessToken} = useAuth();
   const {latestOrderId} = useOrder();
   const [latestOrder, setLatestOrder] = useState<LatestOrder | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -56,11 +57,10 @@ export default function HomeScreen() {
 
   if (accountType === "worker") {
     return(
-      <ThemedView style={styles.centered}>
-        <ThemedText type="title">Worker Home</ThemedText>
-        <ThemedText type="subtitle">This will become: In-Person Order screen + Open/Close store toggle</ThemedText>
-        <ThemedText>accountType: {accountType}</ThemedText>
-      </ThemedView>
+      <WorkerHomeScreen 
+      accountType={accountType}
+      accessToken={accessToken}
+      />
     )
   }
 
