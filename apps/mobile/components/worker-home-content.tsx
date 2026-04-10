@@ -5,11 +5,14 @@ import { ThemedView } from "@/components/ui/themed-view";
 import { ThemedText } from "@/components/ui/themed-text";
 import { Section } from "@/components/section";
 
-import { useAuth } from "@/context/AuthContext";
 import { getStoreStatus, setStoreOverride } from "@/services/store-settings";
 
-export default function WorkerHomeScreen() {
-  const { accountType, accessToken } = useAuth();
+type WorkerHomeScreenProps = {
+  accountType: string;
+  accessToken: string | null;
+};
+
+export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeScreenProps) {
   const [isStoreOpen, setIsStoreOpen] = useState<boolean>(false);
   const [isLoadingStore, setIsLoadingStore] = useState(false);
   const [storeError, setStoreError] = useState("");
