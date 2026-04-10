@@ -1,5 +1,5 @@
-const express = require("express");
-const router = express.Router();
+const requireAuth = require("../middleware/requireAuth");
+const authorizeRoles = require("../middleware/authorizeRoles");
 const {
   getStoreSettings, 
   getStoreStatus, 
@@ -9,8 +9,8 @@ const {
 
 router.get("/", getStoreSettings);
 router.get("/status", getStoreStatus);
-router.patch("/schedule", updateWeeklySchedule);
-router.patch("/override", setManualOverride);
+router.patch("/schedule", requireAuth, authorizeRoles(["worker", "admin"]), updateWeeklySchedule);
+router.patch("/override", requireAuth, authorizeRoles(["worker", "admin"]), setManualOverride);
 
 
 module.exports = router
