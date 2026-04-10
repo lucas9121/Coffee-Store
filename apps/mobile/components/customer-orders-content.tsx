@@ -57,12 +57,12 @@ export function CustomerOrdersContent({
   const [isUser, setIsUser] = useState<boolean>(false);
 
   const imageMap: Record<string, any> = {
-    coffee: require("@/assets/images/coffee.png"),
-    espresso: require("@/assets/images/espresso.png"),
-    cappuccino: require("@/assets/images/cappuccino.png"),
+    coffee: require("@/assets/images/coffee.jpg"),
+    espresso: require("@/assets/images/espresso.jpg"),
+    cappuccino: require("@/assets/images/cappuccino.jpg"),
     latte: require("@/assets/images/latte.jpg"),
-    "iced coffee": require("@/assets/images/iced-coffee.png"),
-    "orange juice": require("@/assets/images/orange-juice.png"),
+    "iced coffee": require("@/assets/images/iced-coffee.jpg"),
+    "orange juice": require("@/assets/images/orange-juice.jpg"),
     "pao de queijo": require("@/assets/images/pao-de-queijo.jpg"),
     "misto quente": require("@/assets/images/misto-quente.jpg"),
   };
