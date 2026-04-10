@@ -7,7 +7,7 @@ export async function getStoreStatus(){
 }
 
 export async function setStoreOverride(
-  payload: {status: boolean | null; expiresAt: string | null},
+  payload: {status: string | null; expiresAt: string | null},
   token: string | null
 ) {
   return await sendRequest(`${BASE_URL}/override`, "PATCH", payload, token);
