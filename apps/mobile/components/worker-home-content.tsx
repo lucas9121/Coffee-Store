@@ -31,7 +31,7 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
     }
   }
 
-  async function handleSetStore(status: boolean): Promise<void> {
+  async function handleSetStore(status: "open" | "closed"): Promise<void> {
     try {
       setStoreError("");
 
@@ -39,7 +39,7 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
       const expiresAt = new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString();
 
       await setStoreOverride(
-        {status, expiresAt},
+        {status, expiresAt}, 
         accessToken
       );
       await loadStoreStatus();
@@ -73,14 +73,14 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
         <ThemedView style={styles.buttonRow}>
           <Pressable
             style={styles.actionButton}
-            onPress={() => handleSetStore(true)}
+            onPress={() => handleSetStore("open")}
           >
             <ThemedText>Open Store</ThemedText>
           </Pressable>
 
           <Pressable
             style={styles.actionButton}
-            onPress={() => handleSetStore(false)}
+            onPress={() => handleSetStore("closed")}
           >
             <ThemedText>Close Store</ThemedText>
           </Pressable>
