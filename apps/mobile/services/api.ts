@@ -24,9 +24,14 @@ export async function sendRequest(
     const res = await fetch(url, options);
 
     if (res.ok) {
-      return res.json();
+      if (res.status === 204) {
+        return null;
+      }
+      const text = await res.text();
+      return text ? JSON.parse(text) : null;
     } else {
-      const errorResponse = await res.json();
+      const text = await res.text();
+      const errorResponse = text ? JSON.parse(text) : null;
       console.error('Error Response:', errorResponse);
       throw new Error(`Request failed with status ${res.status}`);
     }
