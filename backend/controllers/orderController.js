@@ -54,6 +54,7 @@ async function createOrder(req, res){
     const order =  await Order.create({
       customerName,
       orderItems,
+      source,
       totalPrice: finalPrice
     });
 
