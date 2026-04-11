@@ -117,7 +117,6 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
     });
   };
 
-  // Here //
   async function handleCreateInPersonOrder(): Promise<void> {
     if (!customerName.trim()) {
       setOrderError("Please enter a customer name.");
@@ -126,6 +125,11 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
 
     if (cartItems.length === 0) {
       setOrderError("Please add at least one item.");
+      return;
+    }
+
+    if (customerName.trim().length > 10) {
+      setOrderError("Customer name must be 10 characters or less.");
       return;
     }
 
