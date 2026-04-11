@@ -26,7 +26,11 @@ async function createOrder(req, res){
       return res.status(403).json({ message: "Store is currently closed" });
     }
 
-    const {customerName, orderItems} = req.body;
+    const {customerName, orderItems, source} = req.body;
+
+    if (!source) {
+      return res.status(400).json({ message: "Missing order source" });
+    }
 
     const userId = req.user?.userId;
     const user = userId ? await User.findById(userId) : null;
