@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Pressable, StyleSheet } from "react-native";
 
 import { ThemedView } from "@/components/ui/themed-view";
@@ -44,6 +44,7 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
   const [cartItems, setCartItems] = useState<InPersonCartItem[]>([]);
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
   const [orderError, setOrderError] = useState("");
+  const skipNextStorePollRef = useRef(false);
 
   async function loadMenuItems(): Promise<void> {
     try {
@@ -88,6 +89,7 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
         {status, expiresAt}, 
         accessToken
       );
+      skipNextStorePollRef.current = true;
       await loadStoreStatus();
     } catch (error) {
       console.error(error);
@@ -159,10 +161,21 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
   }
 
   useEffect(() => {
-    if (accountType === "worker") {
+    if (accountType !== "worker") return;
+
+    loadStoreStatus();
+    loadMenuItems();
+
+    const interval = setInterval(() => {
+      if (skipNextStorePollRef.current) {
+        skipNextStorePollRef.current = false;
+        return;
+      }
+
       loadStoreStatus();
-      loadMenuItems();
-    }
+    }, 50000);
+
+    return () => clearInterval(interval);
   }, [accountType]);
 
   const menuCategories: string[] = [...new Set(menuItems.map((item) => item.category))];

@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { StyleSheet } from "react-native";
 
-import { ThemedView } from "@/components/ui/themed-view";
 import { ThemedText } from "@/components/ui/themed-text";
 import { ThemedScrollView } from "@/components/ui/themed-scroll-view";
 import { Section } from "@/components/section";
@@ -30,30 +29,48 @@ export default function HomeScreen() {
   const [latestOrder, setLatestOrder] = useState<LatestOrder | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [hasError, setHasError] = useState(false)
-
-  async function loadLatestOrder(): Promise<void>{
-    if(!latestOrderId || accountType === "worker"){
-      setLatestOrder(null);
-      return;
-    }
-    try {
-      setIsLoading(true);
-      const order = await getOrderById(latestOrderId);
-      setLatestOrder(order);
-      setHasError(false)
-    } catch (error) {
-      console.error(error);
-      setLatestOrder(null);
-      setHasError(true)
-    } finally{
-      setIsLoading(false)
-    }
-  };
-
+  const skipNextOrderPollRef = useRef(false)
+  const isFirstOrderLoadRef = useRef(true)
 
   useEffect(() => {
-    loadLatestOrder()
-  }, [latestOrderId, accountType])
+    if (!latestOrderId || accountType === "worker") return;
+    let isMounted = true;
+    isFirstOrderLoadRef.current = true;
+    async function fetchLatest() {
+      try {
+        if (!isMounted) return;
+        if(isFirstOrderLoadRef.current) setIsLoading(true);
+        const order = await getOrderById(latestOrderId!);
+        setLatestOrder(order);
+        setHasError(false);
+        // stop polling if finished
+        if (order.status === "COMPLETED" || order.status === "CANCELLED") {
+          clearInterval(interval);
+        }
+      } catch (error) {
+        console.error(error);
+        setHasError(true);
+      } finally {
+        if(isFirstOrderLoadRef.current){
+          setIsLoading(false);
+          isFirstOrderLoadRef.current = false;
+        }
+      }
+    }
+    fetchLatest();
+    const interval = setInterval(() => {
+      if (skipNextOrderPollRef.current) {
+        skipNextOrderPollRef.current = false;
+        return;
+      }
+      fetchLatest();
+    }, 20000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [latestOrderId, accountType]);
 
   if (accountType === "worker") {
     return(
