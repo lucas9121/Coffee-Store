@@ -26,6 +26,7 @@ type InPersonCartItem = {
   id: string;
   name: string;
   price: number;
+  image: string | number;
   quantity: number;
 };
 
@@ -113,6 +114,7 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
           id: item.id,
           name: item.name,
           price: item.price,
+          image: item.image,
           quantity: 1,
         },
       ];
@@ -179,16 +181,17 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
   }, [accountType]);
 
   const menuCategories: string[] = [...new Set(menuItems.map((item) => item.category))];
+  const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
   return (
     <ThemedScrollView contentContainerStyle={styles.screen}>
       <ThemedText type="title">Worker Home</ThemedText>
 
-      <Section title="Store Status">
+      <Section title="Store Status" style={{alignItems: "center"}}>
         {isLoadingStore ? (
-          <ThemedText>Loading store status...</ThemedText>
+          <ThemedText style={{textAlign: "center"}}>Loading store status...</ThemedText>
         ) : (
-          <ThemedText>{isStoreOpen ? "Open" : "Closed"}</ThemedText>
+          <ThemedText style={{textAlign: "center"}}>{isStoreOpen ? "Open" : "Closed"}</ThemedText>
         )}
 
         {storeError ? (
@@ -212,9 +215,13 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
         </ThemedView>
       </Section>
 
-      <Section title="In-Person Orders">
+      <Section title="In-Person Orders" style={{alignItems: "center"}}>
+        <Pressable style={[styles.orderButton, {borderColor}]}>
+          <ThemedText >Current Order </ThemedText>
+          <ThemedText>{cartCount}</ThemedText>
+        </Pressable>
         <ThemedTextInput
-          placeholder="Customer name"
+          placeholder="Add customer name"
           value={customerName}
           onChangeText={setCustomerName}
         />
@@ -285,6 +292,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 12,
     gap: 24,
+    alignItems: "center"
   },
   buttonRow: {
     flexDirection: "row",
@@ -296,6 +304,15 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderWidth: 1,
     borderRadius: 10,
+  },
+  orderButton: {
+    width: "50%",
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderRadius: 10,
+    flexDirection: "row",
+    gap: 8
   },
   errorText: {
     color: "#ff6b6b",
