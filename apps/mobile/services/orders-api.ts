@@ -6,7 +6,7 @@ export async function createOrder(
   payload:{
     customerName: string;
     orderItems: { item: string; quantity: number}[];
-    source: "MOBILE" | "IN PERSON";
+    source: string;
   }, 
   token: string | null
 ) {

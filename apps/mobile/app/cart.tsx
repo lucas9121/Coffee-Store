@@ -57,6 +57,7 @@ export default function ModalScreen() {
         item: item.id,
         quantity: item.quantity,
       })),
+      source: "MOBILE",
     };
 
     try {
