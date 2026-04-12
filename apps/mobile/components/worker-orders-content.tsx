@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { StyleSheet, ScrollView } from "react-native";
 import { ThemedScrollView } from "./ui/themed-scroll-view";
 import { ThemedText } from "./ui/themed-text";
 import { ThemedView } from "./ui/themed-view";
-import { Section } from "./section";
 import { getAllOrders } from "@/services/orders-api";
 import { updateOrderStatus } from "@/services/orders-api";
 
@@ -36,14 +35,14 @@ type WorkerOrdersContentProps = {
 };
 
 export function WorkerOrdersContent({
-  accountType,
   borderColor,
   token
 }: WorkerOrdersContentProps) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [activeTab, setActiveTab] = useState<"MOBILE" | "IN PERSON">("MOBILE")
+  const [activeTab, setActiveTab] = useState<"MOBILE" | "IN PERSON">("MOBILE");
+  const skipNextPollRef = useRef(false);
 
   async function loadOrders(): Promise<void>{
     try {
@@ -62,6 +61,17 @@ export function WorkerOrdersContent({
   useEffect(() =>{
     if(!token) return;
     loadOrders();
+
+    // Poll with manual update skip
+    const interval = setInterval(() => {
+      if(skipNextPollRef.current) {
+        skipNextPollRef.current = false;
+        return;
+      }
+      loadOrders();
+    }, 15000);
+
+    return () => clearInterval(interval)
   }, [token])
 
   const filteredOrders = orders.filter((order) => order.source === activeTab);
@@ -84,6 +94,7 @@ export function WorkerOrdersContent({
 
     try {
       await updateOrderStatus(orderId, nextStatus, token);
+      skipNextPollRef.current = true;
       await loadOrders(); 
     } catch (error) {
       console.error(error);
@@ -145,16 +156,7 @@ export function WorkerOrdersContent({
         <ThemedText style={styles.errorText}>
           Unable to load orders right now.
         </ThemedText>
-      )}
-
-      {/* <Section title="Mobile Orders">
-        <ThemedText>Incoming mobile orders will appear here</ThemedText>
-      </Section>
-
-      <Section title="In-Person Orders">
-        <ThemedText>Walk-up orders will appear here</ThemedText>
-      </Section> */}
-      
+      )}    
 
       {!isLoading && !hasError && (
         <>
