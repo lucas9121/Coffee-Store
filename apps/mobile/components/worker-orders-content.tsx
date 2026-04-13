@@ -4,6 +4,7 @@ import { ThemedScrollView } from "./ui/themed-scroll-view";
 import { ThemedText } from "./ui/themed-text";
 import { ThemedView } from "./ui/themed-view";
 import { getAllOrders, updateOrderStatus, updateOrderPayment} from "@/services/orders-api";
+import { getStoreStatus } from "@/services/store-settings";
 
 type OrderItem = {
   item: {
@@ -68,17 +69,27 @@ export function WorkerOrdersContent({
     }
   }
 
+  async function pollWorkerOrders(showLoading = false) {
+    try {
+      const store = await getStoreStatus();
+      if (!store.isOpen) return;
+      await loadOrders(showLoading);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   useEffect(() =>{
     if(!token) return;
-    loadOrders(isFirstOrdersLoadRef.current);
+    pollWorkerOrders(isFirstOrdersLoadRef.current);
 
     // Poll with manual update skip
-    const interval = setInterval(() => {
+    const interval = setInterval(async () => {
       if(skipNextPollRef.current) {
         skipNextPollRef.current = false;
         return;
       }
-      loadOrders(false);
+      await pollWorkerOrders(false);
     }, 15000);
 
     return () => clearInterval(interval)

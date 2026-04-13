@@ -6,6 +6,7 @@ import { ThemedScrollView } from "@/components/ui/themed-scroll-view";
 import { Section } from "@/components/section";
 
 import { getOrderById } from "@/services/orders-api";
+import { getStoreStatus } from "@/services/store-settings";
 
 type LatestOrder = {
   _id: string;
@@ -32,36 +33,34 @@ export default function CustomerHomeScreen({
   const [latestOrder, setLatestOrder] = useState<LatestOrder | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
-
-  const skipNextOrderPollRef = useRef(false);
   const isFirstOrderLoadRef = useRef(true);
   const lastOrderSignatureRef = useRef("");
 
   useEffect(() => {
     if (!latestOrderId || accountType === "worker") return;
-
     let isMounted = true;
+    let interval: ReturnType<typeof setInterval> | null = null;
     isFirstOrderLoadRef.current = true;
     lastOrderSignatureRef.current = "";
 
     async function fetchLatest(showLoading = false) {
       try {
         if (!isMounted) return;
-
         if (showLoading) setIsLoading(true);
-
         const order = await getOrderById(latestOrderId!);
         const nextSignature = JSON.stringify(order);
-
         if (nextSignature !== lastOrderSignatureRef.current) {
           setLatestOrder(order);
           lastOrderSignatureRef.current = nextSignature;
-        }
-
+        };
         setHasError(false);
-
-        if (order.status === "COMPLETED" || order.status === "CANCELLED") {
+        const isActiveStatus =
+          order.status === "PLACED" ||
+          order.status === "IN PROGRESS" ||
+          order.status === "READY";
+        if (!isActiveStatus && interval) {
           clearInterval(interval);
+          interval = null;
         }
       } catch (error) {
         console.error(error);
@@ -70,24 +69,30 @@ export default function CustomerHomeScreen({
         if (showLoading) {
           setIsLoading(false);
           isFirstOrderLoadRef.current = false;
+        };
+      };
+    };
+
+    async function pollCustomerOrder(showLoading = false) {
+      try {
+        const store = await getStoreStatus();
+        await fetchLatest(showLoading);
+        if (!store.isOpen && interval) {
+          clearInterval(interval);
+          interval = null;
         }
-      }
-    }
+      } catch (error) {
+        console.error(error);
+      };
+    };
 
-    fetchLatest(isFirstOrderLoadRef.current);
-
-    const interval = setInterval(() => {
-      if (skipNextOrderPollRef.current) {
-        skipNextOrderPollRef.current = false;
-        return;
-      }
-
-      fetchLatest(false);
+    pollCustomerOrder(isFirstOrderLoadRef.current);
+    interval = setInterval(async () => {
+      await pollCustomerOrder(false);
     }, 20000);
-
     return () => {
       isMounted = false;
-      clearInterval(interval);
+      if (interval) clearInterval(interval);
     };
   }, [latestOrderId, accountType]);
 
