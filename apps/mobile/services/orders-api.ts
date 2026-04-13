@@ -28,3 +28,11 @@ export async function updateOrderStatus(
 ) {
   return await sendRequest(`${BASE_URL}/${id}/status`, "PATCH", {status}, token);
 }
+
+export async function updateOrderPayment(
+  id: string,
+  isPaid: boolean,
+  token: string | null
+) {
+  return await sendRequest(`${BASE_URL}/${id}/payment`, "PATCH", {isPaid}, token);
+}
