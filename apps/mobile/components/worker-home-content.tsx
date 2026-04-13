@@ -45,8 +45,10 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
   const [cartItems, setCartItems] = useState<InPersonCartItem[]>([]);
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
   const [orderError, setOrderError] = useState("");
-  const skipNextStorePollRef = useRef(false);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+  const skipNextStorePollRef = useRef(false);
+  const isFirstStoreLoadRef = useRef(true);
+  const lastStoreStatusRef = useRef<boolean | null>(null);
 
   async function loadMenuItems(): Promise<void> {
     try {
@@ -66,17 +68,23 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
     }
   }
 
-  async function loadStoreStatus(): Promise<void> {
+  async function loadStoreStatus(showLoading = false): Promise<void> {
     try {
-      setIsLoadingStore(true);
+      if(showLoading) setIsLoadingStore(true);
       setStoreError("");
       const data = await getStoreStatus();
-      setIsStoreOpen(data.isOpen);
+      if(lastStoreStatusRef.current !== data.isOpen) {
+        setIsStoreOpen(data.isOpen);
+        lastStoreStatusRef.current = data.isOpen
+      }
     } catch (error) {
       console.error(error);
       setStoreError("Unable to load store status.");
     } finally {
-      setIsLoadingStore(false);
+      if(showLoading){
+        setIsLoadingStore(false);
+        isFirstStoreLoadRef.current = false;
+      }
     }
   }
 
@@ -92,7 +100,7 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
         accessToken
       );
       skipNextStorePollRef.current = true;
-      await loadStoreStatus();
+      await loadStoreStatus(false);
     } catch (error) {
       console.error(error);
       setStoreError("Unable to update store status.");
@@ -190,7 +198,7 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
   useEffect(() => {
     if (accountType !== "worker") return;
 
-    loadStoreStatus();
+    loadStoreStatus(isFirstStoreLoadRef.current);
     loadMenuItems();
 
     const interval = setInterval(() => {
@@ -199,7 +207,7 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
         return;
       }
 
-      loadStoreStatus();
+      loadStoreStatus(false);
     }, 50000);
 
     return () => clearInterval(interval);

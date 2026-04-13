@@ -31,17 +31,22 @@ export default function HomeScreen() {
   const [hasError, setHasError] = useState(false)
   const skipNextOrderPollRef = useRef(false)
   const isFirstOrderLoadRef = useRef(true)
+  const lastOrderSignatureRef = useRef("");
 
   useEffect(() => {
     if (!latestOrderId || accountType === "worker") return;
     let isMounted = true;
     isFirstOrderLoadRef.current = true;
-    async function fetchLatest() {
+    async function fetchLatest(showLoading = false) {
       try {
         if (!isMounted) return;
-        if(isFirstOrderLoadRef.current) setIsLoading(true);
+        if(showLoading) setIsLoading(true);
         const order = await getOrderById(latestOrderId!);
-        setLatestOrder(order);
+        const nextSignature = JSON.stringify(order)
+        if(nextSignature !== lastOrderSignatureRef.current){
+          setLatestOrder(order);
+          lastOrderSignatureRef.current = nextSignature;
+        }
         setHasError(false);
         // stop polling if finished
         if (order.status === "COMPLETED" || order.status === "CANCELLED") {
@@ -51,19 +56,21 @@ export default function HomeScreen() {
         console.error(error);
         setHasError(true);
       } finally {
-        if(isFirstOrderLoadRef.current){
+        if(showLoading){
           setIsLoading(false);
           isFirstOrderLoadRef.current = false;
         }
       }
     }
-    fetchLatest();
+    isFirstOrderLoadRef.current = true;
+    lastOrderSignatureRef.current = "";
+    fetchLatest(isFirstOrderLoadRef.current);
     const interval = setInterval(() => {
       if (skipNextOrderPollRef.current) {
         skipNextOrderPollRef.current = false;
         return;
       }
-      fetchLatest();
+      fetchLatest(false);
     }, 20000);
 
     return () => {
