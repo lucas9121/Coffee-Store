@@ -12,6 +12,7 @@ module.exports = {
   getAllOrders,
   updateOrder,
   updateOrderStatus,
+  updateOrderPayment,
   deleteOrder
 };
 
@@ -147,6 +148,28 @@ async function updateOrderStatus(req, res){
 
   } catch (error) {
     return res.status(400).json({message: error.message});
+  };
+};
+
+async function updateOrderPayment(req, res) {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid ID" });
+    };
+
+    const updatedOrder = await Order.findByIdAndUpdate(
+      req.params.id,
+      { isPaid: req.body.isPaid },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedOrder) {
+      return res.status(404).json({ message: "Order not found" });
+    };
+
+    return res.status(200).json(updatedOrder);
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
   };
 };
 
