@@ -19,8 +19,9 @@ export default function LoginScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loginError, setLoginError] = useState("");
 
-  const params = useLocalSearchParams<{ fromCheckout?: string }>();
+  const params = useLocalSearchParams<{ fromCheckout?: string; sessionExpired?: string }>();
   const fromCheckout = params.fromCheckout === "true";
+  const sessionExpired = params.sessionExpired === "true";
 
 
   async function handleSubmit(): Promise<void> {
@@ -95,6 +96,12 @@ export default function LoginScreen() {
       </Button>
 
       <ThemedText type="link" onPress={() => router.push("/forgot-password")}>Forgot Password</ThemedText>
+
+      {sessionExpired && (
+        <ThemedText style={styles.errorText}>
+          Session expired. Please log in again.
+        </ThemedText>
+      )}
 
       {loginError ? <ThemedText style={styles.errorText}>{loginError}</ThemedText> : null}
 

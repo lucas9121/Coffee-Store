@@ -5,6 +5,9 @@ import { ThemedText } from "./ui/themed-text";
 import { ThemedView } from "./ui/themed-view";
 import { getAllOrders, updateOrderStatus, updateOrderPayment} from "@/services/orders-api";
 import { getStoreStatus } from "@/services/store-settings";
+import { useRouter } from "expo-router";
+import { useAuth } from "@/context/AuthContext";
+import { RequestError } from "@/services/api";
 
 type OrderItem = {
   item: {
@@ -47,6 +50,17 @@ export function WorkerOrdersContent({
   const skipNextPollRef = useRef(false);
   const isFirstOrdersLoadRef = useRef(true);
   const lastOrdersSignatureRef = useRef("");
+  const router = useRouter();
+  const { logout } = useAuth();
+
+  async function handleUnauthorized(error: unknown) {
+    if (error instanceof RequestError && error.status === 401) {
+      await logout();
+      router.replace("/login?sessionExpired=true");
+      return true;
+    }
+    return false;
+  };
 
   async function loadOrders(showLoading = false): Promise<void>{
     try {
@@ -59,6 +73,7 @@ export function WorkerOrdersContent({
       }
       setHasError(false)
     } catch (error) {
+      if (await handleUnauthorized(error)) return;
       console.error(error);
       setHasError(true);
     } finally {
@@ -124,6 +139,7 @@ export function WorkerOrdersContent({
       setPaymentWarningOrderId(null)
       await loadOrders(); 
     } catch (error) {
+      if (await handleUnauthorized(error)) return;
       console.error(error);
     }
   }
@@ -137,6 +153,7 @@ export function WorkerOrdersContent({
       skipNextPollRef.current = true;
       await loadOrders();
     } catch (error) {
+      if (await handleUnauthorized(error)) return;
       console.error(error);
     }
   }

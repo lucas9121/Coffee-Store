@@ -12,6 +12,9 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { getMenuItems } from "@/services/menu-api";
 import { createOrder } from "@/services/orders-api";
 import { getStoreStatus, setStoreOverride } from "@/services/store-settings";
+import { useRouter } from "expo-router";
+import { useAuth } from "@/context/AuthContext";
+import { RequestError } from "@/services/api";
 
 type MenuItem = {
   id: string;
@@ -49,6 +52,17 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
   const skipNextStorePollRef = useRef(false);
   const isFirstStoreLoadRef = useRef(true);
   const lastStoreStatusRef = useRef<boolean | null>(null);
+  const router = useRouter();
+  const { logout } = useAuth();
+
+  async function handleUnauthorized(error: unknown) {
+    if (error instanceof RequestError && error.status === 401) {
+      await logout();
+      router.replace("/login?sessionExpired=true");
+      return true;
+    }
+    return false;
+  }
 
   async function loadMenuItems(): Promise<void> {
     try {
@@ -102,6 +116,7 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
       skipNextStorePollRef.current = true;
       await loadStoreStatus(false);
     } catch (error) {
+      if (await handleUnauthorized(error)) return;
       console.error(error);
       setStoreError("Unable to update store status.");
     }
@@ -188,6 +203,7 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
       setCartItems([]);
       setIsOrderModalOpen(false);
     } catch (error) {
+      if (await handleUnauthorized(error)) return;
       console.error(error);
       setOrderError("Unable to create in-person order.");
     } finally {
