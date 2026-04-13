@@ -1,4 +1,12 @@
+export class RequestError extends Error {
+  status: number;
 
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "RequestError";
+    this.status = status;
+  }
+}
 
 export async function sendRequest(
   url: string,
@@ -33,9 +41,10 @@ export async function sendRequest(
       const text = await res.text();
       const errorResponse = text ? JSON.parse(text) : null;
       console.error('Error Response:', errorResponse);
-      throw new Error(`Request failed with status ${res.status}`);
+      throw new RequestError(`Request failed with status ${res.status}`, res.status);
     }
   } catch (error) {
+    if(error instanceof RequestError) throw error;
     console.error('Request Error ', error);
     throw new Error('Request failed. Please check your network connection and try again.');
   }
