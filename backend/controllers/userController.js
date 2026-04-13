@@ -52,7 +52,7 @@ async function loginUser(req, res) {
     const match = await bcrypt.compare(password, user.password);
     if(!match) return res.status(401).json({message: "Bad Credentials"});
     const payload = {userId: user._id, account: user.account};
-    const expiresIn = user.account === "admin" ? "3h" : "24h";
+    const expiresIn = user.account === "admin" ? "3h" : user.account === "worker" ? "6h" : "24h";
     const token = createJWT(payload, expiresIn);
 
     if(user.account === "admin" || user.account === "worker"){
