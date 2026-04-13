@@ -18,6 +18,10 @@ const orderSchema = new mongoose.Schema(
       type: String,
       enum: ["MOBILE", "IN PERSON"]
     },
+    isPaid: {
+      type: Boolean,
+      default: false
+    },
     orderItems: [
       {
         item: {
