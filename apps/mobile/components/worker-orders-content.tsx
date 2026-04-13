@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from "react";
-import { StyleSheet, ScrollView } from "react-native";
+import { StyleSheet, ScrollView, Pressable } from "react-native";
 import { ThemedScrollView } from "./ui/themed-scroll-view";
 import { ThemedText } from "./ui/themed-text";
 import { ThemedView } from "./ui/themed-view";
-import { getAllOrders } from "@/services/orders-api";
-import { updateOrderStatus } from "@/services/orders-api";
+import { getAllOrders, updateOrderStatus, updateOrderPayment} from "@/services/orders-api";
 
 type OrderItem = {
   item: {
@@ -24,6 +23,7 @@ type Order = {
   status: string;
   orderItems: OrderItem[];
   source: string,
+  isPaid: boolean,
   totalPrice: number;
   createdAt: string;
 };
@@ -41,26 +41,36 @@ export function WorkerOrdersContent({
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [paymentWarningOrderId, setPaymentWarningOrderId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"MOBILE" | "IN PERSON">("MOBILE");
   const skipNextPollRef = useRef(false);
+  const isFirstOrdersLoadRef = useRef(true);
+  const lastOrdersSignatureRef = useRef("");
 
-  async function loadOrders(): Promise<void>{
+  async function loadOrders(showLoading = false): Promise<void>{
     try {
-      setIsLoading(true);
+      if(showLoading) setIsLoading(true);
       const data = await getAllOrders(token);
-      setOrders(data);
+      const nextSignature = JSON.stringify(data);
+      if(nextSignature !== lastOrdersSignatureRef.current){
+        setOrders(data);
+        lastOrdersSignatureRef.current = nextSignature
+      }
       setHasError(false)
     } catch (error) {
       console.error(error);
       setHasError(true);
     } finally {
-      setIsLoading(false);
+      if(showLoading){
+        setIsLoading(false);
+        isFirstOrdersLoadRef.current = false;
+      }
     }
   }
 
   useEffect(() =>{
     if(!token) return;
-    loadOrders();
+    loadOrders(isFirstOrdersLoadRef.current);
 
     // Poll with manual update skip
     const interval = setInterval(() => {
@@ -68,7 +78,7 @@ export function WorkerOrdersContent({
         skipNextPollRef.current = false;
         return;
       }
-      loadOrders();
+      loadOrders(false);
     }, 15000);
 
     return () => clearInterval(interval)
@@ -88,14 +98,33 @@ export function WorkerOrdersContent({
     return null;
   }
 
-  async function handleUpdateStatus(orderId: string, currentStatus: string) {
+  async function handleUpdateStatus(orderId: string, currentStatus: string, isPaid: boolean) {
     const nextStatus = getNextStatus(currentStatus);
     if (!nextStatus) return;
+
+    if(nextStatus === "COMPLETED" && !isPaid){
+      setPaymentWarningOrderId(orderId);
+      return;
+    };
 
     try {
       await updateOrderStatus(orderId, nextStatus, token);
       skipNextPollRef.current = true;
+      setPaymentWarningOrderId(null)
       await loadOrders(); 
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function handleTogglePaid(orderId: string, currentPaid: boolean) {
+    try {
+      await updateOrderPayment(orderId, !currentPaid, token);
+      if(paymentWarningOrderId === orderId && !currentPaid){
+        setPaymentWarningOrderId(null);
+      };
+      skipNextPollRef.current = true;
+      await loadOrders();
     } catch (error) {
       console.error(error);
     }
@@ -128,14 +157,26 @@ export function WorkerOrdersContent({
           {/* Meta */}
           <ThemedView style={styles.metaGroup}>
             <ThemedText>Total: ${order.totalPrice.toFixed(2)}</ThemedText>
+            <ThemedView style={styles.paymentRow}>
+              <ThemedText>Paid:</ThemedText>
+              <Pressable
+                style={[styles.paidButton, { borderColor }]}
+                onPress={() => handleTogglePaid(order._id, order.isPaid)}
+              >
+                <ThemedText>{order.isPaid ? "Yes" : "No"}</ThemedText>
+              </Pressable>
+            </ThemedView>
             <ThemedText>Status: {order.status}</ThemedText>
+            {paymentWarningOrderId === order._id && (
+              <ThemedText style={styles.errorText}>Customer needs to pay</ThemedText>
+            )}
           </ThemedView>
 
           {/* Action */}
           {nextStatus && (
             <ThemedText
               type="link"
-              onPress={() => handleUpdateStatus(order._id, order.status)}
+              onPress={() => handleUpdateStatus(order._id, order.status, order.isPaid)}
             >
               → Move to {nextStatus}
             </ThemedText>
@@ -282,5 +323,16 @@ const styles = StyleSheet.create({
   },
   tabBadgeText: {
     fontSize: 12,
+  },
+  paymentRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6
+  },
+  paidButton: {
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
   },
 })
