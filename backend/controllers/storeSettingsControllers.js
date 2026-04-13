@@ -51,7 +51,7 @@ async function updateWeeklySchedule (req, res) {
     const updateStore = await StoreSettings.findOneAndUpdate(
     {}, 
     { $set: req.body },
-    { new: true }
+    { returnDocument: "after" }
   );
     return res.status(200).json(updateStore);
   } catch (error) {
@@ -74,7 +74,7 @@ async function setManualOverride (req, res) {
           }
         }
       },
-      { new: true }
+      { returnDocument: "after" }
     );
     return res.status(200).json(updatedStore);
   } catch (error) {
