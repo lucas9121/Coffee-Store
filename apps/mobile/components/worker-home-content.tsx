@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Pressable, StyleSheet, Modal } from "react-native";
+import { Pressable, StyleSheet, Modal, KeyboardAvoidingView, Platform } from "react-native";
 
 import { ThemedView } from "@/components/ui/themed-view";
 import { ThemedText } from "@/components/ui/themed-text";
@@ -303,70 +303,75 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
         onRequestClose={() => setIsOrderModalOpen(false)}
       >
         <ThemedView style={styles.modalOverlay}>
-          <ThemedView style={[styles.modalContent, { borderColor }]}>
-            <ThemedText type="title">Current Order</ThemedText>
+          <KeyboardAvoidingView 
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={styles.keyboardAvoiding}
+          >
+            <ThemedView style={[styles.modalContent, { borderColor }]}>
+              <ThemedText type="title">Current Order</ThemedText>
 
-            <ThemedTextInput
-              placeholder="Add customer name"
-              value={customerName}
-              onChangeText={setCustomerName}
-            />
+              <ThemedTextInput
+                placeholder="Add customer name"
+                value={customerName}
+                onChangeText={setCustomerName}
+              />
 
-            {cartItems.length === 0 ? (
-              <ThemedText>No items added yet</ThemedText>
-            ) : (
-              cartItems.map((item) => (
-                <ThemedView key={item.id} style={styles.cartRow}>
-                  <ThemedText>{item.name}</ThemedText>
+              {cartItems.length === 0 ? (
+                <ThemedText>No items added yet</ThemedText>
+              ) : (
+                cartItems.map((item) => (
+                  <ThemedView key={item.id} style={styles.cartRow}>
+                    <ThemedText>{item.name}</ThemedText>
 
-                  <ThemedView style={styles.quantityControls}>
-                    <Pressable
-                      style={[styles.quantityButton, { borderColor }]}
-                      onPress={() => handleDecreaseQuantity(item.id)}
-                    >
-                      <ThemedText>-</ThemedText>
-                    </Pressable>
+                    <ThemedView style={styles.quantityControls}>
+                      <Pressable
+                        style={[styles.quantityButton, { borderColor }]}
+                        onPress={() => handleDecreaseQuantity(item.id)}
+                      >
+                        <ThemedText>-</ThemedText>
+                      </Pressable>
 
-                    <ThemedText>{item.quantity}</ThemedText>
+                      <ThemedText>{item.quantity}</ThemedText>
 
-                    <Pressable
-                      style={[styles.quantityButton, { borderColor }]}
-                      onPress={() => handleIncreaseQuantity(item.id)}
-                    >
-                      <ThemedText>+</ThemedText>
-                    </Pressable>
+                      <Pressable
+                        style={[styles.quantityButton, { borderColor }]}
+                        onPress={() => handleIncreaseQuantity(item.id)}
+                      >
+                        <ThemedText>+</ThemedText>
+                      </Pressable>
+                    </ThemedView>
                   </ThemedView>
-                </ThemedView>
-              ))
-            )}
+                ))
+              )}
 
-            <ThemedText type="defaultSemiBold">
-              Total: ${cartTotal.toFixed(2)}
-            </ThemedText>
+              <ThemedText type="defaultSemiBold">
+                Total: ${cartTotal.toFixed(2)}
+              </ThemedText>
 
-            {orderError ? (
-              <ThemedText style={styles.errorText}>{orderError}</ThemedText>
-            ) : null}
+              {orderError ? (
+                <ThemedText style={styles.errorText}>{orderError}</ThemedText>
+              ) : null}
 
-            <ThemedView style={styles.modalButtons}>
-              <Pressable
-                style={[styles.actionButton, { borderColor }]}
-                onPress={() => setIsOrderModalOpen(false)}
-              >
-                <ThemedText>Close</ThemedText>
-              </Pressable>
+              <ThemedView style={styles.modalButtons}>
+                <Pressable
+                  style={[styles.actionButton, { borderColor }]}
+                  onPress={() => setIsOrderModalOpen(false)}
+                >
+                  <ThemedText>Close</ThemedText>
+                </Pressable>
 
-              <Pressable
-                style={[styles.actionButton, { borderColor }]}
-                onPress={handleCreateInPersonOrder}
-                disabled={isSubmittingOrder}
-              >
-                <ThemedText>
-                  {isSubmittingOrder ? "Creating..." : "Create Order"}
-                </ThemedText>
-              </Pressable>
+                <Pressable
+                  style={[styles.actionButton, { borderColor }]}
+                  onPress={handleCreateInPersonOrder}
+                  disabled={isSubmittingOrder}
+                >
+                  <ThemedText>
+                    {isSubmittingOrder ? "Creating..." : "Create Order"}
+                  </ThemedText>
+                </Pressable>
+              </ThemedView>
             </ThemedView>
-          </ThemedView>
+          </KeyboardAvoidingView>
         </ThemedView>
       </Modal>
     </ThemedView>
@@ -463,5 +468,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 12,
     justifyContent: "space-between",
+  },
+  keyboardAvoiding: {
+    width: "100%",
   },
 });
