@@ -1,41 +1,35 @@
-import { ThemedView } from "@/components/ui/themed-view";
-import { ThemedText } from "@/components/ui/themed-text";
 import { useAuth } from "@/context/AuthContext";
 import { useThemeMode } from "@/context/ThemeContext";
-import { Button } from "@react-navigation/elements";
-import { useRouter } from "expo-router";
+import { GuestSettingsContent } from "@/components/guest-settings-content";
+import { UserSettingsContent } from "@/components/user-settings-content";
+import { WorkerSettingsContent } from "@/components/worker-settings-content";
+import { useThemeColor } from "@/hooks/use-theme-color";
 
 
 
 export default function SettingsScreen() {
   const { themeMode, setThemeMode } = useThemeMode();
-  const {accountType, logout} = useAuth();
-  const router = useRouter();
+  const {accountType, accessToken} = useAuth();
+  const borderColor = useThemeColor({}, "border")
 
-  if(accountType === "guest"){
-    return(
-      <ThemedView style={{flex: 1, alignItems: "center", justifyContent: "center"}}>
-        <ThemedText type="title" >Settings Screen</ThemedText>
-        <ThemedText>accountType: {accountType}</ThemedText>
-        <Button onPress={() => router.push("/login")}>Log In</Button>
-        <Button onPress={() => router.push("/signup")}>Sign up</Button>
-      </ThemedView>
-    );
-  };
+  if(accountType === "user"){
+    return (
+      <UserSettingsContent 
+        accessToken={accessToken}
+        borderColor={borderColor}
+      />
+    )
+  }
 
-  return(
-    <ThemedView style={{flex: 1, alignItems: "center", justifyContent: "center"}}>
-      <ThemedText type="title" >Settings Screen</ThemedText>
-      <ThemedText>accountType: {accountType}</ThemedText>
-      <ThemedText>themeMode: {themeMode}</ThemedText>
-      <ThemedText onPress={() => setThemeMode("system")}>Theme: System</ThemedText>
-      <ThemedText onPress={() => setThemeMode("light")}>Theme: Light</ThemedText>
-      <ThemedText onPress={() => setThemeMode("dark")}>Theme: Dark</ThemedText>
-      <Button onPress={async () => {
-          await logout(); 
-          router.replace("/")
-        }}
-      >Log Out</Button>
-    </ThemedView>
-  );
+  if(accountType === "worker"){
+    return (
+      <WorkerSettingsContent 
+        accessToken={accessToken}
+        borderColor={borderColor}
+      />
+    )
+  }
+
+  return <GuestSettingsContent />
+
 }
