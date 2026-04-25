@@ -16,3 +16,13 @@ export async function updateUserProfile(
 ) {
   return await sendRequest(`${BASE_URL}/profile`, "PATCH", payload, token)
 }
+
+export async function updateUserPassword(
+  payload: {
+    currentPassword: string;
+    newPassword: string;
+  },
+  token: string | null
+) {
+  return await sendRequest(`${BASE_URL}/password`, "PATCH", payload, token)
+}
