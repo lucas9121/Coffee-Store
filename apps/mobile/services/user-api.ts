@@ -26,3 +26,15 @@ export async function updateUserPassword(
 ) {
   return await sendRequest(`${BASE_URL}/password`, "PATCH", payload, token)
 }
+
+export async function updateUserSecurityQuestion(
+  payload: {
+    password: string;
+    index: number;
+    newQuestion: string;
+    newAnswer: string;
+  },
+  token: string | null
+) {
+  return await sendRequest(`${BASE_URL}/security-question`, "PATCH", payload, token)
+}
