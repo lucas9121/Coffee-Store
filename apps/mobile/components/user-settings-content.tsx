@@ -5,10 +5,12 @@ import { useRouter } from "expo-router";
 import { ThemedView } from "./ui/themed-view";
 import { ThemedText } from "./ui/themed-text";
 import { ThemedTextInput } from "./ui/themed-text-input";
+import { ThemedScrollView } from "./ui/themed-scroll-view";
 import { useAuth } from "@/context/AuthContext";
 import { useThemeMode } from "@/context/ThemeContext";
 import { getCurrentUser } from "@/services/user-api";
 import { updateUserProfile } from "@/services/user-api";
+import { updateUserPassword } from "@/services/user-api";
 
 type UserSettingsContentProps = {
   accessToken: string | null;
@@ -38,6 +40,12 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
   const [isSaving, setIsSaving] = useState(false);
   const [showSecurityOptions, setShowSecurityOptions] = useState(false);
   const [profileError, setProfileError] = useState("");
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [currentPasswordForChange, setCurrentPasswordForChange] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
   async function getUserInfo(){
     try {
@@ -101,12 +109,54 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
     }
   };
 
+  async function handleChangePassword() {
+    if (!currentPasswordForChange.trim()) {
+      setPasswordError("Enter your current password.");
+      return;
+    }
+    if (!newPassword.trim()) {
+      setPasswordError("Enter a new password.");
+      return;
+    }
+    if (newPassword.length < 5) {
+      setPasswordError("Password must be at least 5 characters.");
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      setPasswordError("Passwords do not match.");
+      return;
+    }
+
+    try {
+      setPasswordError("");
+      setIsUpdatingPassword(true);
+      await updateUserPassword(
+        {
+          currentPassword: currentPasswordForChange,
+          newPassword,
+        },
+        accessToken
+      );
+      setCurrentPasswordForChange("");
+      setNewPassword("");
+      setConfirmNewPassword("");
+      setShowChangePassword(false);
+
+    } catch (error) {
+      console.error(error);
+      setPasswordError("Unable to update password.");
+
+    } finally {
+      setIsUpdatingPassword(false);
+    }
+  };
+
   useEffect(() => {
     getUserInfo()
   }, [])
 
     return(
-      <ThemedView style={{flex: 1, justifyContent: "center", gap: 10, padding: 10}}>
+      <ThemedScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         <ThemedText type="title" >Account Settings </ThemedText>
         {/* Account Info */}
         <ThemedView style={styles.row}>
@@ -147,7 +197,7 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
               </>
             )}
 
-            {/* Password and error message */}
+            {/* Password Check and Error Message */}
             <ThemedView style={styles.row}>
               <Button onPress={() => changeTheme()}>
                 {themeMode}
@@ -193,8 +243,9 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
                   setEditedEmail(user?.email ?? "");
                   setCurrentPassword("");
                   setProfileError("");
-                  setEdit(false)
                   setEdit(false);
+                  setEdit(false);
+                  setShowChangePassword(false);
                 }}>
                     Cancel
                 </Button>
@@ -206,7 +257,8 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
             <Button
               onPress={() => {
                 setShowSecurityOptions((prev) => !prev)
-                setEdit(false)
+                setEdit(false);
+                setShowChangePassword(false);
               }}
             >
               {showSecurityOptions ? "Hide Account Security" : "Account Security"}
@@ -214,12 +266,67 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
           </ThemedView>
           {showSecurityOptions && (
             <ThemedView style={styles.securitySection}>
+
+              {/* Password Change */}
               <ThemedView style={styles.row}>
-                <Button>Change Password</Button>
+                <Button
+                  onPress={() => {
+                    setShowChangePassword((prev) => !prev)
+                  }}
+                >
+                  {showChangePassword ? "Hide Change Password" : "Change Password"}
+                </Button>
               </ThemedView>
+              {showChangePassword && (
+                <ThemedView style={styles.securitySection}>
+                  <ThemedTextInput
+                    placeholder="Current password"
+                    value={currentPasswordForChange}
+                    onChangeText={setCurrentPasswordForChange}
+                    secureTextEntry
+                  />
+
+                  <ThemedTextInput
+                    placeholder="New password"
+                    value={newPassword}
+                    onChangeText={setNewPassword}
+                    secureTextEntry
+                  />
+
+                  <ThemedTextInput
+                    placeholder="Confirm new password"
+                    value={confirmNewPassword}
+                    onChangeText={setConfirmNewPassword}
+                    secureTextEntry
+                  />
+
+                  {passwordError ? (
+                    <ThemedText style={styles.errorText}>{passwordError}</ThemedText>
+                  ) : null}
+
+                  <Button onPress={handleChangePassword}>
+                    {isUpdatingPassword ? "Updating..." : "Confirm Password Change"}
+                  </Button>
+                  <Button 
+                    style={styles.noButton} 
+                    color={borderColor}
+                    onPress={() => {
+                      setShowChangePassword(false)
+                      setCurrentPasswordForChange("")
+                      setNewPassword("")
+                      setConfirmNewPassword("")
+                    }}>
+                      Cancel Password Change
+                    </Button>
+                </ThemedView>
+              )}
+
+              {/* Security Question Change */}
               <ThemedView style={styles.row}>
                 <Button>Update Security Questions</Button>
               </ThemedView>
+
+              {/* Delete Account */}
               <ThemedView style={styles.row}>
                 <Button style={styles.noButton} color={borderColor}>Delete Account</Button>
               </ThemedView>
@@ -235,11 +342,17 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
             >Log Out</Button>
           </ThemedView>
         </ThemedView>
-      </ThemedView>
+      </ThemedScrollView>
     );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flexGrow: 1,
+    padding: 16,
+    paddingBottom: 40,
+    gap: 16,
+  },
   column: {
     flexDirection: "column",
     flex: 1,
@@ -275,7 +388,8 @@ const styles = StyleSheet.create({
     color: "red",
   },
   noButton: {
-    backgroundColor: "red" // temp color
+    backgroundColor: "red", // temp color
+    color: "white"
   },
   securitySection: {
     gap: 10,
