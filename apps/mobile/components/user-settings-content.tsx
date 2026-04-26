@@ -8,9 +8,12 @@ import { ThemedTextInput } from "./ui/themed-text-input";
 import { ThemedScrollView } from "./ui/themed-scroll-view";
 import { useAuth } from "@/context/AuthContext";
 import { useThemeMode } from "@/context/ThemeContext";
-import { getCurrentUser } from "@/services/user-api";
-import { updateUserProfile } from "@/services/user-api";
-import { updateUserPassword } from "@/services/user-api";
+import {
+  getCurrentUser, 
+  updateUserProfile, 
+  updateUserPassword, 
+  updateUserSecurityQuestion 
+} from "@/services/user-api";
 
 type UserSettingsContentProps = {
   accessToken: string | null;
@@ -46,6 +49,12 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+  const [activeSecurityIndex, setActiveSecurityIndex] = useState<0 | 1 | null>(null);
+  const [newSecurityQuestion, setNewSecurityQuestion] = useState("");
+  const [newSecurityAnswer, setNewSecurityAnswer] = useState("");
+  const [securityPassword, setSecurityPassword] = useState("");
+  const [securityError, setSecurityError] = useState("");
+  const [isUpdatingSecurity, setIsUpdatingSecurity] = useState(false);
 
   async function getUserInfo(){
     try {
@@ -111,7 +120,7 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
 
   async function handleChangePassword() {
     if (!currentPasswordForChange.trim()) {
-      setPasswordError("Enter your current password.");
+      setPasswordError("Please Enter your current password.");
       return;
     }
     if (!newPassword.trim()) {
@@ -150,6 +159,34 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
       setIsUpdatingPassword(false);
     }
   };
+
+  async function handleChangeSecurityQuestions(index: number){
+    if(!securityPassword.trim()){
+      setSecurityError("Please enter your current Password.");
+      return;
+    }
+
+    try {
+      setIsUpdatingSecurity(true);
+      await updateUserSecurityQuestion(
+        {
+          password: securityPassword,
+          index,
+          newQuestion: newSecurityQuestion,
+          newAnswer: newSecurityAnswer.trim()
+        },
+        accessToken
+      );
+      setNewSecurityQuestion("");
+      setNewSecurityAnswer("");
+    } catch (error) {
+      console.error(error);
+      setSecurityError("Unable to update security question.")
+    } finally {
+      setIsUpdatingSecurity(false);
+      setSecurityPassword("");
+    }
+  }
 
   useEffect(() => {
     getUserInfo()
@@ -218,7 +255,7 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
         ) : null}
 
         {/* Profile Edit buttons */}
-        <ThemedView style={styles.column}>
+        <ThemedView style={[styles.column, {gap: 0}]}>
           {!edit ? (
             <ThemedView style={styles.row}>
               <Button 
@@ -227,7 +264,7 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
                   setEdit(true);
                 }}>Edit Profile</Button>
             </ThemedView> ) : (
-            <ThemedView style={[styles.buttonRow, {borderColor}]}>
+            <ThemedView style={[styles.buttonRow, {borderBottomWidth: 1, borderColor}]}>
               <Button 
                 style={styles.yesButton} 
                 color={borderColor}
@@ -253,85 +290,98 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
           )}
 
           {/* Account Security buttons */}
-          <ThemedView style={styles.row}>
-            <Button
-              onPress={() => {
-                setShowSecurityOptions((prev) => !prev)
-                setEdit(false);
-                setShowChangePassword(false);
-              }}
-            >
-              {showSecurityOptions ? "Hide Account Security" : "Account Security"}
-            </Button>
-          </ThemedView>
-          {showSecurityOptions && (
-            <ThemedView style={styles.securitySection}>
-
-              {/* Password Change */}
-              <ThemedView style={styles.row}>
-                <Button
-                  onPress={() => {
-                    setShowChangePassword((prev) => !prev)
-                  }}
-                >
-                  {showChangePassword ? "Hide Change Password" : "Change Password"}
-                </Button>
-              </ThemedView>
-              {showChangePassword && (
-                <ThemedView style={styles.securitySection}>
-                  <ThemedTextInput
-                    placeholder="Current password"
-                    value={currentPasswordForChange}
-                    onChangeText={setCurrentPasswordForChange}
-                    secureTextEntry
-                  />
-
-                  <ThemedTextInput
-                    placeholder="New password"
-                    value={newPassword}
-                    onChangeText={setNewPassword}
-                    secureTextEntry
-                  />
-
-                  <ThemedTextInput
-                    placeholder="Confirm new password"
-                    value={confirmNewPassword}
-                    onChangeText={setConfirmNewPassword}
-                    secureTextEntry
-                  />
-
-                  {passwordError ? (
-                    <ThemedText style={styles.errorText}>{passwordError}</ThemedText>
-                  ) : null}
-
-                  <Button onPress={handleChangePassword}>
-                    {isUpdatingPassword ? "Updating..." : "Confirm Password Change"}
-                  </Button>
-                  <Button 
-                    style={styles.noButton} 
-                    color={borderColor}
-                    onPress={() => {
-                      setShowChangePassword(false)
-                      setCurrentPasswordForChange("")
-                      setNewPassword("")
-                      setConfirmNewPassword("")
-                    }}>
-                      Cancel Password Change
-                    </Button>
-                </ThemedView>
-              )}
-
-              {/* Security Question Change */}
-              <ThemedView style={styles.row}>
-                <Button>Update Security Questions</Button>
-              </ThemedView>
-
-              {/* Delete Account */}
-              <ThemedView style={styles.row}>
-                <Button style={styles.noButton} color={borderColor}>Delete Account</Button>
-              </ThemedView>
+          <ThemedView style={styles.securityContainer}>
+            <ThemedView style={showSecurityOptions ? [styles.row, {paddingBottom: 8}]: styles.row}>
+              <Button
+                onPress={() => {
+                  setShowSecurityOptions((prev) => !prev)
+                  setEdit(false);
+                  setShowChangePassword(false);
+                }}
+              >
+                {showSecurityOptions ? "Hide Account Security" : "Account Security"}
+              </Button>
             </ThemedView>
-          )}
+            {showSecurityOptions && (
+              <ThemedView style={[styles.securitySection, {borderColor}]}>
+                {/* Security Question Change */}
+                <ThemedView style={[styles.securityColumn, {borderColor}]}> 
+                  <ThemedText>Security Questions</ThemedText>
+                  {user?.securityQuestions.map((qt, idx) => (
+                    <ThemedView style={styles.securityRow}>
+                      {/* <ThemedText type="defaultSemiBold">Question {idx + 1}:</ThemedText>  */}
+                      <ThemedText>{idx + 1}) {qt.question}</ThemedText>
+                      <Button>Edit</Button>
+                    </ThemedView>
+                  ))}
+                </ThemedView>
+
+                <ThemedView style={[styles.buttonRow, {borderColor}]}>
+                  {/* Password and Delete Buttons */}
+                  <ThemedView style={styles.row}>
+                    <Button
+                      onPress={() => {
+                        setShowChangePassword((prev) => !prev)
+                      }}
+                    >
+                      {showChangePassword ? "Hide Change Password" : "Change Password"}
+                    </Button>
+                  </ThemedView>
+
+                  <Button style={styles.noButton} color={borderColor}>Delete Account</Button>
+                </ThemedView>
+
+                {/* Password Change */}
+                {showChangePassword && (
+                  <ThemedView style={styles.passwordColumn}>
+                    <ThemedTextInput
+                      placeholder="Current password"
+                      value={currentPasswordForChange}
+                      onChangeText={setCurrentPasswordForChange}
+                      secureTextEntry
+                    />
+
+                    <ThemedTextInput
+                      placeholder="New password"
+                      value={newPassword}
+                      onChangeText={setNewPassword}
+                      secureTextEntry
+                    />
+
+                    <ThemedTextInput
+                      placeholder="Confirm new password"
+                      value={confirmNewPassword}
+                      onChangeText={setConfirmNewPassword}
+                      secureTextEntry
+                    />
+
+                    {passwordError ? (
+                      <ThemedText style={styles.errorText}>{passwordError}</ThemedText>
+                    ) : null}
+
+                    <ThemedView style={styles.passwordRow}> 
+                      <Button onPress={handleChangePassword}>
+                        {isUpdatingPassword ? "Updating..." : "Confirm"}
+                      </Button>
+                      <Button 
+                        style={styles.noButton} 
+                        color={borderColor}
+                        onPress={() => {
+                          setShowChangePassword(false)
+                          setCurrentPasswordForChange("")
+                          setNewPassword("")
+                          setConfirmNewPassword("")
+                        }}>
+                          Cancel
+                        </Button>
+                    </ThemedView>
+                  </ThemedView>
+                )}
+                {/* Delete Account */}
+              </ThemedView>
+            )}
+
+          </ThemedView>
 
           {/* Log Out button */}
           <ThemedView style={styles.row}>
@@ -363,6 +413,36 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: 24,
   },
+  securityContainer: {
+    paddingVertical: 24, 
+  },
+  securitySection: {
+    paddingTop: 16,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderTopWidth: 1,
+  },
+  securityColumn: {
+    flexDirection: "column",
+    gap: 8,
+    paddingBottom: 16,
+  },
+  securityRow: {
+    flexDirection: "row",
+    alignItems: "center", 
+    justifyContent: "flex-start",
+    gap: 16
+  },
+  passwordColumn: {
+    flexDirection: "column",
+    gap: 16,
+    paddingVertical: 16,
+  },
+  passwordRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 24,
+  },
   textRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -378,10 +458,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    gap: 10,
-    marginBottom: 10,
-    paddingBottom: 10,
-    borderBottomWidth: 1,
+    gap: 16,
+    paddingBottom: 16,
   },
   yesButton: {
     backgroundColor: "green", //temp color
@@ -390,10 +468,6 @@ const styles = StyleSheet.create({
   noButton: {
     backgroundColor: "red", // temp color
     color: "white"
-  },
-  securitySection: {
-    gap: 10,
-    paddingBottom: 10,
   },
   errorText: {
     color: "#ff6b6b",
