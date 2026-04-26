@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, Modal } from "react-native";
 import { Button } from "@react-navigation/elements";
 import { useRouter } from "expo-router";
 import { ThemedView } from "./ui/themed-view";
@@ -48,6 +48,7 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [showPasswordConfirmModal, setShowPasswordConfirmModal] = useState(false)
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
   const [activeSecurityIndex, setActiveSecurityIndex] = useState<0 | 1 | null>(null);
   const [newSecurityQuestion, setNewSecurityQuestion] = useState("");
@@ -118,24 +119,32 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
     }
   };
 
-  async function handleChangePassword() {
+  function validatePasswordChange() {
     if (!currentPasswordForChange.trim()) {
-      setPasswordError("Please Enter your current password.");
-      return;
-    }
-    if (!newPassword.trim()) {
-      setPasswordError("Enter a new password.");
-      return;
-    }
-    if (newPassword.length < 5) {
-      setPasswordError("Password must be at least 5 characters.");
-      return;
-    }
-    if (newPassword !== confirmNewPassword) {
-      setPasswordError("Passwords do not match.");
-      return;
+      setPasswordError("Please enter your current password.");
+      return false;
     }
 
+    if (!newPassword.trim()) {
+      setPasswordError("Enter a new password.");
+      return false;
+    }
+
+    if (newPassword.length < 5) {
+      setPasswordError("Password must be at least 5 characters.");
+      return false;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      setPasswordError("Passwords do not match.");
+      return false;
+    }
+
+    setPasswordError("");
+    return true;
+  }
+
+  async function handleChangePassword() {
     try {
       setPasswordError("");
       setIsUpdatingPassword(true);
@@ -360,7 +369,11 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
                     ) : null}
 
                     <ThemedView style={styles.passwordRow}> 
-                      <Button onPress={handleChangePassword}>
+                      <Button onPress={() => {
+                        if(validatePasswordChange()){
+                          setShowPasswordConfirmModal(true)
+                        }
+                        }}>
                         {isUpdatingPassword ? "Updating..." : "Confirm"}
                       </Button>
                       <Button 
@@ -392,6 +405,45 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
             >Log Out</Button>
           </ThemedView>
         </ThemedView>
+
+        {/* Password Confirm Change Modal */}
+        <Modal
+          visible={showPasswordConfirmModal}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowPasswordConfirmModal(false)}
+        >
+          <ThemedView style={styles.modalOverlay}>
+            <ThemedView style={[styles.modalContent, { borderColor }]}>
+              <ThemedText type="subtitle">Change Password?</ThemedText>
+              <ThemedText>
+                Are you sure you want to update your password?
+              </ThemedText>
+
+              <ThemedView style={styles.passwordRow}>
+                <Button
+                  style={styles.yesButton}
+                  color={borderColor}
+                  onPress={async () => {
+                    setShowPasswordConfirmModal(false);
+                    await handleChangePassword();
+                  }}
+                >
+                  Yes, Change
+                </Button>
+
+                <Button
+                  style={styles.noButton}
+                  color={borderColor}
+                  onPress={() => setShowPasswordConfirmModal(false)}
+                >
+                  Cancel
+                </Button>
+                
+              </ThemedView>
+            </ThemedView>
+          </ThemedView>
+        </Modal>
       </ThemedScrollView>
     );
 }
@@ -471,5 +523,20 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: "#ff6b6b",
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.35)",
+    padding: 24,
+  },
+
+  modalContent: {
+    width: "100%",
+    borderWidth: 1,
+    borderRadius: 16,
+    padding: 20,
+    gap: 16,
   },
 })
