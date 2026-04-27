@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { StyleSheet, Modal } from "react-native";
+import { StyleSheet, Modal, KeyboardAvoidingView, Platform, ScrollView, Pressable } from "react-native";
 import { Button } from "@react-navigation/elements";
 import { useRouter } from "expo-router";
 import { ThemedView } from "./ui/themed-view";
@@ -243,6 +243,17 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
   useEffect(() => {
     getUserInfo()
   }, [])
+
+  const otherSecurityQuestion =
+    activeSecurityIndex === 0
+      ? user?.securityQuestions[1]?.question
+      : activeSecurityIndex === 1
+        ? user?.securityQuestions[0]?.question
+        : null;
+
+  const availableSecurityQuestions = securityQuestionChoices.filter(
+    (question) => question !== otherSecurityQuestion
+  );
 
     return(
       <ThemedScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
@@ -507,67 +518,80 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
           onRequestClose={() => setActiveSecurityIndex(null)}
         >
           <ThemedView style={styles.modalOverlay}>
-            <ThemedView style={[styles.modalContent, { borderColor }]}>
-              <ThemedText type="subtitle">
-                Update Security Question {activeSecurityIndex !== null ? activeSecurityIndex + 1 : ""}
-              </ThemedText>
+            <ThemedView style={styles.modalOverlay}>
+              <KeyboardAvoidingView
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                style={styles.keyboardAvoiding}
+              >
+              <ThemedView style={[styles.modalContent, { borderColor }]}>
+                <ThemedText type="subtitle">
+                  Update Security Question {activeSecurityIndex !== null ? activeSecurityIndex + 1 : ""}
+                </ThemedText>
 
-              <ThemedText type="defaultSemiBold">Question</ThemedText>
+                <ThemedText type="defaultSemiBold">Question</ThemedText>
 
-              {securityQuestionChoices.map((question) => (
-                <Button
-                  key={question}
-                  onPress={() => setNewSecurityQuestion(question)}
-                >
-                  {newSecurityQuestion === question ? `✓ ${question}` : question}
-                </Button>
-              ))}
+                <ScrollView style={styles.questionChoiceList} >
+                  {availableSecurityQuestions.map((question) => (
+                    <Pressable
+                      key={question}
+                      onPress={() => setNewSecurityQuestion(question)}
+                      style={[styles.questionOption, {borderColor}]}
+                    >
+                      <ThemedText>
+                        {newSecurityQuestion === question ? `✓ ${question}` : question}
 
-              <ThemedTextInput
-                placeholder="New answer"
-                value={newSecurityAnswer}
-                onChangeText={setNewSecurityAnswer}
-                autoCapitalize="none"
-              />
+                      </ThemedText>
+                    </Pressable>
+                  ))}
+                </ScrollView>
 
-              <ThemedTextInput
-                placeholder="Current password"
-                value={securityPassword}
-                onChangeText={setSecurityPassword}
-                secureTextEntry
-              />
+                <ThemedTextInput
+                  placeholder="New answer"
+                  value={newSecurityAnswer}
+                  onChangeText={setNewSecurityAnswer}
+                  autoCapitalize="none"
+                />
 
-              {securityError ? (
-                <ThemedText style={styles.errorText}>{securityError}</ThemedText>
-              ) : null}
+                <ThemedTextInput
+                  placeholder="Current password"
+                  value={securityPassword}
+                  onChangeText={setSecurityPassword}
+                  secureTextEntry
+                />
 
-              <ThemedView style={styles.passwordRow}>
-                <Button
-                  style={styles.noButton}
-                  color={borderColor}
-                  onPress={() => {
-                    setActiveSecurityIndex(null);
-                    setNewSecurityQuestion("");
-                    setNewSecurityAnswer("");
-                    setSecurityPassword("");
-                    setSecurityError("");
-                  }}
-                >
-                  Cancel
-                </Button>
+                {securityError ? (
+                  <ThemedText style={styles.errorText}>{securityError}</ThemedText>
+                ) : null}
 
-                <Button
-                  style={styles.yesButton}
-                  color={borderColor}
-                  onPress={() => {
-                    if (activeSecurityIndex !== null) {
-                      handleChangeSecurityQuestions(activeSecurityIndex);
-                    }
-                  }}
-                >
-                  {isUpdatingSecurity ? "Updating..." : "Confirm"}
-                </Button>
+                <ThemedView style={styles.passwordRow}>
+                  <Button
+                    style={styles.noButton}
+                    color={borderColor}
+                    onPress={() => {
+                      setActiveSecurityIndex(null);
+                      setNewSecurityQuestion("");
+                      setNewSecurityAnswer("");
+                      setSecurityPassword("");
+                      setSecurityError("");
+                    }}
+                  >
+                    Cancel
+                  </Button>
+
+                  <Button
+                    style={styles.yesButton}
+                    color={borderColor}
+                    onPress={() => {
+                      if (activeSecurityIndex !== null) {
+                        handleChangeSecurityQuestions(activeSecurityIndex);
+                      }
+                    }}
+                  >
+                    {isUpdatingSecurity ? "Updating..." : "Confirm"}
+                  </Button>
+                </ThemedView>
               </ThemedView>
+              </KeyboardAvoidingView>
             </ThemedView>
           </ThemedView>
         </Modal>
@@ -697,12 +721,21 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.35)",
     padding: 24,
   },
-
   modalContent: {
     width: "100%",
     borderWidth: 1,
     borderRadius: 16,
     padding: 20,
     gap: 16,
+  },
+  keyboardAvoiding: {
+    width: "100%",
+  },
+  questionChoiceList: {
+    maxHeight: 220,
+  },
+  questionOption: {
+    paddingVertical: 12,
+    borderBottomWidth: 1,
   },
 })
