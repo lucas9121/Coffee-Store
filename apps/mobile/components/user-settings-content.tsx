@@ -56,6 +56,7 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
   const [securityPassword, setSecurityPassword] = useState("");
   const [securityError, setSecurityError] = useState("");
   const [isUpdatingSecurity, setIsUpdatingSecurity] = useState(false);
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
 
   const securityQuestionChoices = [
     "What is your mother's maiden name?",
@@ -225,7 +226,19 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
       setIsUpdatingSecurity(false);
       setSecurityPassword("");
     }
-  }
+  };
+
+  async function handleDeleteAccount() {
+    try {
+      // call backend later
+      console.log("Delete account confirmed");
+
+      await logout();
+      router.replace("/");
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     getUserInfo()
@@ -359,6 +372,7 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
                   ))}
                 </ThemedView>
 
+                {/* Change Password Button and Delete Account Button */}
                 <ThemedView style={[styles.buttonRow, {borderColor}]}>
                   {/* Password and Delete Buttons */}
                   <ThemedView style={styles.row}>
@@ -371,7 +385,13 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
                     </Button>
                   </ThemedView>
 
-                  <Button style={styles.noButton} color={borderColor}>Delete Account</Button>
+                  <Button 
+                    style={styles.noButton} 
+                    color={borderColor}
+                    onPress={() => setShowDeleteConfirmModal(true)}
+                  >
+                    Delete Account
+                  </Button>
                 </ThemedView>
 
                 {/* Password Change */}
@@ -546,6 +566,45 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
                   }}
                 >
                   {isUpdatingSecurity ? "Updating..." : "Confirm"}
+                </Button>
+              </ThemedView>
+            </ThemedView>
+          </ThemedView>
+        </Modal>
+
+        {/* Delete Account Modal */}
+        <Modal
+          visible={showDeleteConfirmModal}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowDeleteConfirmModal(false)}
+        >
+          <ThemedView style={styles.modalOverlay}>
+            <ThemedView style={[styles.modalContent, { borderColor }]}>
+              <ThemedText type="subtitle">Delete Account?</ThemedText>
+
+              <ThemedText>
+                This action cannot be undone.
+              </ThemedText>
+
+              <ThemedView style={styles.passwordRow}>
+                <Button
+                  style={styles.noButton}
+                  color={borderColor}
+                  onPress={() => setShowDeleteConfirmModal(false)}
+                >
+                  Cancel
+                </Button>
+
+                <Button
+                  style={styles.noButton}
+                  color={borderColor}
+                  onPress={async () => {
+                    setShowDeleteConfirmModal(false);
+                    await handleDeleteAccount();
+                  }}
+                >
+                  Yes, Delete
                 </Button>
               </ThemedView>
             </ThemedView>
