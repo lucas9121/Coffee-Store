@@ -57,6 +57,25 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
   const [securityError, setSecurityError] = useState("");
   const [isUpdatingSecurity, setIsUpdatingSecurity] = useState(false);
 
+  const securityQuestionChoices = [
+    "What is your mother's maiden name?",
+    "What is the name of your first pet?",
+    "What was your first car?",
+    "What elementary school did you attend?",
+    "What is the name of the town where you were born?",
+    "Where did you meet your spouse?",
+  ];
+
+  /////////////// Change Here ////////////////////
+  function openSecurityQuestionModal(index: 0 | 1) {
+    setActiveSecurityIndex(index);
+    setNewSecurityQuestion(user?.securityQuestions[index]?.question ?? "");
+    setNewSecurityAnswer("");
+    setSecurityPassword("");
+    setSecurityError("");
+  }
+  /////////////// End Change ////////////////////
+
   async function getUserInfo(){
     try {
       const userInfo = await getCurrentUser(accessToken);
@@ -169,11 +188,19 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
     }
   };
 
-  async function handleChangeSecurityQuestions(index: number){
+  async function handleChangeSecurityQuestions(index: 0 | 1){
     if(!securityPassword.trim()){
       setSecurityError("Please enter your current Password.");
       return;
-    }
+    };
+    if (!newSecurityAnswer.trim()) {
+      setSecurityError("Please enter an answer.");
+      return;
+    };
+    if (!newSecurityQuestion.trim()) {
+      setSecurityError("Please select a security question.");
+      return;
+    };
 
     try {
       setIsUpdatingSecurity(true);
@@ -186,8 +213,11 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
         },
         accessToken
       );
+      await getUserInfo();
       setNewSecurityQuestion("");
       setNewSecurityAnswer("");
+      setSecurityError("");
+      setActiveSecurityIndex(null);
     } catch (error) {
       console.error(error);
       setSecurityError("Unable to update security question.")
@@ -317,10 +347,14 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
                 <ThemedView style={[styles.securityColumn, {borderColor}]}> 
                   <ThemedText>Security Questions</ThemedText>
                   {user?.securityQuestions.map((qt, idx) => (
-                    <ThemedView style={styles.securityRow}>
+                    <ThemedView key={idx} style={styles.securityRow}>
                       {/* <ThemedText type="defaultSemiBold">Question {idx + 1}:</ThemedText>  */}
                       <ThemedText>{idx + 1}) {qt.question}</ThemedText>
-                      <Button>Edit</Button>
+                      <Button
+                        onPressIn={() => openSecurityQuestionModal(idx as 0 | 1)}
+                      >
+                        Edit
+                      </Button>
                     </ThemedView>
                   ))}
                 </ThemedView>
@@ -440,6 +474,79 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
                   Cancel
                 </Button>
                 
+              </ThemedView>
+            </ThemedView>
+          </ThemedView>
+        </Modal>
+
+        {/* Security Question Change Modal */}
+        <Modal
+          visible={activeSecurityIndex !== null}
+          transparent
+          animationType="slide"
+          onRequestClose={() => setActiveSecurityIndex(null)}
+        >
+          <ThemedView style={styles.modalOverlay}>
+            <ThemedView style={[styles.modalContent, { borderColor }]}>
+              <ThemedText type="subtitle">
+                Update Security Question {activeSecurityIndex !== null ? activeSecurityIndex + 1 : ""}
+              </ThemedText>
+
+              <ThemedText type="defaultSemiBold">Question</ThemedText>
+
+              {securityQuestionChoices.map((question) => (
+                <Button
+                  key={question}
+                  onPress={() => setNewSecurityQuestion(question)}
+                >
+                  {newSecurityQuestion === question ? `✓ ${question}` : question}
+                </Button>
+              ))}
+
+              <ThemedTextInput
+                placeholder="New answer"
+                value={newSecurityAnswer}
+                onChangeText={setNewSecurityAnswer}
+                autoCapitalize="none"
+              />
+
+              <ThemedTextInput
+                placeholder="Current password"
+                value={securityPassword}
+                onChangeText={setSecurityPassword}
+                secureTextEntry
+              />
+
+              {securityError ? (
+                <ThemedText style={styles.errorText}>{securityError}</ThemedText>
+              ) : null}
+
+              <ThemedView style={styles.passwordRow}>
+                <Button
+                  style={styles.noButton}
+                  color={borderColor}
+                  onPress={() => {
+                    setActiveSecurityIndex(null);
+                    setNewSecurityQuestion("");
+                    setNewSecurityAnswer("");
+                    setSecurityPassword("");
+                    setSecurityError("");
+                  }}
+                >
+                  Cancel
+                </Button>
+
+                <Button
+                  style={styles.yesButton}
+                  color={borderColor}
+                  onPress={() => {
+                    if (activeSecurityIndex !== null) {
+                      handleChangeSecurityQuestions(activeSecurityIndex);
+                    }
+                  }}
+                >
+                  {isUpdatingSecurity ? "Updating..." : "Confirm"}
+                </Button>
               </ThemedView>
             </ThemedView>
           </ThemedView>
