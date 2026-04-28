@@ -57,6 +57,8 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
   const [securityError, setSecurityError] = useState("");
   const [isUpdatingSecurity, setIsUpdatingSecurity] = useState(false);
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("")
+  const [deleteError, setDeleteError] = useState("")
 
   const securityQuestionChoices = [
     "What is your mother's maiden name?",
@@ -229,10 +231,14 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
   };
 
   async function handleDeleteAccount() {
+    if(!deletePassword.trim()){
+      setDeleteError("Please enter your current Password.");
+      return;
+    };
     try {
       // call backend later
       console.log("Delete account confirmed");
-
+      setShowDeleteConfirmModal(false);
       await logout();
       router.replace("/");
     } catch (error) {
@@ -608,14 +614,25 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
               <ThemedText type="subtitle">Delete Account?</ThemedText>
 
               <ThemedText>
-                This action cannot be undone.
+                Are you sure you want to delete your account. This action cannot be undone.
               </ThemedText>
+
+              <ThemedTextInput
+                placeholder="Current password"
+                value={deletePassword}
+                onChangeText={setDeletePassword}
+                secureTextEntry
+              />
+
+              {deleteError ? (
+                <ThemedText style={styles.errorText}>{deleteError}</ThemedText>
+              ) : null}
 
               <ThemedView style={styles.passwordRow}>
                 <Button
                   style={styles.noButton}
                   color={borderColor}
-                  onPress={() => setShowDeleteConfirmModal(false)}
+                  onPress={() => {setShowDeleteConfirmModal(false), setDeleteError("")}}
                 >
                   Cancel
                 </Button>
@@ -624,7 +641,6 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
                   style={styles.noButton}
                   color={borderColor}
                   onPress={async () => {
-                    setShowDeleteConfirmModal(false);
                     await handleDeleteAccount();
                   }}
                 >
