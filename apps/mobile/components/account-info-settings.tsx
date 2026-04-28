@@ -24,7 +24,7 @@ type AccountInfoSettingsProps = {
   user: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
   accessToken: string | null;
-  borderColor: string;
+  textColor: string;
   accountType: string;
   themeMode: ThemeMode;
   changeTheme: () => void;
@@ -36,7 +36,7 @@ export function AccountInfoSettings({
   user,
   setUser,
   accessToken,
-  borderColor,
+  textColor,
   accountType,
   themeMode,
   changeTheme,
@@ -49,7 +49,6 @@ export function AccountInfoSettings({
   const [currentPassword, setCurrentPassword] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [profileError, setProfileError] = useState("");
-  const textColor = useThemeColor({}, "text")
 
   async function handleConfirmProfile() {
     if (!editedName.trim() || !editedEmail.trim()) {
