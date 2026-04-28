@@ -1,18 +1,19 @@
 import { useState, useEffect } from "react";
-import { StyleSheet, Modal } from "react-native";
+import { StyleSheet} from "react-native";
 import { Button } from "@react-navigation/elements";
 import { useRouter } from "expo-router";
+
 import { ThemedView } from "./ui/themed-view";
-import { ThemedText } from "./ui/themed-text";
-import { ThemedTextInput } from "./ui/themed-text-input";
 import { ThemedScrollView } from "./ui/themed-scroll-view";
+
 import { useAuth } from "@/context/AuthContext";
 import { useThemeMode } from "@/context/ThemeContext";
 import { getCurrentUser } from "@/services/user-api";
+import { useThemeColor } from "@/hooks/use-theme-color";
+
 import { PasswordChangeSettings } from "./password-change-settings";
 import { SecurityQuestionSettings } from "./security-question-settings";
 import { AccountInfoSettings } from "./account-info-settings";
-import { useThemeColor } from "@/hooks/use-theme-color";
 import { DeleteAccountSettings } from "./delete-account-settings";
 
 type UserSettingsContentProps = {
@@ -38,7 +39,7 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
   const [user, setUser] = useState<User | null>(null)
   const [accountInfoResetKey, setAccountInfoResetKey] = useState(0);
   const [showSecurityOptions, setShowSecurityOptions] = useState(false);
-  const textColor = useThemeColor({}, "text")
+  const textColor = useThemeColor({}, "text");
 
   async function getUserInfo(){
     try {
@@ -59,7 +60,7 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
 
   useEffect(() => {
     getUserInfo()
-  }, [])
+  }, []);
 
     return(
       <ThemedScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
@@ -155,39 +156,11 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderTopWidth: 1,
   },
-  passwordRow: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 24,
-  },
   buttonRow: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     gap: 16,
     paddingBottom: 16,
-  },
-  yesButton: {
-    backgroundColor: "green", //temp color
-  },
-  noButton: {
-    backgroundColor: "red", // temp color
-  },
-  errorText: {
-    color: "#ff6b6b",
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.35)",
-    padding: 24,
-  },
-  modalContent: {
-    width: "100%",
-    borderWidth: 1,
-    borderRadius: 16,
-    padding: 20,
-    gap: 16,
   },
 })
