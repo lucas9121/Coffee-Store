@@ -13,6 +13,7 @@ import { PasswordChangeSettings } from "./password-change-settings";
 import { SecurityQuestionSettings } from "./security-question-settings";
 import { AccountInfoSettings } from "./account-info-settings";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { DeleteAccountSettings } from "./delete-account-settings";
 
 type UserSettingsContentProps = {
   accessToken: string | null;
@@ -37,9 +38,6 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
   const [user, setUser] = useState<User | null>(null)
   const [accountInfoResetKey, setAccountInfoResetKey] = useState(0);
   const [showSecurityOptions, setShowSecurityOptions] = useState(false);
-  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
-  const [deletePassword, setDeletePassword] = useState("")
-  const [deleteError, setDeleteError] = useState("")
   const textColor = useThemeColor({}, "text")
 
   async function getUserInfo(){
@@ -57,22 +55,6 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
     const newIndex = (idx + 1) % choices.length
     let newTheme = choices[newIndex]
     setThemeMode(newTheme)
-  };
-
-  async function handleDeleteAccount() {
-    if(!deletePassword.trim()){
-      setDeleteError("Please enter your current Password.");
-      return;
-    };
-    try {
-      // call backend later
-      console.log("Delete account confirmed");
-      setShowDeleteConfirmModal(false);
-      await logout();
-      router.replace("/");
-    } catch (error) {
-      console.error(error);
-    }
   };
 
   useEffect(() => {
@@ -125,13 +107,15 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
                 />
 
                 {/* Delete Account */}
-                <Button 
-                  style={styles.noButton} 
-                  color={textColor}
-                  onPress={() => setShowDeleteConfirmModal(true)}
-                >
-                  Delete Account
-                </Button>
+                <DeleteAccountSettings
+                  accessToken={accessToken}
+                  borderColor={borderColor}
+                  textColor={textColor}
+                  onDeleted={async () => {
+                    await logout();
+                    router.replace("/");
+                  }}
+                />
               </ThemedView>
 
             </ThemedView>
@@ -146,55 +130,6 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
             }}
           >Log Out</Button>
         </ThemedView>
-
-        {/* Delete Account Modal */}
-        <Modal
-          visible={showDeleteConfirmModal}
-          transparent
-          animationType="fade"
-          onRequestClose={() => setShowDeleteConfirmModal(false)}
-        >
-          <ThemedView style={styles.modalOverlay}>
-            <ThemedView style={[styles.modalContent, { borderColor }]}>
-              <ThemedText type="subtitle">Delete Account?</ThemedText>
-
-              <ThemedText>
-                Are you sure you want to delete your account. This action cannot be undone.
-              </ThemedText>
-
-              <ThemedTextInput
-                placeholder="Current password"
-                value={deletePassword}
-                onChangeText={setDeletePassword}
-                secureTextEntry
-              />
-
-              {deleteError ? (
-                <ThemedText style={styles.errorText}>{deleteError}</ThemedText>
-              ) : null}
-
-              <ThemedView style={styles.passwordRow}>
-                <Button
-                  style={styles.noButton}
-                  color={borderColor}
-                  onPress={() => {setShowDeleteConfirmModal(false), setDeleteError("")}}
-                >
-                  Cancel
-                </Button>
-
-                <Button
-                  style={styles.noButton}
-                  color={borderColor}
-                  onPress={async () => {
-                    await handleDeleteAccount();
-                  }}
-                >
-                  Yes, Delete
-                </Button>
-              </ThemedView>
-            </ThemedView>
-          </ThemedView>
-        </Modal>
       </ThemedScrollView>
     );
 }
