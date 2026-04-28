@@ -43,12 +43,11 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
   const [isSaving, setIsSaving] = useState(false);
   const [showSecurityOptions, setShowSecurityOptions] = useState(false);
   const [profileError, setProfileError] = useState("");
-  const [showChangePassword, setShowChangePassword] = useState(false);
   const [currentPasswordForChange, setCurrentPasswordForChange] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  const [showPasswordConfirmModal, setShowPasswordConfirmModal] = useState(false)
+  const [showPasswordModal, setShowPasswordModal] = useState(false)
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
   const [activeSecurityIndex, setActiveSecurityIndex] = useState<0 | 1 | null>(null);
   const [newSecurityQuestion, setNewSecurityQuestion] = useState("");
@@ -180,7 +179,7 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
       setCurrentPasswordForChange("");
       setNewPassword("");
       setConfirmNewPassword("");
-      setShowChangePassword(false);
+      setShowPasswordModal(false);
 
     } catch (error) {
       console.error(error);
@@ -351,7 +350,6 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
                   setProfileError("");
                   setEdit(false);
                   setEdit(false);
-                  setShowChangePassword(false);
                 }}>
                     Cancel
                 </Button>
@@ -365,7 +363,6 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
                 onPress={() => {
                   setShowSecurityOptions((prev) => !prev)
                   setEdit(false);
-                  setShowChangePassword(false);
                 }}
               >
                 {showSecurityOptions ? "Hide Account Security" : "Account Security"}
@@ -389,19 +386,20 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
                   ))}
                 </ThemedView>
 
-                {/* Change Password Button and Delete Account Button */}
                 <ThemedView style={[styles.buttonRow, {borderColor}]}>
-                  {/* Password and Delete Buttons */}
+                  {/* Password Change */}
                   <ThemedView style={styles.row}>
                     <Button
                       onPress={() => {
-                        setShowChangePassword((prev) => !prev)
+                        setPasswordError("");
+                        setShowPasswordModal(true)
                       }}
                     >
-                      {showChangePassword ? "Hide Change Password" : "Change Password"}
+                      Change Password
                     </Button>
                   </ThemedView>
 
+                  {/* Delete Account */}
                   <Button 
                     style={styles.noButton} 
                     color={borderColor}
@@ -411,57 +409,6 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
                   </Button>
                 </ThemedView>
 
-                {/* Password Change */}
-                {showChangePassword && (
-                  <ThemedView style={styles.passwordColumn}>
-                    <ThemedTextInput
-                      placeholder="Current password"
-                      value={currentPasswordForChange}
-                      onChangeText={setCurrentPasswordForChange}
-                      secureTextEntry
-                    />
-
-                    <ThemedTextInput
-                      placeholder="New password"
-                      value={newPassword}
-                      onChangeText={setNewPassword}
-                      secureTextEntry
-                    />
-
-                    <ThemedTextInput
-                      placeholder="Confirm new password"
-                      value={confirmNewPassword}
-                      onChangeText={setConfirmNewPassword}
-                      secureTextEntry
-                    />
-
-                    {passwordError ? (
-                      <ThemedText style={styles.errorText}>{passwordError}</ThemedText>
-                    ) : null}
-
-                    <ThemedView style={styles.passwordRow}> 
-                      <Button onPress={() => {
-                        if(validatePasswordChange()){
-                          setShowPasswordConfirmModal(true)
-                        }
-                        }}>
-                        {isUpdatingPassword ? "Updating..." : "Confirm"}
-                      </Button>
-                      <Button 
-                        style={styles.noButton} 
-                        color={borderColor}
-                        onPress={() => {
-                          setShowChangePassword(false)
-                          setCurrentPasswordForChange("")
-                          setNewPassword("")
-                          setConfirmNewPassword("")
-                        }}>
-                          Cancel
-                        </Button>
-                    </ThemedView>
-                  </ThemedView>
-                )}
-                {/* Delete Account */}
               </ThemedView>
             )}
 
@@ -476,45 +423,6 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
             >Log Out</Button>
           </ThemedView>
         </ThemedView>
-
-        {/* Password Confirm Change Modal */}
-        <Modal
-          visible={showPasswordConfirmModal}
-          transparent
-          animationType="fade"
-          onRequestClose={() => setShowPasswordConfirmModal(false)}
-        >
-          <ThemedView style={styles.modalOverlay}>
-            <ThemedView style={[styles.modalContent, { borderColor }]}>
-              <ThemedText type="subtitle">Change Password?</ThemedText>
-              <ThemedText>
-                Are you sure you want to update your password?
-              </ThemedText>
-
-              <ThemedView style={styles.passwordRow}>
-                <Button
-                  style={styles.yesButton}
-                  color={borderColor}
-                  onPress={async () => {
-                    setShowPasswordConfirmModal(false);
-                    await handleChangePassword();
-                  }}
-                >
-                  Yes, Change
-                </Button>
-
-                <Button
-                  style={styles.noButton}
-                  color={borderColor}
-                  onPress={() => setShowPasswordConfirmModal(false)}
-                >
-                  Cancel
-                </Button>
-                
-              </ThemedView>
-            </ThemedView>
-          </ThemedView>
-        </Modal>
 
         {/* Security Question Change Modal */}
         <Modal
@@ -598,6 +506,73 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
                 </ThemedView>
               </ThemedView>
               </KeyboardAvoidingView>
+            </ThemedView>
+          </ThemedView>
+        </Modal>
+
+        {/* Password Change Modal */}
+        <Modal
+          visible={showPasswordModal}
+          transparent
+          animationType="slide"
+          onRequestClose={() => setShowPasswordModal(false)}
+        >
+          <ThemedView style={styles.modalOverlay}>
+            <ThemedView style={[styles.modalContent, { borderColor }]}>
+              <ThemedText type="subtitle">Change Password</ThemedText>
+
+              <ThemedTextInput
+                placeholder="Current password"
+                value={currentPasswordForChange}
+                onChangeText={setCurrentPasswordForChange}
+                secureTextEntry
+              />
+
+              <ThemedTextInput
+                placeholder="New password"
+                value={newPassword}
+                onChangeText={setNewPassword}
+                secureTextEntry
+              />
+
+              <ThemedTextInput
+                placeholder="Confirm new password"
+                value={confirmNewPassword}
+                onChangeText={setConfirmNewPassword}
+                secureTextEntry
+              />
+
+              {passwordError ? (
+                <ThemedText style={styles.errorText}>{passwordError}</ThemedText>
+              ) : null}
+
+              <ThemedView style={styles.passwordRow}>
+                <Button
+                  style={styles.noButton}
+                  color={borderColor}
+                  onPress={() => {
+                    setShowPasswordModal(false);
+                    setCurrentPasswordForChange("");
+                    setNewPassword("");
+                    setConfirmNewPassword("");
+                    setPasswordError("");
+                  }}
+                >
+                  Cancel
+                </Button>
+
+                <Button
+                  style={styles.yesButton}
+                  color={borderColor}
+                  onPress={() => {
+                    if (validatePasswordChange()) {
+                      handleChangePassword();
+                    }
+                  }}
+                >
+                  {isUpdatingPassword ? "Updating..." : "Confirm"}
+                </Button>
+              </ThemedView>
             </ThemedView>
           </ThemedView>
         </Modal>
