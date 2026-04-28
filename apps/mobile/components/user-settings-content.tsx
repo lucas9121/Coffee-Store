@@ -8,9 +8,11 @@ import { ThemedTextInput } from "./ui/themed-text-input";
 import { ThemedScrollView } from "./ui/themed-scroll-view";
 import { useAuth } from "@/context/AuthContext";
 import { useThemeMode } from "@/context/ThemeContext";
-import { getCurrentUser, updateUserProfile } from "@/services/user-api";
+import { getCurrentUser } from "@/services/user-api";
 import { PasswordChangeSettings } from "./password-change-settings";
 import { SecurityQuestionSettings } from "./security-question-settings";
+import { AccountInfoSettings } from "./account-info-settings";
+import { useThemeColor } from "@/hooks/use-theme-color";
 
 type UserSettingsContentProps = {
   accessToken: string | null;
@@ -33,16 +35,12 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
   const {logout, accountType} = useAuth();
   const { themeMode, setThemeMode } = useThemeMode();
   const [user, setUser] = useState<User | null>(null)
-  const [edit, setEdit] = useState<boolean>(false)
-  const [editedName, setEditedName] = useState("");
-  const [editedEmail, setEditedEmail] = useState("");
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
+  const [accountInfoResetKey, setAccountInfoResetKey] = useState(0);
   const [showSecurityOptions, setShowSecurityOptions] = useState(false);
-  const [profileError, setProfileError] = useState("");
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
   const [deletePassword, setDeletePassword] = useState("")
   const [deleteError, setDeleteError] = useState("")
+  const textColor = useThemeColor({}, "text")
 
 
 
@@ -50,8 +48,6 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
     try {
       const userInfo = await getCurrentUser(accessToken);
       setUser(userInfo.user)
-      setEditedName(userInfo.user.name)
-      setEditedEmail(userInfo.user.email)
     } catch (error) {
       console.error(error)
     }
@@ -63,49 +59,6 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
     const newIndex = (idx + 1) % choices.length
     let newTheme = choices[newIndex]
     setThemeMode(newTheme)
-  };
-
-  async function handleConfirmProfile() {
-    if (!editedName.trim() || !editedEmail.trim()) {
-      setProfileError("Name and email are required.");
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(editedEmail.trim())) {
-      setProfileError("Please enter a valid email address.");
-      return;
-    }
-
-    if (!currentPassword.trim()) {
-      setProfileError("Please enter your current password.");
-      return;
-    }
-
-    try {
-      setProfileError("");
-      setIsSaving(true);
-
-      const data = await updateUserProfile(
-        {
-          name: editedName.trim(),
-          email: editedEmail.trim(),
-          password: currentPassword,
-        },
-        accessToken
-      );
-
-      setUser(data.user);
-      setEditedName(data.user.name);
-      setEditedEmail(data.user.email);
-      setCurrentPassword("");
-      setEdit(false);
-    } catch (error) {
-      console.error(error);
-      setProfileError("Unable to update profile.");
-    } finally {
-      setIsSaving(false);
-    }
   };
 
   async function handleDeleteAccount() {
@@ -132,105 +85,26 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
       <ThemedScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         <ThemedText type="title" >Account Settings </ThemedText>
         {/* Account Info */}
-        <ThemedView style={styles.row}>
-          <ThemedView style={edit ? [styles.column, {gap: 35}]: styles.column}>
-            <ThemedText type="defaultSemiBold">Name</ThemedText>
-            <ThemedText type="defaultSemiBold" style={edit && {paddingTop: 10}}>Email</ThemedText>
-            <ThemedText type="defaultSemiBold">Account</ThemedText>
-            <ThemedText type="defaultSemiBold">Theme</ThemedText>
-          </ThemedView>
-          <ThemedView style={styles.column}>
-            {edit ? (
-              <>
-                <ThemedTextInput 
-                  value={editedName} 
-                  onChangeText={setEditedName} 
-                  placeholder="Name"
-                />
-                <ThemedTextInput 
-                  value={editedEmail} 
-                  onChangeText={setEditedEmail} 
-                  placeholder="Email" 
-                  autoCapitalize="none" 
-                  keyboardType="email-address" 
-                />
-                { 
-                  accountType === "user" ? (<ThemedText>Customer</ThemedText>) 
-                  : (<ThemedText>{accountType}</ThemedText>)
-                }
-              </>
-            ) : (
-              <>
-                <ThemedText>{user?.name}</ThemedText>
-                <ThemedText>{user?.email}</ThemedText>
-                {
-                  accountType === "user" ? (<ThemedText>Customer</ThemedText>) 
-                  : (<ThemedText>{accountType}</ThemedText>)
-                }
-              </>
-            )}
+        <AccountInfoSettings
+          user={user}
+          setUser={setUser}
+          accessToken={accessToken}
+          textColor={textColor}
+          accountType={accountType}
+          themeMode={themeMode}
+          changeTheme={changeTheme}
+          onStartEdit={() => setShowSecurityOptions(false)}
+          resetKey={accountInfoResetKey}
+        />
 
-            {/* Password Check and Error Message */}
-            <ThemedView style={styles.row}>
-              <Button onPress={() => changeTheme()}>
-                {themeMode}
-              </Button>
-            </ThemedView>
-          </ThemedView>
-        </ThemedView>
-        {edit && (
-          <ThemedTextInput
-            value={currentPassword}
-            onChangeText={setCurrentPassword}
-            placeholder="Current password"
-            secureTextEntry
-          />
-        )}
-        {profileError ? (
-          <ThemedText style={styles.errorText}>{profileError}</ThemedText>
-        ) : null}
-
-        {/* Profile Edit buttons */}
         <ThemedView style={[styles.column, {gap: 0}]}>
-          {!edit ? (
-            <ThemedView style={styles.row}>
-              <Button 
-                onPress={() => {
-                  setShowSecurityOptions(false);
-                  setEdit(true);
-                }}>Edit Profile</Button>
-            </ThemedView> ) : (
-            <ThemedView style={[styles.buttonRow, {borderBottomWidth: 1, borderColor}]}>
-              <Button 
-                style={styles.yesButton} 
-                color={borderColor}
-                onPress={handleConfirmProfile}
-              >
-                  {isSaving ? "Saving..." : "Confirm"}
-              </Button>
-              <Button 
-                style={styles.noButton}  
-                color={borderColor} 
-                onPress={() => {
-                  setEditedName(user?.name ?? "");
-                  setEditedEmail(user?.email ?? "");
-                  setCurrentPassword("");
-                  setProfileError("");
-                  setEdit(false);
-                  setEdit(false);
-                }}>
-                    Cancel
-                </Button>
-            </ThemedView>
-          )}
-
           {/* Account Security buttons */}
           <ThemedView style={styles.securityContainer}>
             <ThemedView style={showSecurityOptions ? [styles.row, {paddingBottom: 8}]: styles.row}>
               <Button
                 onPress={() => {
                   setShowSecurityOptions((prev) => !prev)
-                  setEdit(false);
+                  setAccountInfoResetKey((prev) => prev + 1);
                 }}
               >
                 {showSecurityOptions ? "Hide Account Security" : "Account Security"}
