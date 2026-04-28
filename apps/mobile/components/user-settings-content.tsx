@@ -11,9 +11,9 @@ import { useThemeMode } from "@/context/ThemeContext";
 import {
   getCurrentUser, 
   updateUserProfile, 
-  updateUserPassword, 
   updateUserSecurityQuestion 
 } from "@/services/user-api";
+import { PasswordChangeSettings } from "./password-change-settings";
 
 type UserSettingsContentProps = {
   accessToken: string | null;
@@ -43,12 +43,6 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
   const [isSaving, setIsSaving] = useState(false);
   const [showSecurityOptions, setShowSecurityOptions] = useState(false);
   const [profileError, setProfileError] = useState("");
-  const [currentPasswordForChange, setCurrentPasswordForChange] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmNewPassword, setConfirmNewPassword] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-  const [showPasswordModal, setShowPasswordModal] = useState(false)
-  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
   const [activeSecurityIndex, setActiveSecurityIndex] = useState<0 | 1 | null>(null);
   const [newSecurityQuestion, setNewSecurityQuestion] = useState("");
   const [newSecurityAnswer, setNewSecurityAnswer] = useState("");
@@ -137,56 +131,6 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
       setProfileError("Unable to update profile.");
     } finally {
       setIsSaving(false);
-    }
-  };
-
-  function validatePasswordChange() {
-    if (!currentPasswordForChange.trim()) {
-      setPasswordError("Please enter your current password.");
-      return false;
-    }
-
-    if (!newPassword.trim()) {
-      setPasswordError("Enter a new password.");
-      return false;
-    }
-
-    if (newPassword.length < 5) {
-      setPasswordError("Password must be at least 5 characters.");
-      return false;
-    }
-
-    if (newPassword !== confirmNewPassword) {
-      setPasswordError("Passwords do not match.");
-      return false;
-    }
-
-    setPasswordError("");
-    return true;
-  }
-
-  async function handleChangePassword() {
-    try {
-      setPasswordError("");
-      setIsUpdatingPassword(true);
-      await updateUserPassword(
-        {
-          currentPassword: currentPasswordForChange,
-          newPassword,
-        },
-        accessToken
-      );
-      setCurrentPasswordForChange("");
-      setNewPassword("");
-      setConfirmNewPassword("");
-      setShowPasswordModal(false);
-
-    } catch (error) {
-      console.error(error);
-      setPasswordError("Unable to update password.");
-
-    } finally {
-      setIsUpdatingPassword(false);
     }
   };
 
@@ -378,7 +322,7 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
                       {/* <ThemedText type="defaultSemiBold">Question {idx + 1}:</ThemedText>  */}
                       <ThemedText>{idx + 1}) {qt.question}</ThemedText>
                       <Button
-                        onPressIn={() => openSecurityQuestionModal(idx as 0 | 1)}
+                        onPress={() => openSecurityQuestionModal(idx as 0 | 1)}
                       >
                         Edit
                       </Button>
@@ -388,16 +332,10 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
 
                 <ThemedView style={[styles.buttonRow, {borderColor}]}>
                   {/* Password Change */}
-                  <ThemedView style={styles.row}>
-                    <Button
-                      onPress={() => {
-                        setPasswordError("");
-                        setShowPasswordModal(true)
-                      }}
-                    >
-                      Change Password
-                    </Button>
-                  </ThemedView>
+                  <PasswordChangeSettings
+                    accessToken={accessToken}
+                    borderColor={borderColor}
+                  />
 
                   {/* Delete Account */}
                   <Button 
@@ -432,118 +370,48 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
           onRequestClose={() => setActiveSecurityIndex(null)}
         >
           <ThemedView style={styles.modalOverlay}>
-            <ThemedView style={styles.modalOverlay}>
-              <KeyboardAvoidingView
-                behavior={Platform.OS === "ios" ? "padding" : "height"}
-                style={styles.keyboardAvoiding}
-              >
-              <ThemedView style={[styles.modalContent, { borderColor }]}>
-                <ThemedText type="subtitle">
-                  Update Security Question {activeSecurityIndex !== null ? activeSecurityIndex + 1 : ""}
-                </ThemedText>
-
-                <ThemedText type="defaultSemiBold">Question</ThemedText>
-
-                <ScrollView style={styles.questionChoiceList} >
-                  {availableSecurityQuestions.map((question) => (
-                    <Pressable
-                      key={question}
-                      onPress={() => setNewSecurityQuestion(question)}
-                      style={[styles.questionOption, {borderColor}]}
-                    >
-                      <ThemedText>
-                        {newSecurityQuestion === question ? `✓ ${question}` : question}
-
-                      </ThemedText>
-                    </Pressable>
-                  ))}
-                </ScrollView>
-
-                <ThemedTextInput
-                  placeholder="New answer"
-                  value={newSecurityAnswer}
-                  onChangeText={setNewSecurityAnswer}
-                  autoCapitalize="none"
-                />
-
-                <ThemedTextInput
-                  placeholder="Current password"
-                  value={securityPassword}
-                  onChangeText={setSecurityPassword}
-                  secureTextEntry
-                />
-
-                {securityError ? (
-                  <ThemedText style={styles.errorText}>{securityError}</ThemedText>
-                ) : null}
-
-                <ThemedView style={styles.passwordRow}>
-                  <Button
-                    style={styles.noButton}
-                    color={borderColor}
-                    onPress={() => {
-                      setActiveSecurityIndex(null);
-                      setNewSecurityQuestion("");
-                      setNewSecurityAnswer("");
-                      setSecurityPassword("");
-                      setSecurityError("");
-                    }}
-                  >
-                    Cancel
-                  </Button>
-
-                  <Button
-                    style={styles.yesButton}
-                    color={borderColor}
-                    onPress={() => {
-                      if (activeSecurityIndex !== null) {
-                        handleChangeSecurityQuestions(activeSecurityIndex);
-                      }
-                    }}
-                  >
-                    {isUpdatingSecurity ? "Updating..." : "Confirm"}
-                  </Button>
-                </ThemedView>
-              </ThemedView>
-              </KeyboardAvoidingView>
-            </ThemedView>
-          </ThemedView>
-        </Modal>
-
-        {/* Password Change Modal */}
-        <Modal
-          visible={showPasswordModal}
-          transparent
-          animationType="slide"
-          onRequestClose={() => setShowPasswordModal(false)}
-        >
-          <ThemedView style={styles.modalOverlay}>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === "ios" ? "padding" : "height"}
+              style={styles.keyboardAvoiding}
+            >
             <ThemedView style={[styles.modalContent, { borderColor }]}>
-              <ThemedText type="subtitle">Change Password</ThemedText>
+              <ThemedText type="subtitle">
+                Update Security Question {activeSecurityIndex !== null ? activeSecurityIndex + 1 : ""}
+              </ThemedText>
+
+              <ThemedText type="defaultSemiBold">Question</ThemedText>
+
+              <ScrollView style={styles.questionChoiceList} >
+                {availableSecurityQuestions.map((question) => (
+                  <Pressable
+                    key={question}
+                    onPress={() => setNewSecurityQuestion(question)}
+                    style={[styles.questionOption, {borderColor}]}
+                  >
+                    <ThemedText>
+                      {newSecurityQuestion === question ? `✓ ${question}` : question}
+
+                    </ThemedText>
+                  </Pressable>
+                ))}
+              </ScrollView>
+
+              <ThemedTextInput
+                placeholder="New answer"
+                value={newSecurityAnswer}
+                onChangeText={setNewSecurityAnswer}
+                autoCapitalize="none"
+              />
 
               <ThemedTextInput
                 placeholder="Current password"
-                value={currentPasswordForChange}
-                onChangeText={setCurrentPasswordForChange}
+                value={securityPassword}
+                onChangeText={setSecurityPassword}
                 secureTextEntry
               />
 
-              <ThemedTextInput
-                placeholder="New password"
-                value={newPassword}
-                onChangeText={setNewPassword}
-                secureTextEntry
-              />
-
-              <ThemedTextInput
-                placeholder="Confirm new password"
-                value={confirmNewPassword}
-                onChangeText={setConfirmNewPassword}
-                secureTextEntry
-              />
-
-              {passwordError ? (
-                <ThemedText style={styles.errorText}>{passwordError}</ThemedText>
+              {securityError ? (
+                <ThemedText style={styles.errorText}>{securityError}</ThemedText>
               ) : null}
 
               <ThemedView style={styles.passwordRow}>
@@ -551,11 +419,11 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
                   style={styles.noButton}
                   color={borderColor}
                   onPress={() => {
-                    setShowPasswordModal(false);
-                    setCurrentPasswordForChange("");
-                    setNewPassword("");
-                    setConfirmNewPassword("");
-                    setPasswordError("");
+                    setActiveSecurityIndex(null);
+                    setNewSecurityQuestion("");
+                    setNewSecurityAnswer("");
+                    setSecurityPassword("");
+                    setSecurityError("");
                   }}
                 >
                   Cancel
@@ -565,17 +433,20 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
                   style={styles.yesButton}
                   color={borderColor}
                   onPress={() => {
-                    if (validatePasswordChange()) {
-                      handleChangePassword();
+                    if (activeSecurityIndex !== null) {
+                      handleChangeSecurityQuestions(activeSecurityIndex);
                     }
                   }}
                 >
-                  {isUpdatingPassword ? "Updating..." : "Confirm"}
+                  {isUpdatingSecurity ? "Updating..." : "Confirm"}
                 </Button>
               </ThemedView>
             </ThemedView>
+            </KeyboardAvoidingView>
           </ThemedView>
         </Modal>
+
+
 
         {/* Delete Account Modal */}
         <Modal
