@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { StyleSheet, Modal, KeyboardAvoidingView, Platform, ScrollView, Pressable } from "react-native";
+import { StyleSheet, Modal } from "react-native";
 import { Button } from "@react-navigation/elements";
 import { useRouter } from "expo-router";
 import { ThemedView } from "./ui/themed-view";
@@ -8,12 +8,9 @@ import { ThemedTextInput } from "./ui/themed-text-input";
 import { ThemedScrollView } from "./ui/themed-scroll-view";
 import { useAuth } from "@/context/AuthContext";
 import { useThemeMode } from "@/context/ThemeContext";
-import {
-  getCurrentUser, 
-  updateUserProfile, 
-  updateUserSecurityQuestion 
-} from "@/services/user-api";
+import { getCurrentUser, updateUserProfile } from "@/services/user-api";
 import { PasswordChangeSettings } from "./password-change-settings";
+import { SecurityQuestionSettings } from "./security-question-settings";
 
 type UserSettingsContentProps = {
   accessToken: string | null;
@@ -43,34 +40,11 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
   const [isSaving, setIsSaving] = useState(false);
   const [showSecurityOptions, setShowSecurityOptions] = useState(false);
   const [profileError, setProfileError] = useState("");
-  const [activeSecurityIndex, setActiveSecurityIndex] = useState<0 | 1 | null>(null);
-  const [newSecurityQuestion, setNewSecurityQuestion] = useState("");
-  const [newSecurityAnswer, setNewSecurityAnswer] = useState("");
-  const [securityPassword, setSecurityPassword] = useState("");
-  const [securityError, setSecurityError] = useState("");
-  const [isUpdatingSecurity, setIsUpdatingSecurity] = useState(false);
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
   const [deletePassword, setDeletePassword] = useState("")
   const [deleteError, setDeleteError] = useState("")
 
-  const securityQuestionChoices = [
-    "What is your mother's maiden name?",
-    "What is the name of your first pet?",
-    "What was your first car?",
-    "What elementary school did you attend?",
-    "What is the name of the town where you were born?",
-    "Where did you meet your spouse?",
-  ];
 
-  /////////////// Change Here ////////////////////
-  function openSecurityQuestionModal(index: 0 | 1) {
-    setActiveSecurityIndex(index);
-    setNewSecurityQuestion(user?.securityQuestions[index]?.question ?? "");
-    setNewSecurityAnswer("");
-    setSecurityPassword("");
-    setSecurityError("");
-  }
-  /////////////// End Change ////////////////////
 
   async function getUserInfo(){
     try {
@@ -134,45 +108,6 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
     }
   };
 
-  async function handleChangeSecurityQuestions(index: 0 | 1){
-    if(!securityPassword.trim()){
-      setSecurityError("Please enter your current Password.");
-      return;
-    };
-    if (!newSecurityAnswer.trim()) {
-      setSecurityError("Please enter an answer.");
-      return;
-    };
-    if (!newSecurityQuestion.trim()) {
-      setSecurityError("Please select a security question.");
-      return;
-    };
-
-    try {
-      setIsUpdatingSecurity(true);
-      await updateUserSecurityQuestion(
-        {
-          password: securityPassword,
-          index,
-          newQuestion: newSecurityQuestion,
-          newAnswer: newSecurityAnswer.trim()
-        },
-        accessToken
-      );
-      await getUserInfo();
-      setNewSecurityQuestion("");
-      setNewSecurityAnswer("");
-      setSecurityError("");
-      setActiveSecurityIndex(null);
-    } catch (error) {
-      console.error(error);
-      setSecurityError("Unable to update security question.")
-    } finally {
-      setIsUpdatingSecurity(false);
-      setSecurityPassword("");
-    }
-  };
-
   async function handleDeleteAccount() {
     if(!deletePassword.trim()){
       setDeleteError("Please enter your current Password.");
@@ -192,17 +127,6 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
   useEffect(() => {
     getUserInfo()
   }, [])
-
-  const otherSecurityQuestion =
-    activeSecurityIndex === 0
-      ? user?.securityQuestions[1]?.question
-      : activeSecurityIndex === 1
-        ? user?.securityQuestions[0]?.question
-        : null;
-
-  const availableSecurityQuestions = securityQuestionChoices.filter(
-    (question) => question !== otherSecurityQuestion
-  );
 
     return(
       <ThemedScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
@@ -315,21 +239,12 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
             {showSecurityOptions && (
               <ThemedView style={[styles.securitySection, {borderColor}]}>
                 {/* Security Question Change */}
-                <ThemedView style={[styles.securityColumn, {borderColor}]}> 
-                  <ThemedText>Security Questions</ThemedText>
-                  {user?.securityQuestions.map((qt, idx) => (
-                    <ThemedView key={idx} style={styles.securityRow}>
-                      {/* <ThemedText type="defaultSemiBold">Question {idx + 1}:</ThemedText>  */}
-                      <ThemedText>{idx + 1}) {qt.question}</ThemedText>
-                      <Button
-                        onPress={() => openSecurityQuestionModal(idx as 0 | 1)}
-                      >
-                        Edit
-                      </Button>
-                    </ThemedView>
-                  ))}
-                </ThemedView>
-
+                <SecurityQuestionSettings
+                  user={user}
+                  refreshUser={getUserInfo}
+                  accessToken={accessToken}
+                  borderColor={borderColor}
+                />
                 <ThemedView style={[styles.buttonRow, {borderColor}]}>
                   {/* Password Change */}
                   <PasswordChangeSettings
@@ -361,92 +276,6 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
             >Log Out</Button>
           </ThemedView>
         </ThemedView>
-
-        {/* Security Question Change Modal */}
-        <Modal
-          visible={activeSecurityIndex !== null}
-          transparent
-          animationType="slide"
-          onRequestClose={() => setActiveSecurityIndex(null)}
-        >
-          <ThemedView style={styles.modalOverlay}>
-            <KeyboardAvoidingView
-              behavior={Platform.OS === "ios" ? "padding" : "height"}
-              style={styles.keyboardAvoiding}
-            >
-            <ThemedView style={[styles.modalContent, { borderColor }]}>
-              <ThemedText type="subtitle">
-                Update Security Question {activeSecurityIndex !== null ? activeSecurityIndex + 1 : ""}
-              </ThemedText>
-
-              <ThemedText type="defaultSemiBold">Question</ThemedText>
-
-              <ScrollView style={styles.questionChoiceList} >
-                {availableSecurityQuestions.map((question) => (
-                  <Pressable
-                    key={question}
-                    onPress={() => setNewSecurityQuestion(question)}
-                    style={[styles.questionOption, {borderColor}]}
-                  >
-                    <ThemedText>
-                      {newSecurityQuestion === question ? `✓ ${question}` : question}
-
-                    </ThemedText>
-                  </Pressable>
-                ))}
-              </ScrollView>
-
-              <ThemedTextInput
-                placeholder="New answer"
-                value={newSecurityAnswer}
-                onChangeText={setNewSecurityAnswer}
-                autoCapitalize="none"
-              />
-
-              <ThemedTextInput
-                placeholder="Current password"
-                value={securityPassword}
-                onChangeText={setSecurityPassword}
-                secureTextEntry
-              />
-
-              {securityError ? (
-                <ThemedText style={styles.errorText}>{securityError}</ThemedText>
-              ) : null}
-
-              <ThemedView style={styles.passwordRow}>
-                <Button
-                  style={styles.noButton}
-                  color={borderColor}
-                  onPress={() => {
-                    setActiveSecurityIndex(null);
-                    setNewSecurityQuestion("");
-                    setNewSecurityAnswer("");
-                    setSecurityPassword("");
-                    setSecurityError("");
-                  }}
-                >
-                  Cancel
-                </Button>
-
-                <Button
-                  style={styles.yesButton}
-                  color={borderColor}
-                  onPress={() => {
-                    if (activeSecurityIndex !== null) {
-                      handleChangeSecurityQuestions(activeSecurityIndex);
-                    }
-                  }}
-                >
-                  {isUpdatingSecurity ? "Updating..." : "Confirm"}
-                </Button>
-              </ThemedView>
-            </ThemedView>
-            </KeyboardAvoidingView>
-          </ThemedView>
-        </Modal>
-
-
 
         {/* Delete Account Modal */}
         <Modal
@@ -526,37 +355,10 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderTopWidth: 1,
   },
-  securityColumn: {
-    flexDirection: "column",
-    gap: 8,
-    paddingBottom: 16,
-  },
-  securityRow: {
-    flexDirection: "row",
-    alignItems: "center", 
-    justifyContent: "flex-start",
-    gap: 16
-  },
-  passwordColumn: {
-    flexDirection: "column",
-    gap: 16,
-    paddingVertical: 16,
-  },
   passwordRow: {
     flexDirection: "row",
     justifyContent: "center",
     gap: 24,
-  },
-  textRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  themeButton: {
-    paddingVertical: 6,
-    backgroundColor: "blue", // temp color
-    borderRadius: 50,
-    alignItems:"center",
   },
   buttonRow: {
     flexDirection: "row",
@@ -592,12 +394,5 @@ const styles = StyleSheet.create({
   },
   keyboardAvoiding: {
     width: "100%",
-  },
-  questionChoiceList: {
-    maxHeight: 220,
-  },
-  questionOption: {
-    paddingVertical: 12,
-    borderBottomWidth: 1,
   },
 })
