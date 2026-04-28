@@ -42,8 +42,6 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
   const [deleteError, setDeleteError] = useState("")
   const textColor = useThemeColor({}, "text")
 
-
-
   async function getUserInfo(){
     try {
       const userInfo = await getCurrentUser(accessToken);
@@ -83,7 +81,6 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
 
     return(
       <ThemedScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-        <ThemedText type="title" >Account Settings </ThemedText>
         {/* Account Info */}
         <AccountInfoSettings
           user={user}
@@ -97,58 +94,57 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
           resetKey={accountInfoResetKey}
         />
 
-        <ThemedView style={[styles.column, {gap: 0}]}>
-          {/* Account Security buttons */}
-          <ThemedView style={styles.securityContainer}>
-            <ThemedView style={showSecurityOptions ? [styles.row, {paddingBottom: 8}]: styles.row}>
-              <Button
-                onPress={() => {
-                  setShowSecurityOptions((prev) => !prev)
-                  setAccountInfoResetKey((prev) => prev + 1);
-                }}
-              >
-                {showSecurityOptions ? "Hide Account Security" : "Account Security"}
-              </Button>
-            </ThemedView>
-            {showSecurityOptions && (
-              <ThemedView style={[styles.securitySection, {borderColor}]}>
-                {/* Security Question Change */}
-                <SecurityQuestionSettings
-                  user={user}
-                  refreshUser={getUserInfo}
+        {/* Account Security buttons */}
+        <ThemedView style={styles.securityContainer}>
+          <ThemedView style={showSecurityOptions ? [styles.row, {paddingBottom: 8}]: styles.row}>
+            <Button
+              onPress={() => {
+                setShowSecurityOptions((prev) => !prev)
+                setAccountInfoResetKey((prev) => prev + 1);
+              }}
+            >
+              {showSecurityOptions ? "Hide Account Security" : "Account Security"}
+            </Button>
+          </ThemedView>
+          {showSecurityOptions && (
+            <ThemedView style={[styles.securitySection, {borderColor}]}>
+              {/* Security Question Change */}
+              <SecurityQuestionSettings
+                user={user}
+                refreshUser={getUserInfo}
+                accessToken={accessToken}
+                borderColor={borderColor}
+                textColor={textColor}
+              />
+              <ThemedView style={[styles.buttonRow, {borderColor}]}>
+                {/* Password Change */}
+                <PasswordChangeSettings
                   accessToken={accessToken}
                   borderColor={borderColor}
+                  textColor={textColor}
                 />
-                <ThemedView style={[styles.buttonRow, {borderColor}]}>
-                  {/* Password Change */}
-                  <PasswordChangeSettings
-                    accessToken={accessToken}
-                    borderColor={borderColor}
-                  />
 
-                  {/* Delete Account */}
-                  <Button 
-                    style={styles.noButton} 
-                    color={borderColor}
-                    onPress={() => setShowDeleteConfirmModal(true)}
-                  >
-                    Delete Account
-                  </Button>
-                </ThemedView>
-
+                {/* Delete Account */}
+                <Button 
+                  style={styles.noButton} 
+                  color={textColor}
+                  onPress={() => setShowDeleteConfirmModal(true)}
+                >
+                  Delete Account
+                </Button>
               </ThemedView>
-            )}
 
-          </ThemedView>
+            </ThemedView>
+          )}
+        </ThemedView>
 
-          {/* Log Out button */}
-          <ThemedView style={styles.row}>
-            <Button onPress={async () => {
-                await logout(); 
-                router.replace("/")
-              }}
-            >Log Out</Button>
-          </ThemedView>
+        {/* Log Out button */}
+        <ThemedView style={styles.row}>
+          <Button onPress={async () => {
+              await logout(); 
+              router.replace("/")
+            }}
+          >Log Out</Button>
         </ThemedView>
 
         {/* Delete Account Modal */}
@@ -210,11 +206,6 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     gap: 16,
   },
-  column: {
-    flexDirection: "column",
-    flex: 1,
-    gap: 24,
-  },
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -243,11 +234,9 @@ const styles = StyleSheet.create({
   },
   yesButton: {
     backgroundColor: "green", //temp color
-    color: "red",
   },
   noButton: {
     backgroundColor: "red", // temp color
-    color: "white"
   },
   errorText: {
     color: "#ff6b6b",
@@ -265,8 +254,5 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 20,
     gap: 16,
-  },
-  keyboardAvoiding: {
-    width: "100%",
   },
 })

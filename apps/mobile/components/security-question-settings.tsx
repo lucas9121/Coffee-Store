@@ -22,13 +22,15 @@ type SecurityQuestionSettingsProps = {
   refreshUser: () => Promise<void>;
   accessToken: string | null;
   borderColor: string;
+  textColor: string;
 };
 
 export function SecurityQuestionSettings({
   user, 
   refreshUser, 
   accessToken, 
-  borderColor
+  borderColor,
+  textColor
 }: SecurityQuestionSettingsProps) {
   const [activeSecurityIndex, setActiveSecurityIndex] = useState<0 | 1 | null>(null);
   const [newSecurityQuestion, setNewSecurityQuestion] = useState("");
@@ -178,7 +180,7 @@ export function SecurityQuestionSettings({
             <ThemedView style={styles.securityButtonRow}>
               <Button
                 style={styles.noButton}
-                color={borderColor}
+                color={textColor}
                 onPress={() => {
                   setActiveSecurityIndex(null);
                   setNewSecurityQuestion("");
@@ -192,7 +194,7 @@ export function SecurityQuestionSettings({
 
               <Button
                 style={styles.yesButton}
-                color={borderColor}
+                color={textColor}
                 onPress={() => {
                   if (activeSecurityIndex !== null) {
                     handleChangeSecurityQuestions(activeSecurityIndex);
@@ -248,11 +250,9 @@ const styles = StyleSheet.create({
   },
   yesButton: {
     backgroundColor: "green", //temp color
-    color: "red",
   },
   noButton: {
     backgroundColor: "red", // temp color
-    color: "white"
   },
   errorText: {
     color: "#ff6b6b",

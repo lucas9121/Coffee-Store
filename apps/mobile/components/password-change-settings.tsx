@@ -9,9 +9,10 @@ import { updateUserPassword } from "@/services/user-api";
 type PasswordChangeSettingsProp = {
   accessToken: string | null,
   borderColor: string,
+  textColor: string;
 }
 
-export function PasswordChangeSettings({accessToken, borderColor}: PasswordChangeSettingsProp){
+export function PasswordChangeSettings({accessToken, borderColor, textColor}: PasswordChangeSettingsProp){
   const [currentPasswordForChange, setCurrentPasswordForChange] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
@@ -120,7 +121,7 @@ export function PasswordChangeSettings({accessToken, borderColor}: PasswordChang
             <ThemedView style={styles.passwordRow}>
               <Button
                 style={styles.noButton}
-                color={borderColor}
+                color={textColor}
                 onPress={() => {
                   setShowPasswordModal(false);
                   setCurrentPasswordForChange("");
@@ -134,7 +135,7 @@ export function PasswordChangeSettings({accessToken, borderColor}: PasswordChang
 
               <Button
                 style={styles.yesButton}
-                color={borderColor}
+                color={textColor}
                 onPress={() => {
                   if (validatePasswordChange()) {
                     handleChangePassword();
@@ -173,11 +174,9 @@ const styles = StyleSheet.create({
   },
   yesButton: {
     backgroundColor: "green", //temp color
-    color: "red",
   },
   noButton: {
     backgroundColor: "red", // temp color
-    color: "white"
   },
   errorText: {
     color: "#ff6b6b",

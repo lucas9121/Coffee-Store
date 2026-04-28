@@ -256,11 +256,9 @@ const styles = StyleSheet.create({
   },
   yesButton: {
     backgroundColor: "green", //temp color
-    color: "red",
   },
   noButton: {
     backgroundColor: "red", // temp color
-    color: "white"
   },
   errorText: {
     color: "#ff6b6b",
