@@ -15,7 +15,7 @@ export async function updateUserProfile(
   token: string | null
 ) {
   return await sendRequest(`${BASE_URL}/profile`, "PATCH", payload, token)
-}
+};
 
 export async function updateUserPassword(
   payload: {
@@ -25,7 +25,7 @@ export async function updateUserPassword(
   token: string | null
 ) {
   return await sendRequest(`${BASE_URL}/password`, "PATCH", payload, token)
-}
+};
 
 export async function updateUserSecurityQuestion(
   payload: {
@@ -37,4 +37,11 @@ export async function updateUserSecurityQuestion(
   token: string | null
 ) {
   return await sendRequest(`${BASE_URL}/security-question`, "PATCH", payload, token)
+};
+
+export async function deleteUser(
+  payload: { password: string },
+  token: string | null
+) {
+  return await sendRequest(BASE_URL, "DELETE", payload, token)
 }
