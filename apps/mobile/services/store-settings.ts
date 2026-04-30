@@ -12,3 +12,7 @@ export async function setStoreOverride(
 ) {
   return await sendRequest(`${BASE_URL}/override`, "PATCH", payload, token);
 }
+
+export async function getStoreHours(){
+  return await sendRequest(BASE_URL)
+}
