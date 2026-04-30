@@ -4,6 +4,7 @@ import { Button } from "@react-navigation/elements";
 import { ThemedView } from "./ui/themed-view";
 import { ThemedText } from "./ui/themed-text";
 import { ThemedTextInput } from "./ui/themed-text-input";
+import { deleteUser } from "@/services/user-api";
 
 type DeleteAccountSettingsProps = {
   accessToken: string | null;
@@ -33,8 +34,7 @@ export function DeleteAccountSettings({
       setDeleteError("");
       setIsDeleting(true);
 
-      // TODO: call backend delete endpoint later
-      console.log("Delete account confirmed");
+      await deleteUser({password: deletePassword}, accessToken)
 
       setShowDeleteConfirmModal(false);
       setDeletePassword("");
