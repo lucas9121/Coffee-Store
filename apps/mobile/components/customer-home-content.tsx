@@ -1,12 +1,15 @@
 import { useState, useEffect, useRef } from "react";
 import { StyleSheet } from "react-native";
 
+import { ThemedView } from "./ui/themed-view";
 import { ThemedText } from "@/components/ui/themed-text";
 import { ThemedScrollView } from "@/components/ui/themed-scroll-view";
 import { Section } from "@/components/section";
 
 import { getOrderById } from "@/services/orders-api";
 import { getStoreStatus } from "@/services/store-settings";
+import { getStoreHours } from "@/services/store-settings";
+
 
 type LatestOrder = {
   _id: string;
@@ -21,6 +24,22 @@ type LatestOrder = {
   }[];
 };
 
+type Schedule = {
+  open: string;
+  close: string;
+  enabled: boolean;
+}
+
+type StoreHours = {
+  sunday: Schedule,
+  monday: Schedule,
+  tuesday: Schedule,
+  wednesday: Schedule,
+  thursday: Schedule,
+  friday: Schedule,
+  saturday:Schedule,
+}
+
 type CustomerHomeScreenProps = {
   accountType: string;
   latestOrderId: string | null;
@@ -33,8 +52,70 @@ export default function CustomerHomeScreen({
   const [latestOrder, setLatestOrder] = useState<LatestOrder | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [storeHours, setStoreHours] = useState<StoreHours | null>(null);
+  const [nextOpenMessage, setNextOpenMessage] = useState("");
   const isFirstOrderLoadRef = useRef(true);
   const lastOrderSignatureRef = useRef("");
+
+  async function loadStoreStatus() {
+    try {
+      const store = await getStoreStatus();
+      setIsOpen(store.isOpen);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  function formatTime(time: string): string {
+    const [hourStr, minute] = time.split(":");
+    let hour = Number(hourStr);
+
+    const ampm = hour >= 12 ? "PM" : "AM";
+
+    hour = hour % 12;
+    if (hour === 0) hour = 12;
+
+    return `${hour}:${minute} ${ampm}`;
+  };
+
+  function getNextOpenMessage(schedule: StoreHours): string {
+    const days = [
+      "sunday",
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday",
+      "saturday",
+    ] as const;
+
+    const todayIndex = new Date().getDay();
+
+    for (let i = 0; i < 7; i++) {
+      const dayIndex = (todayIndex + i) % 7;
+      const dayName = days[dayIndex];
+      const daySchedule = schedule[dayName];
+
+      if (daySchedule.enabled) {
+        const displayDay = i === 0 ? "today" : dayName.charAt(0).toUpperCase() + dayName.slice(1);
+
+        return `We look forward to serving you again ${displayDay} at ${formatTime(daySchedule.open)}.`;
+      }
+    }
+
+    return "We look forward to serving you again soon.";
+  };
+
+  async function getStoreSchedule() {
+    try {
+      const data = await getStoreHours();
+      setStoreHours(data.weeklySchedule);
+      setNextOpenMessage(getNextOpenMessage(data.weeklySchedule));
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   useEffect(() => {
     if (!latestOrderId || accountType === "worker") return;
@@ -76,7 +157,10 @@ export default function CustomerHomeScreen({
     async function pollCustomerOrder(showLoading = false) {
       try {
         const store = await getStoreStatus();
-        await fetchLatest(showLoading);
+        setIsOpen(store.isOpen);
+        if(store.isOpen && latestOrderId) {
+          await fetchLatest(showLoading);
+        }
         if (!store.isOpen && interval) {
           clearInterval(interval);
           interval = null;
@@ -96,12 +180,29 @@ export default function CustomerHomeScreen({
     };
   }, [latestOrderId, accountType]);
 
+  useEffect(() => {
+    loadStoreStatus();
+    getStoreSchedule();
+  }, []);
+
   return (
     <ThemedScrollView contentContainerStyle={styles.screenContent}>
       <ThemedText type="title">Home</ThemedText>
       <ThemedText type="subtitle">
         This will become: announcements / store status / quick actions
       </ThemedText>
+
+      {isOpen ? (
+        <ThemedView>
+          <ThemedText>Store is Open</ThemedText>
+          <ThemedText>Ordering is avaialble now</ThemedText>
+        </ThemedView>
+      ) : (
+        <ThemedView>
+          <ThemedText>Store is Closed</ThemedText>
+          <ThemedText>{nextOpenMessage || "We look forward to serving you again soon."}</ThemedText>
+        </ThemedView>
+      )}
 
       {isLoading ? (
         <ThemedText>Loading latest order...</ThemedText>
