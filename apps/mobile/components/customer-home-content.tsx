@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, Pressable } from "react-native";
+import { useRouter } from "expo-router";
 
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { ThemedView } from "./ui/themed-view";
 import { ThemedText } from "@/components/ui/themed-text";
 import { ThemedScrollView } from "@/components/ui/themed-scroll-view";
@@ -57,6 +59,8 @@ export default function CustomerHomeScreen({
   const [nextOpenMessage, setNextOpenMessage] = useState("");
   const isFirstOrderLoadRef = useRef(true);
   const lastOrderSignatureRef = useRef("");
+  const router = useRouter();
+  const borderColor = useThemeColor({}, "border");
 
   async function loadStoreStatus() {
     try {
@@ -188,18 +192,15 @@ export default function CustomerHomeScreen({
   return (
     <ThemedScrollView contentContainerStyle={styles.screenContent}>
       <ThemedText type="title">Home</ThemedText>
-      <ThemedText type="subtitle">
-        This will become: announcements / store status / quick actions
-      </ThemedText>
 
       {isOpen ? (
         <ThemedView>
-          <ThemedText>Store is Open</ThemedText>
-          <ThemedText>Ordering is avaialble now</ThemedText>
+          <ThemedText type="subtitle">Store is Open</ThemedText>
+          <ThemedText>Ordering is available now</ThemedText>
         </ThemedView>
       ) : (
         <ThemedView>
-          <ThemedText>Store is Closed</ThemedText>
+          <ThemedText type="subtitle">Store is Closed</ThemedText>
           <ThemedText>{nextOpenMessage || "We look forward to serving you again soon."}</ThemedText>
         </ThemedView>
       )}
@@ -231,6 +232,29 @@ export default function CustomerHomeScreen({
           <ThemedText>No recent order yet</ThemedText>
         </Section>
       )}
+
+      <Section title="Quick Actions">
+        <ThemedView style={styles.quickActions}>
+          <Pressable
+            style={[styles.actionButton, {borderColor}]}
+            onPress={() => router.push("/orders")}
+          >
+            <ThemedText>Order Now</ThemedText>
+          </Pressable>
+
+          <Pressable
+            style={[styles.actionButton, {borderColor}]}
+            onPress={() => router.push("/settings")}
+          >
+            <ThemedText>Settings</ThemedText>
+          </Pressable>
+        </ThemedView>
+      </Section>
+
+      <Section title="Announcements">
+        <ThemedText>Welcome to the Church Café</ThemedText>
+        <ThemedText>Coffee and snacks are available before and after service times.</ThemedText>
+      </Section>
     </ThemedScrollView>
   );
 }
@@ -242,5 +266,15 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: "#ff6b6b",
+  },
+  quickActions: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  actionButton: {
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
   },
 });
