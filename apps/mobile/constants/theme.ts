@@ -5,29 +5,67 @@
 
 import { Platform } from 'react-native';
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+const tintColorLight = "#B08D57";
+const tintColorDark = "#C8A46B";
 
 export const Colors = {
   light: {
-    text: '#11181C',
-    background: '#fff',
-    border: "#687076",
+    text: "#1F1F1F",
+    mutedText: "#6B6B6B",
+    background: "#F6F1EA",
+    surface: "#FFFFFF",
+    card: "#EFE7DD",
+    border: "#D6C8B8",
     tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
+    primary: "#B08D57",
+    secondary: "#8C6A43",
+    danger: "#8E3B3B",
+    success: "#5E7A54",
+    icon: "#6B6B6B",
+    tabIconDefault: "#6B6B6B",
     tabIconSelected: tintColorLight,
   },
   dark: {
-    text: '#ECEDEE',
-    background: '#151718',
-    border: "#9BA1A6",
+    text: "#F4F1EC",
+    mutedText: "#B8B2AA",
+    background: "#0F0F10",
+    surface: "#181818",
+    card: "#222222",
+    border: "#3A3128",
     tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
+    primary: "#C8A46B",
+    secondary: "#9E7B47",
+    danger: "#B85C5C",
+    success: "#7FA36F",
+    icon: "#B8B2AA",
+    tabIconDefault: "#B8B2AA",
     tabIconSelected: tintColorDark,
   },
 };
+
+// const tintColorLight = '#0a7ea4';
+// const tintColorDark = '#fff';
+
+// export const Colors = {
+//   light: {
+//     text: '#11181C',
+//     background: '#fff',
+//     border: "#687076",
+//     tint: tintColorLight,
+//     icon: '#687076',
+//     tabIconDefault: '#687076',
+//     tabIconSelected: tintColorLight,
+//   },
+//   dark: {
+//     text: '#ECEDEE',
+//     background: '#151718',
+//     border: "#9BA1A6",
+//     tint: tintColorDark,
+//     icon: '#9BA1A6',
+//     tabIconDefault: '#9BA1A6',
+//     tabIconSelected: tintColorDark,
+//   },
+// };
 
 export const Fonts = Platform.select({
   ios: {
