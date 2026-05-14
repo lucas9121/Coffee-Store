@@ -13,6 +13,7 @@ Creates a new order.
 ### Request Body
 {
   "customerName": "John",
+  "source": "MOBILE",
   "orderItems": [
     {
       "item": "orderItemId",
@@ -24,6 +25,10 @@ Creates a new order.
 ### Behavior
 - Verifies store is open using StoreSettings + isStoreOpen()
 - Validates each OrderItem exists
+- Requires source.
+- Allowed source values:
+  - MOBILE
+  - IN PERSON
 - Copies price into `priceAtPurchase`
 - Calculates `totalPrice` server-side
 - If a valid authenticated user is present on the request (`req.user`):
@@ -32,6 +37,7 @@ Creates a new order.
 
 ### Responses
 - 201 → returns created order
+- 400 → missing order source
 - 403 → store is closed
 - 404 → order item not found
 - 500 → server error
@@ -48,15 +54,29 @@ Fetch all orders.
   - worker
   - admin
 
+### Behavior
+- Returns all orders sorted newest first.
+- Populates order item details.
+
 ### Responses
-200 → array of orders
-500 → server error
+- 200 → array of orders
+- 401 → unauthorized
+- 403 → forbidden
+- 500 → server error
 
 ---
 
 ## GET /orders/:id
 
 Fetch a single order by ID.
+
+### Behavior
+- Populates order item details:
+  - name
+  - image
+  - category
+  - price
+  - inStock
 
 ### Responses
 - 200 → returns order
@@ -86,6 +106,30 @@ Updates only the order status.
 - 400 → invalid ID or invalid status
 - 401 → unauthorized
 - 403 → forbidden (insufficient role)
+
+---
+
+## PATCH /orders/:id/payment
+
+Updates only the order payment status.
+
+### Auth
+- Requires authentication
+- Allowed roles:
+  - worker
+  - admin
+
+### Request Body
+  {
+    "isPaid": true
+  }
+
+### Responses
+- 200 → updated order
+- 404 → order not found
+- 400 → invalid ID or validation error
+- 401 → unauthorized
+- 403 → forbidden
 
 ---
 
@@ -218,6 +262,7 @@ Updates weekly schedule.
 ### Auth
 - Requires authentication
 - Allowed roles:
+  - worker
   - admin
 
 ### Request Body
@@ -247,6 +292,7 @@ Updates manual override settings.
 ### Auth
 - Requires authentication
 - Allowed roles:
+  - worker
   - admin
 
 ### Request Body
@@ -305,7 +351,7 @@ Authenticates a user.
 
 ### Behavior
 - Admin → access token (3h)
-- Worker → access token (24h)
+- Worker → access token (6h)
 - Customer → access token (24h) + refresh token (30d)
 
 ### Responses
@@ -464,6 +510,11 @@ Deletes the current user account.
 {
   "password": "currentPassword"
 }
+
+### Behavior
+- Verifies current password before deleting user.
+- Deletes only the user document.
+- Does not delete historical orders.
 
 ### Responses
 - 204 → account deleted
