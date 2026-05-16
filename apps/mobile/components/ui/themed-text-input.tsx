@@ -1,6 +1,12 @@
-import { TextInput, View, StyleSheet, type TextInputProps, type ViewStyle } from 'react-native';
-import { ReactNode } from 'react';
-import { useThemeColor } from '@/hooks/use-theme-color';
+import { TextInput, View, StyleSheet, type TextInputProps, type ViewStyle, type TextStyle} from "react-native";
+import { ReactNode } from "react";
+import { useThemeColor } from "@/hooks/use-theme-color";
+import { spacing, radius, fontSize, buttonHeight} from "@/constants/tokens";
+
+type SpacingKey = keyof typeof spacing;
+type RadiusKey = keyof typeof radius;
+type FontSizeKey = keyof typeof fontSize;
+type HeightKey = keyof typeof buttonHeight;
 
 export type ThemedTextInputProps = TextInputProps & {
   lightColor?: string;
@@ -13,12 +19,17 @@ export type ThemedTextInputProps = TextInputProps & {
   darkPlaceholderColor?: string;
   rightAccessory?: ReactNode;
   containerStyle?: ViewStyle;
+  paddingHorizontalSize?: SpacingKey;
+  paddingVerticalSize?: SpacingKey;
+  radiusSize?: RadiusKey;
+  fontSizeSize?: FontSizeKey;
+  heightSize?: HeightKey;
 };
 
-export function ThemedTextInput({ 
-  style, 
-  lightColor, 
-  darkColor, 
+export function ThemedTextInput({
+  style,
+  lightColor,
+  darkColor,
   lightBackgroundColor,
   darkBackgroundColor,
   lightBorderColor,
@@ -27,75 +38,65 @@ export function ThemedTextInput({
   darkPlaceholderColor,
   rightAccessory,
   containerStyle,
-  ...otherProps 
+  paddingHorizontalSize = "md",
+  paddingVerticalSize = "sm",
+  radiusSize = "md",
+  fontSizeSize = "md",
+  heightSize = "md",
+  ...otherProps
 }: ThemedTextInputProps) {
-  const textColor = useThemeColor(
-    { light: lightColor, dark: darkColor }, 
-    "text"
-  );
+  const textColor = useThemeColor( {light: lightColor, dark: darkColor},"text");
+  const backgroundColor = useThemeColor({light: lightBackgroundColor, dark: darkBackgroundColor}, "surface");
+  const borderColor = useThemeColor({light: lightBorderColor, dark: darkBorderColor}, "border");
+  const placeholderTextColor = useThemeColor({light: lightPlaceholderColor, dark: darkPlaceholderColor}, "mutedText");
 
-  const backgroundColor = useThemeColor(
-    {light: lightBackgroundColor, dark: darkBackgroundColor}, 
-    "background"
-  );
+  const tokenContainerStyle: ViewStyle = {
+    backgroundColor,
+    borderColor,
+    borderRadius: radius[radiusSize],
+    paddingHorizontal: spacing[paddingHorizontalSize],
+    minHeight: buttonHeight[heightSize],
+  };
 
-  const borderColor = useThemeColor(
-    {light: lightBorderColor, dark: darkBorderColor},
-    "border"
-  );
-
-  const placeholderTextColor = useThemeColor(
-    {light: lightPlaceholderColor, dark: darkPlaceholderColor},
-    "text"
-  );
+  const tokenInputStyle: TextStyle = {
+    color: textColor,
+    fontSize: fontSize[fontSizeSize],
+    paddingVertical: spacing[paddingVerticalSize],
+  };
 
   return (
     <View
-      style={[
-        styles.container,
-        {
-          backgroundColor,
-          borderColor
-        },
-        containerStyle
-      ]}
+      style={[styles.container, tokenContainerStyle, containerStyle]}
     >
-      <TextInput 
-        style={[
-          styles.input,
-          { 
-            color: textColor
-          },
-          style
-        ]} 
+      <TextInput
+        style={[styles.input, tokenInputStyle, style]}
         placeholderTextColor={placeholderTextColor}
-        {...otherProps} 
+        {...otherProps}
       />
-      
       {rightAccessory ? (
-        <View style={styles.accessory}>{rightAccessory}</View>
-      ): null}
+        <View style={styles.accessory}>
+          {rightAccessory}
+        </View>
+      ) : null}
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     width: "100%",
     borderWidth: 1,
-    borderRadius: 8,
     flexDirection: "row",
     alignItems: "center",
-    paddingLeft: 12,
-    paddingRight: 12,
   },
+
   input: {
     flex: 1,
-    paddingVertical: 12,
   },
+
   accessory: {
     marginLeft: 8,
     alignItems: "center",
     justifyContent: "center",
-  }
+  },
 });
