@@ -10,3 +10,5 @@ The store is considered open if:
 
 Manual override expires when:
 - currentDate > expiresAt
+
+Weekly schedule and manual override can be updated by worker or admin accounts.
