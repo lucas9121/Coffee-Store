@@ -33,6 +33,25 @@ Represents a customer order placed through the kiosk.
 
 ---
 
+### source
+
+- Type: String
+- Enum:
+  - MOBILE
+  - IN PERSON
+- Default: MOBILE
+- Purpose: Identifies whether the order came from the mobile app or was entered in person.
+
+---
+
+### isPaid
+
+- Type: Boolean
+- Default: false
+- Purpose: Tracks whether the order has been paid for.
+
+---
+
 ### orderItems (Array)
 
 Each order contains one or more order items.
@@ -93,6 +112,18 @@ Represents a purchasable menu item.
 - Type: String
 - Optional
 - Intended for image URL or asset path
+
+---
+
+### category
+
+- Type: String
+- Enum:
+  - coffee
+  - juice
+  - food
+  - dessert
+- Purpose: Allows frontend to group/filter menu items by category.
 
 ---
 
@@ -233,6 +264,9 @@ Structure:
 - Users cannot change an answer without selecting a new question.
 - Changing a question requires current password verification in the controller.
 - Hashing ensures answers are securely stored.
+- Deleting a user removes the User document only.
+- Orders are not cascade-deleted.
+- Current orders are not linked to users by ObjectId, so historical order records remain independent.
 
 --- 
 
