@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { StyleSheet} from "react-native";
-import { Button } from "@react-navigation/elements";
+import { StyleSheet, Pressable } from "react-native";
 import { useRouter } from "expo-router";
 
 import { ThemedView } from "./ui/themed-view";
@@ -17,6 +16,7 @@ import { PasswordChangeSettings } from "./password-change-settings";
 import { SecurityQuestionSettings } from "./security-question-settings";
 import { AccountInfoSettings } from "./account-info-settings";
 import { DeleteAccountSettings } from "./delete-account-settings";
+import { ThemedText } from "./ui/themed-text";
 
 type UserSettingsContentProps = {
   accessToken: string | null;
@@ -82,15 +82,17 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
         {/* Account Security buttons */}
         <ThemedView paddingVertical="xl">
           <ThemedView style={styles.row} paddingVertical={showSecurityOptions ?"sm" : undefined }>
-            <ThemedButton
-              variant="secondary"
+            <Pressable
               onPress={() => {
                 setShowSecurityOptions((prev) => !prev)
                 setAccountInfoResetKey((prev) => prev + 1);
               }}
             >
-              {showSecurityOptions ? "Hide Account Security" : "Account Security"}
-            </ThemedButton>
+            <ThemedView style={[styles.securityToggle, {borderColor}]}>
+              <ThemedText type="defaultSemiBold">Account Secuity </ThemedText>
+              <ThemedText>{showSecurityOptions ? "▲" : "▼"}</ThemedText>
+            </ThemedView>
+            </Pressable>
           </ThemedView>
           {showSecurityOptions && (
             <ThemedView style={[styles.securitySectionContainer, {borderColor}]}>
@@ -150,7 +152,6 @@ const styles = StyleSheet.create({
     paddingTop: spacing.lg,
     paddingBottom: spacing.md,
     borderBottomWidth: 1,
-    borderTopWidth: 1,
   },
   buttonRow: {
     flexDirection: "row",
@@ -158,5 +159,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: spacing.lg,
     paddingBottom: spacing.lg,
+  },
+  securityToggle: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: spacing.xl,
+    paddingVertical: spacing.md,
+    borderBottomWidth: 1,
+    width: "100%",
   },
 })
