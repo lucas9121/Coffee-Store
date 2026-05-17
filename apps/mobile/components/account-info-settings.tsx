@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { StyleSheet } from "react-native";
-import { Button } from "@react-navigation/elements";
 import { ThemedView } from "./ui/themed-view";
 import { ThemedText } from "./ui/themed-text";
 import { ThemedTextInput } from "./ui/themed-text-input";
 import { updateUserProfile } from "@/services/user-api";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { ThemedButton } from "./ui/themed-button";
 
 type SecurityQuestions = {
   question: string;
@@ -36,7 +36,6 @@ export function AccountInfoSettings({
   user,
   setUser,
   accessToken,
-  textColor,
   accountType,
   themeMode,
   changeTheme,
@@ -49,6 +48,7 @@ export function AccountInfoSettings({
   const [currentPassword, setCurrentPassword] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [profileError, setProfileError] = useState("");
+  const errorColor = useThemeColor({}, "danger")
 
   async function handleConfirmProfile() {
     if (!editedName.trim() || !editedEmail.trim()) {
@@ -168,11 +168,14 @@ export function AccountInfoSettings({
       {/* Theme */}
       <ThemedView style={styles.infoRow}>
         <ThemedText type="defaultSemiBold" style={styles.infoLabel}>
-          Theme
+          Theme Color
         </ThemedText>
 
         <ThemedView style={styles.infoValue}>
-          <Button onPress={changeTheme}>{themeMode}</Button>
+          {edit ?
+            <ThemedButton variant="ghost" size="sm" onPress={changeTheme}>{themeMode}</ThemedButton> :
+            <ThemedText style={{textTransform: "capitalize"}}>{themeMode}</ThemedText>
+          }
         </ThemedView>
       </ThemedView>
 
@@ -196,28 +199,29 @@ export function AccountInfoSettings({
 
       {/* Error */}
       {profileError ? (
-        <ThemedText style={styles.errorText}>{profileError}</ThemedText>
+        <ThemedText style={{color: errorColor}}>{profileError}</ThemedText>
       ) : null}
 
       {/* Buttons */}
       {!edit ? (
-        <Button onPress={() => {
-          onStartEdit();
-          setEdit(true)
-        }}>Edit Profile</Button>
+        <ThemedButton
+          variant="primary"
+          size="md" 
+          onPress={() => {
+            onStartEdit();
+            setEdit(true)
+        }}>Edit Profile</ThemedButton>
       ) : (
-        <ThemedView style={styles.buttonRow}>
-          <Button 
-            style={styles.yesButton} 
-            color={textColor}
+        <ThemedView style={styles.buttonRow} marginTop="md" gap="lg">
+          <ThemedButton 
+            variant="primary"
             onPress={handleConfirmProfile}
           >
             {isSaving ? "Saving..." : "Confirm"}
-          </Button>
+          </ThemedButton>
 
-          <Button
-            style={styles.noButton}
-            color={textColor}
+          <ThemedButton
+            variant="danger"
             onPress={() => {
               setEditedName(user?.name ?? "");
               setEditedEmail(user?.email ?? "");
@@ -227,7 +231,7 @@ export function AccountInfoSettings({
             }}
           >
             Cancel
-          </Button>
+          </ThemedButton>
         </ThemedView>
       )}
     </>
@@ -235,9 +239,6 @@ export function AccountInfoSettings({
 };
 
 const styles = StyleSheet.create({
-  container: {
-    gap: 16,
-  },
   infoRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -251,16 +252,5 @@ const styles = StyleSheet.create({
   buttonRow: {
     flexDirection: "row",
     justifyContent: "center",
-    gap: 16,
-    marginTop: 12,
-  },
-  yesButton: {
-    backgroundColor: "green", //temp color
-  },
-  noButton: {
-    backgroundColor: "red", // temp color
-  },
-  errorText: {
-    color: "#ff6b6b",
   },
 });
