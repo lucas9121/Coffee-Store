@@ -4,7 +4,6 @@ import { ThemedView } from "./ui/themed-view";
 import { ThemedText } from "./ui/themed-text";
 import { ThemedTextInput } from "./ui/themed-text-input";
 import { updateUserProfile } from "@/services/user-api";
-import { useThemeColor } from "@/hooks/use-theme-color";
 import { ThemedButton } from "./ui/themed-button";
 
 type SecurityQuestions = {
@@ -24,7 +23,7 @@ type AccountInfoSettingsProps = {
   user: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
   accessToken: string | null;
-  textColor: string;
+  errorColor: string;
   accountType: string;
   themeMode: ThemeMode;
   changeTheme: () => void;
@@ -38,6 +37,7 @@ export function AccountInfoSettings({
   accessToken,
   accountType,
   themeMode,
+  errorColor,
   changeTheme,
   onStartEdit,
   resetKey,
@@ -48,7 +48,6 @@ export function AccountInfoSettings({
   const [currentPassword, setCurrentPassword] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [profileError, setProfileError] = useState("");
-  const errorColor = useThemeColor({}, "danger")
 
   async function handleConfirmProfile() {
     if (!editedName.trim() || !editedEmail.trim()) {

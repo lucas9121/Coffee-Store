@@ -42,6 +42,7 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
   const [accountInfoResetKey, setAccountInfoResetKey] = useState(0);
   const [showSecurityOptions, setShowSecurityOptions] = useState(false);
   const textColor = useThemeColor({}, "text");
+  const errorColor = useThemeColor({}, "danger")
 
   async function getUserInfo(){
     try {
@@ -71,7 +72,7 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
           user={user}
           setUser={setUser}
           accessToken={accessToken}
-          textColor={textColor}
+          errorColor={errorColor}
           accountType={accountType}
           themeMode={themeMode}
           changeTheme={changeTheme}
@@ -102,21 +103,21 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
                 refreshUser={getUserInfo}
                 accessToken={accessToken}
                 borderColor={borderColor}
-                textColor={textColor}
+                errorColor={errorColor}
               />
               <ThemedView style={[styles.buttonRow, {borderColor}]}>
                 {/* Password Change */}
                 <PasswordChangeSettings
                   accessToken={accessToken}
                   borderColor={borderColor}
-                  textColor={textColor}
+                  errorColor={errorColor}
                 />
 
                 {/* Delete Account */}
                 <DeleteAccountSettings
                   accessToken={accessToken}
                   borderColor={borderColor}
-                  textColor={textColor}
+                  errorColor={errorColor}
                   onDeleted={async () => {
                     await logout();
                     router.replace("/");

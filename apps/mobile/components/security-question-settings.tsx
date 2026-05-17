@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Modal, StyleSheet, Pressable, KeyboardAvoidingView, ScrollView, Platform } from "react-native";
-import { Button } from "@react-navigation/elements";
 import { ThemedView } from "./ui/themed-view";
 import { ThemedText } from "./ui/themed-text";
 import { ThemedTextInput } from "./ui/themed-text-input";
 import { updateUserSecurityQuestion } from "@/services/user-api";
+import { ThemedButton } from "./ui/themed-button";
+import { spacing } from "@/constants/tokens";
 
 type SecurityQuestions = {
   question: string;
@@ -22,7 +23,7 @@ type SecurityQuestionSettingsProps = {
   refreshUser: () => Promise<void>;
   accessToken: string | null;
   borderColor: string;
-  textColor: string;
+  errorColor: string;
 };
 
 export function SecurityQuestionSettings({
@@ -30,7 +31,7 @@ export function SecurityQuestionSettings({
   refreshUser, 
   accessToken, 
   borderColor,
-  textColor
+  errorColor
 }: SecurityQuestionSettingsProps) {
   const [activeSecurityIndex, setActiveSecurityIndex] = useState<0 | 1 | null>(null);
   const [newSecurityQuestion, setNewSecurityQuestion] = useState("");
@@ -116,11 +117,13 @@ export function SecurityQuestionSettings({
           <ThemedView key={idx} style={styles.securityRow}>
             {/* <ThemedText type="defaultSemiBold">Question {idx + 1}:</ThemedText>  */}
             <ThemedText>{idx + 1}) {qt.question}</ThemedText>
-            <Button
+            <ThemedButton
+              variant="primary"
+              size="sm"
               onPress={() => openSecurityQuestionModal(idx as 0 | 1)}
             >
               Edit
-            </Button>
+            </ThemedButton>
           </ThemedView>
         ))}
       </ThemedView>
@@ -174,13 +177,13 @@ export function SecurityQuestionSettings({
             />
 
             {securityError ? (
-              <ThemedText style={styles.errorText}>{securityError}</ThemedText>
+              <ThemedText style={{color: errorColor}}>{securityError}</ThemedText>
             ) : null}
 
             <ThemedView style={styles.securityButtonRow}>
-              <Button
-                style={styles.noButton}
-                color={textColor}
+              <ThemedButton
+                variant="danger"
+                size="sm"
                 onPress={() => {
                   setActiveSecurityIndex(null);
                   setNewSecurityQuestion("");
@@ -190,11 +193,11 @@ export function SecurityQuestionSettings({
                 }}
               >
                 Cancel
-              </Button>
+              </ThemedButton>
 
-              <Button
-                style={styles.yesButton}
-                color={textColor}
+              <ThemedButton
+                variant="primary"
+                size="sm"
                 onPress={() => {
                   if (activeSecurityIndex !== null) {
                     handleChangeSecurityQuestions(activeSecurityIndex);
@@ -202,7 +205,7 @@ export function SecurityQuestionSettings({
                 }}
               >
                 {isUpdatingSecurity ? "Updating..." : "Confirm"}
-              </Button>
+              </ThemedButton>
             </ThemedView>
           </ThemedView>
           </KeyboardAvoidingView>
@@ -215,28 +218,28 @@ export function SecurityQuestionSettings({
 const styles = StyleSheet.create({
   securityColumn: {
     flexDirection: "column",
-    gap: 8,
-    paddingBottom: 16,
+    gap: spacing.sm,
+    paddingBottom: spacing.lg,
   },
   securityRow: {
     flexDirection: "row",
     alignItems: "center", 
     justifyContent: "flex-start",
-    gap: 16
+    gap: spacing.lg
   },
     modalOverlay: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0,0,0,0.35)",
-    padding: 24,
+    padding: spacing.xl,
   },
   modalContent: {
     width: "100%",
     borderWidth: 1,
-    borderRadius: 16,
-    padding: 20,
-    gap: 16,
+    borderRadius: spacing.lg,
+    padding: spacing.lg,
+    gap: spacing.lg,
   },
   keyboardAvoiding: {
     width: "100%",
@@ -245,14 +248,8 @@ const styles = StyleSheet.create({
     maxHeight: 220,
   },
   questionOption: {
-    paddingVertical: 12,
+    paddingVertical: spacing.md,
     borderBottomWidth: 1,
-  },
-  yesButton: {
-    backgroundColor: "green", //temp color
-  },
-  noButton: {
-    backgroundColor: "red", // temp color
   },
   errorText: {
     color: "#ff6b6b",
@@ -260,6 +257,6 @@ const styles = StyleSheet.create({
   securityButtonRow: {
     flexDirection: "row",
     justifyContent: "center",
-    gap: 24,
+    gap: spacing.lg,
   },
 })
