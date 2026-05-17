@@ -160,7 +160,7 @@ export function AccountInfoSettings({
 
         <ThemedView style={styles.infoValue}>
           <ThemedText>
-            {accountType === "user" ? "Customer" : accountType}
+            {accountType === "user" ? "Customer" : accountType === "worker" ? "Employee" : accountType}
           </ThemedText>
         </ThemedView>
       </ThemedView>
