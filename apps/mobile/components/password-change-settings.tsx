@@ -1,18 +1,19 @@
 import { useState } from "react";
 import { Modal, StyleSheet } from "react-native";
-import { Button } from "@react-navigation/elements";
 import { ThemedView } from "./ui/themed-view";
 import { ThemedText } from "./ui/themed-text";
 import { ThemedTextInput } from "./ui/themed-text-input";
 import { updateUserPassword } from "@/services/user-api";
+import { ThemedButton } from "./ui/themed-button";
+import { spacing } from "@/constants/tokens";
 
 type PasswordChangeSettingsProp = {
   accessToken: string | null,
   borderColor: string,
-  textColor: string;
+  errorColor: string;
 }
 
-export function PasswordChangeSettings({accessToken, borderColor, textColor}: PasswordChangeSettingsProp){
+export function PasswordChangeSettings({accessToken, borderColor, errorColor}: PasswordChangeSettingsProp){
   const [currentPasswordForChange, setCurrentPasswordForChange] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
@@ -73,14 +74,16 @@ export function PasswordChangeSettings({accessToken, borderColor, textColor}: Pa
   return (
     <>
       <ThemedView style={styles.row}>
-        <Button
+        <ThemedButton
+          variant="primary"
+          size="sm"
           onPress={() => {
             setPasswordError("");
             setShowPasswordModal(true)
           }}
         >
           Change Password
-        </Button>
+        </ThemedButton>
       </ThemedView>
 
       <Modal
@@ -115,13 +118,13 @@ export function PasswordChangeSettings({accessToken, borderColor, textColor}: Pa
             />
 
             {passwordError ? (
-              <ThemedText style={styles.errorText}>{passwordError}</ThemedText>
+              <ThemedText style={{color: errorColor}}>{passwordError}</ThemedText>
             ) : null}
 
             <ThemedView style={styles.passwordRow}>
-              <Button
-                style={styles.noButton}
-                color={textColor}
+              <ThemedButton
+                variant="danger"
+                size="sm"
                 onPress={() => {
                   setShowPasswordModal(false);
                   setCurrentPasswordForChange("");
@@ -131,11 +134,11 @@ export function PasswordChangeSettings({accessToken, borderColor, textColor}: Pa
                 }}
               >
                 Cancel
-              </Button>
+              </ThemedButton>
 
-              <Button
-                style={styles.yesButton}
-                color={textColor}
+              <ThemedButton
+                variant="primary"
+                size="sm"
                 onPress={() => {
                   if (validatePasswordChange()) {
                     handleChangePassword();
@@ -143,7 +146,7 @@ export function PasswordChangeSettings({accessToken, borderColor, textColor}: Pa
                 }}
               >
                 {isUpdatingPassword ? "Updating..." : "Confirm"}
-              </Button>
+              </ThemedButton>
             </ThemedView>
           </ThemedView>
         </ThemedView>
@@ -156,34 +159,25 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
-    gap: 24,
+    gap: spacing.lg,
   },
   modalOverlay: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0,0,0,0.35)",
-    padding: 24,
+    padding: spacing.lg,
   },
   modalContent: {
     width: "100%",
     borderWidth: 1,
-    borderRadius: 16,
-    padding: 20,
-    gap: 16,
-  },
-  yesButton: {
-    backgroundColor: "green", //temp color
-  },
-  noButton: {
-    backgroundColor: "red", // temp color
-  },
-  errorText: {
-    color: "#ff6b6b",
+    borderRadius: spacing.md,
+    padding: spacing.md,
+    gap: spacing.md,
   },
   passwordRow: {
     flexDirection: "row",
     justifyContent: "center",
-    gap: 24,
+    gap: spacing.lg,
   },
 })

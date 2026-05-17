@@ -251,9 +251,6 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     borderBottomWidth: 1,
   },
-  errorText: {
-    color: "#ff6b6b",
-  },
   securityButtonRow: {
     flexDirection: "row",
     justifyContent: "center",
