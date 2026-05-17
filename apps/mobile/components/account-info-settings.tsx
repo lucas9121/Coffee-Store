@@ -220,7 +220,7 @@ export function AccountInfoSettings({
           </ThemedButton>
 
           <ThemedButton
-            variant="danger"
+            variant="secondary"
             onPress={() => {
               setEditedName(user?.name ?? "");
               setEditedEmail(user?.email ?? "");

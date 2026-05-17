@@ -1,22 +1,23 @@
 import { useState } from "react";
 import { Modal, StyleSheet } from "react-native";
-import { Button } from "@react-navigation/elements";
 import { ThemedView } from "./ui/themed-view";
 import { ThemedText } from "./ui/themed-text";
 import { ThemedTextInput } from "./ui/themed-text-input";
 import { deleteUser } from "@/services/user-api";
+import { ThemedButton } from "./ui/themed-button";
+import { spacing } from "@/constants/tokens";
 
 type DeleteAccountSettingsProps = {
   accessToken: string | null;
   borderColor: string;
-  textColor: string;
+  errorColor: string;
   onDeleted: () => Promise<void>;
 };
 
 export function DeleteAccountSettings({
   accessToken,
   borderColor,
-  textColor,
+  errorColor,
   onDeleted,
 }: DeleteAccountSettingsProps) {
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
@@ -51,13 +52,13 @@ export function DeleteAccountSettings({
   return (
     <>
       {/* Trigger Button */}
-      <Button
-        style={styles.noButton}
-        color={textColor}
+      <ThemedButton
+        variant="danger"
+        size="sm"
         onPress={() => setShowDeleteConfirmModal(true)}
       >
         Delete Account
-      </Button>
+      </ThemedButton>
 
       {/* Modal */}
       <Modal
@@ -82,15 +83,14 @@ export function DeleteAccountSettings({
             />
 
             {deleteError ? (
-              <ThemedText style={styles.errorText}>
+              <ThemedText style={{color: errorColor}}>
                 {deleteError}
               </ThemedText>
             ) : null}
 
             <ThemedView style={styles.buttonRow}>
-              <Button
-                style={styles.noButton}
-                color={textColor}
+              <ThemedButton
+                variant="secondary"
                 onPress={() => {
                   setShowDeleteConfirmModal(false);
                   setDeleteError("");
@@ -98,15 +98,14 @@ export function DeleteAccountSettings({
                 }}
               >
                 Cancel
-              </Button>
+              </ThemedButton>
 
-              <Button
-                style={styles.noButton}
-                color={textColor}
+              <ThemedButton
+                variant="danger"
                 onPress={handleDeleteAccount}
               >
                 {isDeleting ? "Deleting..." : "Yes, Delete"}
-              </Button>
+              </ThemedButton>
             </ThemedView>
           </ThemedView>
         </ThemedView>
@@ -120,7 +119,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    gap: 24
+    gap: spacing.lg
   },
   yesButton: {
     backgroundColor: "green", //temp color
@@ -128,21 +127,18 @@ const styles = StyleSheet.create({
   noButton: {
     backgroundColor: "red", // temp color
   },
-  errorText: {
-    color: "#ff6b6b",
-  },
   modalOverlay: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0,0,0,0.35)",
-    padding: 24,
+    padding: spacing.lg,
   },
   modalContent: {
     width: "100%",
     borderWidth: 1,
-    borderRadius: 16,
-    padding: 20,
-    gap: 16,
+    borderRadius: spacing.md,
+    padding: spacing.md,
+    gap: spacing.lg,
   },
 })

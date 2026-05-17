@@ -123,7 +123,7 @@ export function PasswordChangeSettings({accessToken, borderColor, errorColor}: P
 
             <ThemedView style={styles.passwordRow}>
               <ThemedButton
-                variant="danger"
+                variant="secondary"
                 size="sm"
                 onPress={() => {
                   setShowPasswordModal(false);
