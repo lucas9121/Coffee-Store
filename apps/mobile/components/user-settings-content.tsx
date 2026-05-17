@@ -5,6 +5,8 @@ import { useRouter } from "expo-router";
 
 import { ThemedView } from "./ui/themed-view";
 import { ThemedScrollView } from "./ui/themed-scroll-view";
+import { ThemedButton } from "./ui/themed-button";
+import { spacing } from "@/constants/tokens";
 
 import { useAuth } from "@/context/AuthContext";
 import { useThemeMode } from "@/context/ThemeContext";
@@ -63,7 +65,7 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
   }, []);
 
     return(
-      <ThemedScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+      <ThemedScrollView padding="lg" gap="lg" keyboardShouldPersistTaps="handled">
         {/* Account Info */}
         <AccountInfoSettings
           user={user}
@@ -78,19 +80,20 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
         />
 
         {/* Account Security buttons */}
-        <ThemedView style={styles.securityContainer}>
-          <ThemedView style={showSecurityOptions ? [styles.row, {paddingBottom: 8}]: styles.row}>
-            <Button
+        <ThemedView paddingVertical="xl">
+          <ThemedView style={styles.row} paddingVertical={showSecurityOptions ?"sm" : undefined }>
+            <ThemedButton
+              variant="secondary"
               onPress={() => {
                 setShowSecurityOptions((prev) => !prev)
                 setAccountInfoResetKey((prev) => prev + 1);
               }}
             >
               {showSecurityOptions ? "Hide Account Security" : "Account Security"}
-            </Button>
+            </ThemedButton>
           </ThemedView>
           {showSecurityOptions && (
-            <ThemedView style={[styles.securitySection, {borderColor}]}>
+            <ThemedView style={[styles.securitySectionContainer, {borderColor}]}>
               {/* Security Question Change */}
               <SecurityQuestionSettings
                 user={user}
@@ -125,34 +128,27 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
 
         {/* Log Out button */}
         <ThemedView style={styles.row}>
-          <Button onPress={async () => {
-              await logout(); 
-              router.replace("/")
+          <ThemedButton 
+            variant="secondary"
+            onPress={async () => {
+                await logout(); 
+                router.replace("/")
             }}
-          >Log Out</Button>
+          >Log Out</ThemedButton>
         </ThemedView>
       </ThemedScrollView>
     );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    padding: 16,
-    paddingBottom: 40,
-    gap: 16,
-  },
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
-    gap: 24,
+    gap: spacing.xl,
   },
-  securityContainer: {
-    paddingVertical: 24, 
-  },
-  securitySection: {
-    paddingTop: 16,
-    paddingBottom: 8,
+  securitySectionContainer: {
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.md,
     borderBottomWidth: 1,
     borderTopWidth: 1,
   },
@@ -160,7 +156,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    gap: 16,
-    paddingBottom: 16,
+    gap: spacing.lg,
+    paddingBottom: spacing.lg,
   },
 })
