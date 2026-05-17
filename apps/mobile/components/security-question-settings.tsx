@@ -183,7 +183,7 @@ export function SecurityQuestionSettings({
             <ThemedView style={styles.securityButtonRow}>
               <ThemedButton
                 variant="secondary"
-                size="sm"
+                size="md"
                 onPress={() => {
                   setActiveSecurityIndex(null);
                   setNewSecurityQuestion("");
@@ -197,7 +197,7 @@ export function SecurityQuestionSettings({
 
               <ThemedButton
                 variant="primary"
-                size="sm"
+                size="md"
                 onPress={() => {
                   if (activeSecurityIndex !== null) {
                     handleChangeSecurityQuestions(activeSecurityIndex);

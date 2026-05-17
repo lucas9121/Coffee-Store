@@ -63,7 +63,7 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
 
   useEffect(() => {
     getUserInfo()
-  }, []);
+  }, []);          
 
     return(
       <ThemedScrollView padding="lg" gap="lg" keyboardShouldPersistTaps="handled">
@@ -81,8 +81,8 @@ export function UserSettingsContent({accessToken, borderColor}: UserSettingsCont
         />
 
         {/* Account Security buttons */}
-        <ThemedView paddingVertical="xl">
-          <ThemedView style={styles.row} paddingVertical={showSecurityOptions ?"sm" : undefined }>
+        <ThemedView paddingVertical="md">
+          <ThemedView style={styles.row}>
             <Pressable
               onPress={() => {
                 setShowSecurityOptions((prev) => !prev)

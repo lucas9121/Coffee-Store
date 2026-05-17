@@ -5,6 +5,7 @@ import { ThemedText } from "./ui/themed-text";
 import { ThemedTextInput } from "./ui/themed-text-input";
 import { updateUserProfile } from "@/services/user-api";
 import { ThemedButton } from "./ui/themed-button";
+import { spacing } from "@/constants/tokens";
 
 type SecurityQuestions = {
   question: string;
@@ -203,13 +204,15 @@ export function AccountInfoSettings({
 
       {/* Buttons */}
       {!edit ? (
-        <ThemedButton
-          variant="primary"
-          size="md" 
-          onPress={() => {
-            onStartEdit();
-            setEdit(true)
-        }}>Edit Profile</ThemedButton>
+        <ThemedView style={styles.editButton}>
+          <ThemedButton
+            variant="primary"
+            size="md" 
+            onPress={() => {
+              onStartEdit();
+              setEdit(true)
+          }}>Edit Profile</ThemedButton>
+        </ThemedView>
       ) : (
         <ThemedView style={styles.buttonRow} marginTop="md" gap="lg">
           <ThemedButton 
@@ -252,4 +255,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
   },
+  editButton:{
+    alignItems: "baseline",
+    paddingTop: spacing.md
+  }
 });

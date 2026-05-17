@@ -54,7 +54,7 @@ export function DeleteAccountSettings({
       {/* Trigger Button */}
       <ThemedButton
         variant="danger"
-        size="sm"
+        size="md"
         onPress={() => setShowDeleteConfirmModal(true)}
       >
         Delete Account

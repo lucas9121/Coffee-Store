@@ -42,7 +42,7 @@ export function ThemedButton({
 
   const sizeStyle: ViewStyle = {
     minHeight: buttonHeight[size],
-    paddingHorizontal: size === "sm" ? spacing.md : size === "md" ? spacing.lg : spacing.xl
+    paddingHorizontal: size === "sm" ? spacing.sm : size === "md" ? spacing.md : size === "lg" ? spacing.lg: spacing.xl
   };
 
   return (

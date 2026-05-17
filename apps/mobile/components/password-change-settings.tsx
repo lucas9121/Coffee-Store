@@ -76,7 +76,7 @@ export function PasswordChangeSettings({accessToken, borderColor, errorColor}: P
       <ThemedView style={styles.row}>
         <ThemedButton
           variant="primary"
-          size="sm"
+          size="md"
           onPress={() => {
             setPasswordError("");
             setShowPasswordModal(true)
@@ -124,7 +124,7 @@ export function PasswordChangeSettings({accessToken, borderColor, errorColor}: P
             <ThemedView style={styles.passwordRow}>
               <ThemedButton
                 variant="secondary"
-                size="sm"
+                size="md"
                 onPress={() => {
                   setShowPasswordModal(false);
                   setCurrentPasswordForChange("");
@@ -138,7 +138,7 @@ export function PasswordChangeSettings({accessToken, borderColor, errorColor}: P
 
               <ThemedButton
                 variant="primary"
-                size="sm"
+                size="md"
                 onPress={() => {
                   if (validatePasswordChange()) {
                     handleChangePassword();
