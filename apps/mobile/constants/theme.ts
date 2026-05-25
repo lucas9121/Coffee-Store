@@ -43,30 +43,6 @@ export const Colors = {
   },
 };
 
-// const tintColorLight = '#0a7ea4';
-// const tintColorDark = '#fff';
-
-// export const Colors = {
-//   light: {
-//     text: '#11181C',
-//     background: '#fff',
-//     border: "#687076",
-//     tint: tintColorLight,
-//     icon: '#687076',
-//     tabIconDefault: '#687076',
-//     tabIconSelected: tintColorLight,
-//   },
-//   dark: {
-//     text: '#ECEDEE',
-//     background: '#151718',
-//     border: "#9BA1A6",
-//     tint: tintColorDark,
-//     icon: '#9BA1A6',
-//     tabIconDefault: '#9BA1A6',
-//     tabIconSelected: tintColorDark,
-//   },
-// };
-
 export const Fonts = Platform.select({
   ios: {
     /** iOS `UIFontDescriptorSystemDesignDefault` */

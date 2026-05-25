@@ -3,7 +3,7 @@ import { ThemedText } from "./themed-text";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { spacing, radius, buttonHeight, fontSize } from "@/constants/tokens";
 
-type ButtonVariant = "primary" | "secondary" | "danger" | "ghost";
+type ButtonVariant = "primary" | "secondary" | "danger" | "success" | "ghost";
 type ButtonSize = "sm" | "md" | "lg";
 
 type ThemedButtonProps = PressableProps & {
@@ -24,6 +24,7 @@ export function ThemedButton({
   const primary = useThemeColor({}, "primary");
   const secondary = useThemeColor({}, "secondary");
   const danger = useThemeColor({}, "danger");
+  const success = useThemeColor({}, "success")
   const borderColor = useThemeColor({}, "border");
   const textColor = useThemeColor({}, "text");
   const backgroundColor = useThemeColor({}, "surface");
@@ -34,7 +35,9 @@ export function ThemedButton({
     variant === "secondary" ?
       { backgroundColor: secondary, borderColor: secondary } :
     variant === "danger" ?
-      { backgroundColor: danger, borderColor: danger } 
+      { backgroundColor: danger, borderColor: danger } :
+    variant === "success" ?
+      { backgroundColor: success, borderColor: success } 
     :
       { backgroundColor, borderColor };
 

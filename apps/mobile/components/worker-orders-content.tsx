@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { StyleSheet, ScrollView, Pressable } from "react-native";
+import { StyleSheet, ScrollView } from "react-native";
 import { ThemedScrollView } from "./ui/themed-scroll-view";
 import { ThemedText } from "./ui/themed-text";
 import { ThemedView } from "./ui/themed-view";
@@ -8,6 +8,9 @@ import { getStoreStatus } from "@/services/store-settings";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
 import { RequestError } from "@/services/api";
+import { spacing, radius, fontSize } from "@/constants/tokens";
+import { ThemedButton } from "./ui/themed-button";
+import { useThemeColor } from "@/hooks/use-theme-color";
 
 type OrderItem = {
   item: {
@@ -52,6 +55,9 @@ export function WorkerOrdersContent({
   const lastOrdersSignatureRef = useRef("");
   const router = useRouter();
   const { logout } = useAuth();
+  const errorColor = useThemeColor({}, "danger");
+  const primaryColor = useThemeColor({}, "primary");
+  const shadowColor = useThemeColor({}, "text");
 
   async function handleUnauthorized(error: unknown) {
     if (error instanceof RequestError && error.status === 401) {
@@ -166,7 +172,7 @@ export function WorkerOrdersContent({
     return orderList.map((order) => {
       const nextStatus = getNextStatus(order.status);
       return(
-        <ThemedView key={order._id} style={[styles.orderCard, {borderColor}]}>
+        <ThemedView key={order._id} style={[styles.orderCard, {borderColor, shadowColor}]}>
           
           {/* Title */}
           <ThemedText type="defaultSemiBold" style={styles.orderTitle}>
@@ -187,27 +193,29 @@ export function WorkerOrdersContent({
             <ThemedText>Total: ${order.totalPrice.toFixed(2)}</ThemedText>
             <ThemedView style={styles.paymentRow}>
               <ThemedText>Paid:</ThemedText>
-              <Pressable
-                style={[styles.paidButton, { borderColor }]}
+              <ThemedButton
+                variant={order.isPaid ? "success" : "danger"}
+                size="sm"
                 onPress={() => handleTogglePaid(order._id, order.isPaid)}
               >
-                <ThemedText>{order.isPaid ? "Yes" : "No"}</ThemedText>
-              </Pressable>
+                {order.isPaid ? "Yes" : "No"}
+              </ThemedButton>
             </ThemedView>
             <ThemedText>Status: {order.status}</ThemedText>
             {paymentWarningOrderId === order._id && (
-              <ThemedText style={styles.errorText}>Customer needs to pay</ThemedText>
+              <ThemedText style={{color: errorColor}}>Customer needs to pay</ThemedText>
             )}
           </ThemedView>
 
           {/* Action */}
           {nextStatus && (
-            <ThemedText
-              type="link"
+            <ThemedButton
+              variant="primary"
+              size="sm"
               onPress={() => handleUpdateStatus(order._id, order.status, order.isPaid)}
             >
               → Move to {nextStatus}
-            </ThemedText>
+            </ThemedButton>
           )}
 
         </ThemedView>
@@ -216,13 +224,13 @@ export function WorkerOrdersContent({
   }
 
   return (
-    <ThemedScrollView contentContainerStyle={styles.screenContent}>
+    <ThemedScrollView padding="xl" gap="xl">
       <ThemedText type="title">Worker Orders</ThemedText>
 
       {isLoading && <ThemedText>Loading orders...</ThemedText>}
 
       {hasError && (
-        <ThemedText style={styles.errorText}>
+        <ThemedText style={{color: errorColor}}>
           Unable to load orders right now.
         </ThemedText>
       )}    
@@ -237,7 +245,7 @@ export function WorkerOrdersContent({
                 >
                 Mobile
               </ThemedText>
-              <ThemedView style={activeTab === "MOBILE" ? styles.activeTabBadge : styles.tabBadge}>
+              <ThemedView style={activeTab === "MOBILE" ? [styles.activeTabBadge, {backgroundColor: primaryColor}] : [styles.tabBadge, {borderColor}]}>
                 <ThemedText style={styles.tabBadgeText}>{mobileCount}</ThemedText>
               </ThemedView>
             </ThemedView>
@@ -249,7 +257,7 @@ export function WorkerOrdersContent({
                 >
                 In Person
               </ThemedText>
-              <ThemedView style={activeTab === "IN PERSON" ? styles.activeTabBadge : styles.tabBadge}>
+              <ThemedView style={activeTab === "IN PERSON" ? [styles.activeTabBadge, {backgroundColor: primaryColor}] : [styles.tabBadge, {borderColor}]}>
                 <ThemedText style={styles.tabBadgeText}>{inPersonCount}</ThemedText>
               </ThemedView>
             </ThemedView>
@@ -283,16 +291,19 @@ export function WorkerOrdersContent({
 
 
 const styles = StyleSheet.create({
-  screenContent:{
-    padding: 24,
-    gap: 24,
-  },
-  errorText: {
-    color: '#ff6b6b'
+  orderCard: {
+    padding: spacing.md,
+    gap: spacing.md,
+    borderWidth: 1,
+    borderRadius: spacing.md,
+    shadowOffset: { width: 0, height: spacing.xs },
+    shadowOpacity: 0.20,
+    shadowRadius: spacing.xs,
+    elevation: spacing.xs,
   },
   tabs: {
     flexDirection: "row",
-    gap: 16,
+    gap: spacing.lg,
   },
   activeTab: {
     fontWeight: "bold",
@@ -301,66 +312,52 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   board: {
-    gap: 16,
-    paddingRight: 24,
+    gap: spacing.lg,
+    paddingRight: spacing.xl,
   },
   column: {
     width: 260,
-    gap: 12,
+    gap: spacing.md,
   },
   columnTitle: {
     textAlign: "center",
-  },
-  orderCard: {
-    padding: 12,
-    gap: 10,
-    borderWidth: 1,
-    borderRadius: 12,
   },
   orderTitle: {
     textAlign: "center",
   },
   itemsGroup: {
-    gap: 2,
+    gap: spacing.xs,
   },
   metaGroup: {
-    gap: 2,
-    paddingVertical: 8,
+    gap: spacing.xs,
+    paddingVertical: spacing.sm,
   },
   tabWrapper: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: spacing.xs,
   },
   activeTabBadge: {
-    minWidth: 25,
-    borderRadius: 50,
+    minWidth: spacing.xl,
+    borderRadius: radius.pill,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 6,
-    borderWidth: 1,
-    backgroundColor: "green" // temp color
+    paddingHorizontal: spacing.xs,
   },
   tabBadge: {
-    minWidth: 25,
-    borderRadius: 50,
+    minWidth: spacing.xl,
+    borderRadius: radius.pill,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 6,
+    paddingHorizontal: spacing.xs,
     borderWidth: 1,
   },
   tabBadgeText: {
-    fontSize: 12,
+    fontSize: fontSize.xs,
   },
   paymentRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6
-  },
-  paidButton: {
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    gap: spacing.sm
   },
 })
