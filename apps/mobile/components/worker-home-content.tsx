@@ -38,6 +38,7 @@ type WorkerHomeScreenProps = {
   accessToken: string | null;
 };
 
+
 export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeScreenProps) {
   const [isStoreOpen, setIsStoreOpen] = useState<boolean>(false);
   const [isLoadingStore, setIsLoadingStore] = useState(false);
@@ -54,6 +55,17 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
   const lastStoreStatusRef = useRef<boolean | null>(null);
   const router = useRouter();
   const { logout } = useAuth();
+
+  const imageMap: Record<string, any> = {
+    coffee: require("@/assets/images/coffee.jpg"),
+    espresso: require("@/assets/images/espresso.jpg"),
+    cappuccino: require("@/assets/images/cappuccino.jpg"),
+    latte: require("@/assets/images/latte.jpg"),
+    "iced coffee": require("@/assets/images/iced-coffee.jpg"),
+    "orange juice": require("@/assets/images/orange-juice.jpg"),
+    "pao de queijo": require("@/assets/images/pao-de-queijo.jpg"),
+    "misto quente": require("@/assets/images/misto-quente.jpg"),
+  };
 
   async function handleUnauthorized(error: unknown) {
     if (error instanceof RequestError && error.status === 401) {
@@ -72,7 +84,7 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
           id: item._id,
           name: item.name,
           price: item.price,
-          image: "",
+          image: imageMap[item.name.toLowerCase()] || require("@/assets/images/logo.jpg"),
           category: item.category,
           inStock: item.inStock,
         }))
@@ -288,7 +300,7 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
                     <ThemedView key={item.id} style={[styles.menuItemWrapper, {borderColor}]} >
                       <MenuCard
                         name={item.name}
-                        image={require("@/assets/images/logo.jpg")}
+                        image={item.image}
                         price={item.price}
                         isOpen={isStoreOpen}
                         isUser={false}
