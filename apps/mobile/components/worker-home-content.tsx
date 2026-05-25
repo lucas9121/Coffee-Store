@@ -5,6 +5,8 @@ import { ThemedView } from "@/components/ui/themed-view";
 import { ThemedText } from "@/components/ui/themed-text";
 import { Section } from "@/components/section";
 import { ThemedTextInput } from "@/components/ui/themed-text-input";
+import { spacing, radius } from "@/constants/tokens";
+import { ThemedButton } from "./ui/themed-button";
 import { ThemedScrollView } from "./ui/themed-scroll-view";
 import { MenuCard } from "./menu-card";
 
@@ -12,9 +14,9 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { getMenuItems } from "@/services/menu-api";
 import { createOrder } from "@/services/orders-api";
 import { getStoreStatus, setStoreOverride } from "@/services/store-settings";
-import { useRouter } from "expo-router";
-import { useAuth } from "@/context/AuthContext";
 import { RequestError } from "@/services/api";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "expo-router";
 
 type MenuItem = {
   id: string;
@@ -55,6 +57,12 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
   const lastStoreStatusRef = useRef<boolean | null>(null);
   const router = useRouter();
   const { logout } = useAuth();
+  const errorColor = useThemeColor({}, "danger");
+  const primaryColor = useThemeColor({}, "primary");
+  const shadowColor = useThemeColor(
+    { light: "#000000", dark: undefined },
+    "text"
+  );
 
   const imageMap: Record<string, any> = {
     coffee: require("@/assets/images/coffee.jpg"),
@@ -246,34 +254,36 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
 
   return (
     <ThemedView style={styles.container}>
-      <ThemedScrollView contentContainerStyle={styles.screen}>
+      <ThemedScrollView padding="md" gap="xl" contentContainerStyle={{alignItems: "center"}}>
         <ThemedText type="title">Worker Home</ThemedText>
 
         <Section title="Store Status" style={{alignItems: "center"}}>
           {isLoadingStore ? (
             <ThemedText style={{textAlign: "center"}}>Loading store status...</ThemedText>
           ) : (
-            <ThemedText style={{textAlign: "center"}}>{isStoreOpen ? "Open" : "Closed"}</ThemedText>
+            <ThemedText style={{textAlign: "center"}}>{isStoreOpen ? "OPEN" : "CLOSED"}</ThemedText>
           )}
 
           {storeError ? (
-            <ThemedText style={styles.errorText}>{storeError}</ThemedText>
+            <ThemedText style={{color: errorColor}}>{storeError}</ThemedText>
           ) : null}
 
           <ThemedView style={styles.buttonRow}>
-            <Pressable
-              style={styles.actionButton}
+            <ThemedButton
+              variant="success"
+              size="sm"
               onPress={() => handleSetStore("open")}
             >
-              <ThemedText>Open Store</ThemedText>
-            </Pressable>
+              Open Store
+            </ThemedButton>
 
-            <Pressable
-              style={styles.actionButton}
+            <ThemedButton
+              variant="danger"
+              size="sm"
               onPress={() => handleSetStore("closed")}
             >
-              <ThemedText>Close Store</ThemedText>
-            </Pressable>
+              Close Store
+            </ThemedButton>
           </ThemedView>
         </Section>
 
@@ -290,14 +300,14 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
             );
 
             return (
-              <ThemedView key={category} style={[styles.categoryBlock, { borderColor }]}>
+              <ThemedView key={category} gap="md" paddingVertical="md" style={{borderTopWidth: 2, borderColor}}>
                 <ThemedText type="defaultSemiBold" style={{ textTransform: "capitalize" }}>
                   {category}
                 </ThemedText>
 
                 <ThemedView style={styles.menuList}>
                   {filteredMenuItems.map((item) => (
-                    <ThemedView key={item.id} style={[styles.menuItemWrapper, {borderColor}]} >
+                    <ThemedView key={item.id} padding="xs" radius="md" style={[styles.cardShadow, {borderColor, shadowColor}]} >
                       <MenuCard
                         name={item.name}
                         image={item.image}
@@ -314,8 +324,9 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
           })}
         </Section>
       </ThemedScrollView>
-      <Pressable 
-          style={[styles.orderButton, {borderColor}]}
+      {cartCount > 0 && (
+        <Pressable 
+          style={[styles.orderButton, {borderColor, backgroundColor: primaryColor}]}
           onPress={() => { 
             setOrderError("");
             setIsOrderModalOpen(true);
@@ -323,7 +334,8 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
         >
           <ThemedText >Current Order </ThemedText>
           <ThemedText>{cartCount}</ThemedText>
-      </Pressable>
+        </Pressable>
+      )}
       <Modal
         visible={isOrderModalOpen}
         animationType="slide"
@@ -377,26 +389,24 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
               </ThemedText>
 
               {orderError ? (
-                <ThemedText style={styles.errorText}>{orderError}</ThemedText>
+                <ThemedText style={{color: errorColor}}>{orderError}</ThemedText>
               ) : null}
 
               <ThemedView style={styles.modalButtons}>
-                <Pressable
-                  style={[styles.actionButton, { borderColor }]}
+                <ThemedButton
+                  variant="ghost"
                   onPress={() => setIsOrderModalOpen(false)}
                 >
-                  <ThemedText>Close</ThemedText>
-                </Pressable>
+                  Close
+                </ThemedButton>
 
-                <Pressable
-                  style={[styles.actionButton, { borderColor }]}
+                <ThemedButton
+                  variant="primary"
                   onPress={handleCreateInPersonOrder}
                   disabled={isSubmittingOrder}
                 >
-                  <ThemedText>
-                    {isSubmittingOrder ? "Creating..." : "Create Order"}
-                  </ThemedText>
-                </Pressable>
+                  {isSubmittingOrder ? "Creating..." : "Create Order"}
+                </ThemedButton>
               </ThemedView>
             </ThemedView>
           </KeyboardAvoidingView>
@@ -410,92 +420,68 @@ const styles = StyleSheet.create({
   container:{
     flex: 1,
   },
-  screen: {
-    flexGrow: 1,
-    padding: 12,
-    gap: 24,
-    alignItems: "center"
-  },
   buttonRow: {
     flexDirection: "row",
-    gap: 12,
-    marginTop: 12,
-  },
-  actionButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderWidth: 1,
-    borderRadius: 10,
+    gap: spacing.md,
+    marginTop: spacing.md,
   },
   orderButton: {
     position: "absolute",
-    bottom: 12,
-    right: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    borderWidth: 1,
-    borderRadius: 24,
+    bottom: spacing.md,
+    right: spacing.md,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    borderRadius: radius.pill,
     flexDirection: "row",
-    gap: 8,
+    gap: spacing.sm,
     zIndex: 10,
-    backgroundColor: "#02c4ccba"
-  },
-  errorText: {
-    color: "#ff6b6b",
+    // opacity: .85,
   },
   menuList: {
-    gap: 12,
+    gap: spacing.md,
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-around',
   },
-  categoryBlock: {
-    borderTopWidth: 2,
-    paddingVertical: 12,
-    gap: 12,
-  },
-  menuItemWrapper: {
+  cardShadow: {
     borderWidth: 1,
-    borderRadius: 12,
-    padding: 6,
+    shadowOffset: { width: 0, height: spacing.xs },
+    shadowOpacity: 0.15,
+    shadowRadius: spacing.xs,
+    elevation: spacing.xs,
   },
   modalOverlay: {
     flex: 1,
     justifyContent: "flex-end",
     backgroundColor: "rgba(0,0,0,0.35)",
   },
-
   modalContent: {
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
+    borderTopLeftRadius: radius.lg,
+    borderTopRightRadius: radius.lg,
     borderWidth: 1,
-    padding: 20,
-    gap: 16,
+    padding: spacing.xl,
+    gap: spacing.lg,
   },
-
   cartRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
-
   quantityControls: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
+    gap: spacing.md,
   },
-
   quantityButton: {
     borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
-
   modalButtons: {
     flexDirection: "row",
-    gap: 12,
-    justifyContent: "space-between",
+    justifyContent: "space-around",
+    paddingVertical: spacing.md
   },
   keyboardAvoiding: {
     width: "100%",
