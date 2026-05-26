@@ -39,6 +39,13 @@ export async function updateUserSecurityQuestion(
   return await sendRequest(`${BASE_URL}/security-question`, "PATCH", payload, token)
 };
 
+export async function toggleFavoriteItem(
+  itemId: string,
+  token: string | null
+) {
+  return await sendRequest(`${BASE_URL}/favorites/${itemId}`, "PATCH", null, token);
+};
+
 export async function deleteUser(
   payload: { password: string },
   token: string | null
