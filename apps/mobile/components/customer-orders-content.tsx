@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
-import { StyleSheet } from "react-native";
 
 import { ThemedView } from "./ui/themed-view";
 import { ThemedText } from "./ui/themed-text";
 import { ThemedScrollView } from "./ui/themed-scroll-view";
-import { spacing } from "@/constants/tokens";
 
 import { Section } from "./section";
 import { HorizontalList } from "./horizontal-list";
@@ -13,7 +11,7 @@ import { CartButton } from "./cart-button";
 
 import { getMenuItems } from "@/services/menu-api";
 import { getStoreStatus } from "@/services/store-settings";
-import { getCurrentUser } from "@/services/user-api";
+import { getCurrentUser, toggleFavoriteItem } from "@/services/user-api";
 
 type MenuListItem = {
   id: string;
@@ -112,6 +110,22 @@ export function CustomerOrdersContent({
     };
   };
 
+  async function handleToggleFavorite(itemId: string) {
+    if (accountType !== "user" || !token) return;
+
+    try {
+      await toggleFavoriteItem(itemId, token);
+      setFavoriteIds((prev) => {
+        if (prev.includes(itemId)) {
+          return prev.filter((id) => id !== itemId);
+        };
+        return [...prev, itemId];
+      });
+    } catch (error) {
+      console.error(error);
+    };
+  };
+
   useEffect(() => {
     loadMenuItems();
     storeStatus();
@@ -147,6 +161,8 @@ export function CustomerOrdersContent({
                 isOpen={isStoreOpen}
                 isUser={isUser}
                 onAddPress={() => handleAddToCart(item)}
+                onFavoritePress={() => handleToggleFavorite(item.id)}
+                isFavorite={isUser && favoriteIds.includes(item.id)}
               />
               )}
             />
@@ -166,6 +182,8 @@ export function CustomerOrdersContent({
                 isOpen={isStoreOpen}
                 isUser={isUser}
                 onAddPress={() => handleAddToCart(item)}
+                onFavoritePress={() => handleToggleFavorite(item.id)}
+                isFavorite={isUser && favoriteIds.includes(item.id)}
               />
               )}
             />
@@ -191,6 +209,7 @@ export function CustomerOrdersContent({
                       isOpen={isStoreOpen}
                       isUser={isUser}
                       isFavorite={isUser && favoriteIds.includes(item.id)}
+                      onFavoritePress={() => handleToggleFavorite(item.id)}
                       onAddPress={() => handleAddToCart(item)}
                     />
                   )}
