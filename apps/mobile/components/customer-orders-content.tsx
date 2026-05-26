@@ -4,6 +4,7 @@ import { StyleSheet } from "react-native";
 import { ThemedView } from "./ui/themed-view";
 import { ThemedText } from "./ui/themed-text";
 import { ThemedScrollView } from "./ui/themed-scroll-view";
+import { spacing } from "@/constants/tokens";
 
 import { Section } from "./section";
 import { HorizontalList } from "./horizontal-list";
@@ -126,7 +127,7 @@ export function CustomerOrdersContent({
 
   return (
     <ThemedView style={{flex: 1}}>
-      <ThemedScrollView contentContainerStyle={styles.screenContent}>
+      <ThemedScrollView padding="xl" gap="xl">
         <ThemedText type="title">Order Menu</ThemedText>
         {!isStoreOpen && <ThemedText type="subtitle">Store is currently closed</ThemedText>}
         {cartCount > 0 && (
@@ -173,14 +174,14 @@ export function CustomerOrdersContent({
 
         <Section title="Menu">
           {menuCategories.map((category) => {
-            const filtredMenuItems = menuItems.filter(item => 
+            const filteredMenuItems = menuItems.filter(item => 
               item.category.toLowerCase() === category.toLowerCase()
             )
             return(
-              <ThemedView key={category} style={[styles.categoryBlock, {borderColor}]}>
+              <ThemedView key={category} paddingVertical="md" gap="md" style={{borderTopWidth: 2, borderColor}}>
                 <ThemedText type="defaultSemiBold" style={{textTransform: "capitalize"}}>{category}</ThemedText>
                 <HorizontalList 
-                  data={filtredMenuItems}
+                  data={filteredMenuItems}
                   keyExtractor={(item) => item.id}
                   renderItem={({item}) => (
                     <MenuCard
@@ -202,17 +203,4 @@ export function CustomerOrdersContent({
       <CartButton />
     </ThemedView>
   );
-}
-
-
-const styles = StyleSheet.create({
-  screenContent:{
-    padding: 24,
-    gap: 24,
-  },
-  categoryBlock: {
-    borderTopWidth: 2,
-    paddingVertical: 12,
-    gap: 12,
-  }
-})
+};
