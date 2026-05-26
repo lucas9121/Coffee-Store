@@ -1,4 +1,6 @@
 import { StyleSheet, Image, ImageSourcePropType, Pressable } from "react-native";
+import { spacing, radius, fontSize } from "@/constants/tokens";
+import { ThemedButton } from "@/components/ui/themed-button";
 import { ThemedView } from "@/components/ui/themed-view";
 import { ThemedText } from "@/components/ui/themed-text";
 
@@ -25,9 +27,14 @@ export function MenuCard({ name, image, price, isFavorite, isOpen, isUser, onFav
       <Image source={imageSource} style={styles.image} />
       <ThemedText style={styles.name}>{name}</ThemedText>
       <ThemedText style={styles.price}>${price.toFixed(2)}</ThemedText>
-      <Pressable style={isOpen ? styles.addButton:  styles.disabledButton} onPress={() => onAddPress?.()} disabled={!isOpen}>
-        <ThemedText>Add</ThemedText>
-      </Pressable>
+      <ThemedButton 
+        variant="primary"
+        size="sm"
+        onPress={() => onAddPress?.()} 
+        disabled={!isOpen}
+      >
+        Add
+      </ThemedButton>
     </ThemedView>
   );
 }
@@ -36,22 +43,22 @@ const styles = StyleSheet.create({
   card: {
     width: 140,
     alignItems: "center",
-    gap: 8,
-    paddingTop: 16,
-    paddingBottom: 8,
-    paddingHorizontal: 8,
+    gap: spacing.sm,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.sm,
+    paddingHorizontal: spacing.sm,
   },
   favoriteButton: {
     position: "absolute",
-    top: 6,
-    right: 6,
-    padding: 6,
+    top: spacing.xs,
+    right: spacing.xs,
+    padding: spacing.xs,
     zIndex: 1,
   },
   image: {
     width: 84,
     height: 84,
-    borderRadius: 42,
+    borderRadius: radius.pill,
     resizeMode: "cover"
   },
   name: {
@@ -60,21 +67,6 @@ const styles = StyleSheet.create({
   },
   price: {
     textAlign: "center",
-    fontSize: 14
+    fontSize: fontSize.sm
   },
-   addButton: {
-    marginTop: 4,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: "red",
-    borderRadius: 10,
-  },
-  disabledButton: {
-    marginTop: 4,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: "red",
-    borderRadius: 10,
-    opacity: .5,
-  }
 });
