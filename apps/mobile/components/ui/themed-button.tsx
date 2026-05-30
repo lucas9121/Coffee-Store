@@ -39,6 +39,9 @@ export function ThemedButton({
     variant === "success" ?
       { backgroundColor: success, borderColor: success } 
     :
+    variant === "ghost" ? 
+      {backgroundColor: "tranparent", borderColor: "transparent"} 
+    :
       { backgroundColor, borderColor };
 
   const labelColor = variant === "ghost" ? textColor : "#FFFFFF";
