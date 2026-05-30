@@ -3,6 +3,8 @@ import {
   StyleSheet, 
   Pressable, 
   Modal, 
+  Image,
+  ScrollView,
   TouchableWithoutFeedback, 
   Keyboard, 
   KeyboardAvoidingView, 
@@ -14,6 +16,8 @@ import { ThemedView } from "@/components/ui/themed-view";
 import { ThemedScrollView } from "@/components/ui/themed-scroll-view";
 import { ThemedText } from "@/components/ui/themed-text";
 import { ThemedTextInput } from "@/components/ui/themed-text-input";
+import { ThemedButton } from "@/components/ui/themed-button";
+import { spacing, radius } from "@/constants/tokens";
 import { signupUser } from "@/services/auth-api";
 import { useAuth } from "@/context/AuthContext";
 import { useThemeColor } from "@/hooks/use-theme-color";
@@ -35,6 +39,9 @@ export default function SignUpScreen(){
   const { login } = useAuth();
   const borderColor = useThemeColor({}, "border");
   const backgroundColor = useThemeColor({}, "background")
+  const errorColor = useThemeColor({}, "danger");
+  const shadowColor = useThemeColor({}, "text");
+  const surfaceColor = useThemeColor({}, "surface");
 
   const questions = [
     "What is your mother's maiden name?",
@@ -100,118 +107,135 @@ export default function SignUpScreen(){
           behavior={Platform.OS === "ios" ? "padding": undefined}
         >
           <ThemedScrollView contentContainerStyle={styles.view} keyboardShouldPersistTaps="handled">
-            <ThemedText type="title">Signup Screen</ThemedText>
-            <ThemedTextInput
-              placeholder="Name"
-              value={name}
-              onChangeText={setName}
-            />
-            <ThemedTextInput
-              placeholder="Email"
-              value={email}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              keyboardType="email-address"
-            />
-            <ThemedTextInput
-              placeholder="Password"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-              rightAccessory={
-                <Pressable
-                  onPressIn={() => setShowPassword(true)}
-                  onPressOut={() => setShowPassword(false)}
-                  style={styles.eyeButton}
-                >
-                  <ThemedText>👁️</ThemedText>
-                </Pressable>
-              }
-            />
-            <ThemedText> Security Question 1</ThemedText>
-            <Pressable
-              onPress={() => openQuestionPicker(1)}
-              style={[
-                styles.questionField,
-                {
-                  borderColor,
-                  backgroundColor,
-                },
-              ]}
-              >
-                <ThemedText>
-                  {question1 || "Select a question..."}
-                </ThemedText>
-              </Pressable>
-            <ThemedTextInput
-              placeholder="Answer"
-              value={answer1}
-              onChangeText={setAnswer1}
-              autoCapitalize="none"
-            />
-            <ThemedText> Security Question 2</ThemedText>
-            <Pressable
-              onPress={() => openQuestionPicker(2)}
-              style={[
-                styles.questionField,
-                {
-                  borderColor,
-                  backgroundColor,
-                },
-              ]}
-              >
-                <ThemedText>
-                  {question2 || "Select a question..."}
-                </ThemedText>
-              </Pressable>
-            <ThemedTextInput
-              placeholder="Answer"
-              value={answer2}
-              onChangeText={setAnswer2}
-              autoCapitalize="none"
-            />
-      
-            <Button onPress={handleSubmit}>
-              {isSubmitting ? "Signing up..." : "Sign up"}
-            </Button>
-      
-            {signUpError ? <ThemedText style={styles.errorText}>{signUpError}</ThemedText> : null}
-
-            <Modal
-              visible={questionModalVisible}
-              transparent
-              animationType="slide"
-              onRequestClose={() => {
-                setQuestionModalVisible(false);
-                setActiveQuestionField(null);
-              }}
+            <ThemedView
+              padding="xl"
+              gap="md"
+              radius="lg"
+              style={[styles.card, styles.cardShadow, {borderColor, shadowColor}]}
             >
-              <ThemedView style={styles.modalOverlay}>
-                <ThemedView style={styles.modalContent}>
-                  <ThemedText type="subtitle">Select a security question</ThemedText>
-
-                  {questions.map((q) => (
-                    <Pressable
-                      key={q}
-                      onPress={() => handleSelectQuestion(q)}
-                      style={styles.questionOption}
-                    >
-                      <ThemedText>{q}</ThemedText>
-                    </Pressable>
-                  ))}
-
+              <Image 
+                source={require("@/assets/images/logo.jpg")}
+                style={styles.logo}
+              />
+              <ThemedText type="title">Create Account</ThemedText>
+              <ThemedTextInput
+                placeholder="Name"
+                value={name}
+                onChangeText={setName}
+              />
+              <ThemedTextInput
+                placeholder="Email"
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                keyboardType="email-address"
+              />
+              <ThemedTextInput
+                placeholder="Password"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+                rightAccessory={
                   <Pressable
-                    onPress={() => {
-                      setQuestionModalVisible(false);
-                      setActiveQuestionField(null);
-                    }}
-                    style={styles.cancelButton}
+                    onPressIn={() => setShowPassword(true)}
+                    onPressOut={() => setShowPassword(false)}
+                    style={styles.eyeButton}
                   >
-                    <ThemedText>Cancel</ThemedText>
+                    <ThemedText>👁️</ThemedText>
                   </Pressable>
+                }
+              />
+              <ThemedText> Security Question 1</ThemedText>
+              <Pressable
+                onPress={() => openQuestionPicker(1)}
+                style={[
+                  styles.questionField,
+                  {
+                    borderColor,
+                    backgroundColor: surfaceColor,
+                  },
+                ]}
+                >
+                  <ThemedText>
+                    {question1 || "Select a question..."}
+                  </ThemedText>
+                </Pressable>
+              <ThemedTextInput
+                placeholder="Answer"
+                value={answer1}
+                onChangeText={setAnswer1}
+                autoCapitalize="none"
+              />
+              <ThemedText> Security Question 2</ThemedText>
+              <Pressable
+                onPress={() => openQuestionPicker(2)}
+                style={[
+                  styles.questionField,
+                  {
+                    borderColor,
+                    backgroundColor: surfaceColor,
+                  },
+                ]}
+                >
+                  <ThemedText>
+                    {question2 || "Select a question..."}
+                  </ThemedText>
+                </Pressable>
+              <ThemedTextInput
+                placeholder="Answer"
+                value={answer2}
+                onChangeText={setAnswer2}
+                autoCapitalize="none"
+              />
+        
+              <ThemedButton 
+                variant="primary"
+                onPress={handleSubmit}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Signing up..." : "Sign up"}
+              </ThemedButton>
+        
+              {signUpError ? <ThemedText style={{color: errorColor}}>{signUpError}</ThemedText> : null}
+
+              <Modal
+                visible={questionModalVisible}
+                transparent
+                animationType="slide"
+                onRequestClose={() => {
+                  setQuestionModalVisible(false);
+                  setActiveQuestionField(null);
+                }}
+              >
+                <ThemedView style={styles.modalOverlay}>
+                  <ThemedView style={styles.modalContent}>
+                    <ThemedText type="subtitle">Select a security question</ThemedText>
+                    <ScrollView style={styles.questionList}>
+                      {questions.map((q) => (
+                        <Pressable
+                          key={q}
+                          onPress={() => handleSelectQuestion(q)}
+                          style={styles.questionOption}
+                        >
+                          <ThemedText>{q}</ThemedText>
+                        </Pressable>
+                      ))}
+                    </ScrollView>
+
+
+                    <ThemedButton
+                      variant="ghost"
+                      onPress={() => {
+                        setQuestionModalVisible(false);
+                        setActiveQuestionField(null);
+                      }}
+                    >
+                      Cancel
+                    </ThemedButton>
+                  </ThemedView>
                 </ThemedView>
-              </ThemedView>
-            </Modal>
+              </Modal>
+            </ThemedView>
           </ThemedScrollView>
         </KeyboardAvoidingView>
       </TouchableWithoutFeedback>
@@ -222,49 +246,53 @@ export default function SignUpScreen(){
 const styles = StyleSheet.create({
   view: {
     flexGrow: 1,
-    padding: 24,
-    gap: 12,
-    justifyContent: "center"
+    padding: spacing.xl,
+    justifyContent: "center",
   },
-
+  card: {
+    width: "100%",
+    borderWidth: 1,
+  },
+  cardShadow: {
+    shadowOffset: { width: 0, height: spacing.xs },
+    shadowOpacity: 0.18,
+    shadowRadius: spacing.sm,
+    elevation: spacing.xs,
+  },
+  logo: {
+    width: 120,
+    height: 120,
+    borderRadius: radius.pill,
+    alignSelf: "center",
+    resizeMode: "cover",
+  },
   eyeButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
-
-  errorText:{
-    color: "red",
-  },
-
   questionField: {
-  width: "100%",
-  paddingHorizontal: 12,
-  paddingVertical: 14,
-  borderWidth: 1,
-  borderRadius: 8,
+    width: "100%",
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+    borderWidth: 1,
+    borderRadius: radius.md,
   },
-
   modalOverlay: {
     flex: 1,
     justifyContent: "flex-end",
     backgroundColor: "rgba(0,0,0,0.35)",
   },
-
   modalContent: {
-    padding: 24,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    gap: 12,
+    padding: spacing.xl,
+    borderTopLeftRadius: radius.lg,
+    borderTopRightRadius: radius.lg,
+    gap: spacing.md,
   },
-
+  questionList: {
+    maxHeight: 260,
+  },
   questionOption: {
-    paddingVertical: 12,
+    paddingVertical: spacing.md,
     borderBottomWidth: 1,
-  },
-
-  cancelButton: {
-    marginTop: 8,
-    paddingVertical: 12,
-    alignItems: "center",
   },
 });
