@@ -1,7 +1,8 @@
-import { Pressable, StyleSheet } from "react-native";
-import { ThemedText } from "./ui/themed-text";
+import { StyleSheet } from "react-native";
 import { useCart } from "@/context/CartContext";
 import { useRouter } from "expo-router";
+import { spacing, radius } from "@/constants/tokens";
+import { ThemedButton } from "./ui/themed-button";
 
 
 export function CartButton(){
@@ -11,12 +12,14 @@ export function CartButton(){
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
   if(cartCount > 0){
-    return <Pressable 
+    return <ThemedButton
+      variant="primary"
+      size="lg"
       style={styles.cartButton}
       onPress={() => router.push("/cart")}
     >
-      <ThemedText>🛒 {cartCount.toString()}</ThemedText>
-    </Pressable>
+      🛒 {cartCount.toString()}
+    </ThemedButton>
   }
 
   return null;
@@ -24,12 +27,10 @@ export function CartButton(){
 
 const styles = StyleSheet.create({
   cartButton: {
-    padding: 15,
-    borderRadius: 50,
-    backgroundColor: "#02c4ccba",
+    borderRadius: radius.pill,
     position: "absolute",
-    bottom: 6,
-    right: 6,
+    bottom: spacing.md,
+    right: spacing.md,
     zIndex: 1,
   }
 })
