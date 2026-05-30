@@ -3,6 +3,7 @@ import { useCart } from "@/context/CartContext";
 import { useRouter } from "expo-router";
 import { spacing, radius } from "@/constants/tokens";
 import { ThemedButton } from "./ui/themed-button";
+import { Ionicons } from "@expo/vector-icons";
 
 
 export function CartButton(){
@@ -18,7 +19,12 @@ export function CartButton(){
       style={styles.cartButton}
       onPress={() => router.push("/cart")}
     >
-      🛒 {cartCount.toString()}
+      <Ionicons
+        name="cart-outline"
+        size={20}
+      />
+      {" "}
+      {cartCount.toString()}
     </ThemedButton>
   }
 

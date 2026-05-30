@@ -16,6 +16,7 @@ import { spacing, radius } from "@/constants/tokens";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useAuth } from "@/context/AuthContext";
 import { loginUser } from "@/services/auth-api";
+import { Ionicons } from "@expo/vector-icons";
 
 type LoginFormProps = {
   title?: string;
@@ -37,6 +38,7 @@ export default function LoginForm({title, fromCheckout, sessionExpired, showGues
   const errorColor = useThemeColor({}, "danger");
   const borderColor = useThemeColor({}, "border");
   const shadowColor = useThemeColor({}, "text");
+  const textColor = useThemeColor({}, "text")
 
 
   async function handleSubmit(): Promise<void> {
@@ -120,7 +122,11 @@ export default function LoginForm({title, fromCheckout, sessionExpired, showGues
                 onPressOut={() => setShowPassword(false)}
                 style={styles.eyeButton}
               >
-                <ThemedText>👁️</ThemedText>
+                <Ionicons
+                  name={showPassword ? "eye" : "eye-off"}
+                  size={spacing.lg}
+                  color={textColor}
+                />
               </Pressable>
             }
           />
