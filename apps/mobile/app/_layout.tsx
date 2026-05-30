@@ -10,6 +10,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { CartProvider } from '@/context/CartContext';
 import { OrderProvider } from '@/context/OrderContext';
+import { Image } from 'react-native';
 
 import { ThemedText } from '@/components/ui/themed-text';
 import { ThemedView } from '@/components/ui/themed-view';
@@ -26,8 +27,15 @@ function InnerLayout() {
   if(isInitializing){
     return(
       <SafeAreaView edges={["top", "left", "right"]} style={{flex: 1, backgroundColor}}>
-        <ThemedView style={{flex: 1, alignItems: "center", justifyContent: "center"}}>
-          <ThemedText>Loading...</ThemedText>
+        <ThemedView style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#000",}}>
+          <Image
+            source={require("@/assets/images/logo.jpg")}
+            style={{
+              width: 350,
+              height: 350,
+              borderRadius: 175,
+            }}
+          />
         </ThemedView>
       </SafeAreaView>
     );
