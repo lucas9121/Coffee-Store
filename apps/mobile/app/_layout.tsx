@@ -38,6 +38,9 @@ function InnerLayout() {
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="(auth)/login" options={{ presentation: "modal", title: "Log In" }} />
+          <Stack.Screen name="(auth)/signup" options={{ presentation: "modal", title: "Create Account" }} />
+          <Stack.Screen name="(auth)/forgot-password" options={{ presentation: "modal", title: "Forgot Password" }} />
           <Stack.Screen name="cart" options={{ presentation: 'modal', title: 'Cart' }} />
           <Stack.Screen name="guest-checkout" options={{ presentation: "modal", title: "Guest Checkout" }} />
         </Stack>
