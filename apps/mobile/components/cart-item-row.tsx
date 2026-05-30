@@ -45,7 +45,7 @@ export function CartItem({item}: {item: MenuListItem}){
 
   return(
     <ThemedView 
-      paddingVertical="sm"
+      padding="sm"
       radius="md"
       style={[styles.card, styles.cardShadow, {borderColor, shadowColor}]}
     >
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
     alignItems: "center",
-    // borderTopWidth: 1,
+    borderWidth: 1,
   },
   cardShadow: {
     shadowOffset: { width: spacing.sm, height: spacing.xs },
