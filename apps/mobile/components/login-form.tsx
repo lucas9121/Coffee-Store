@@ -88,7 +88,7 @@ export default function LoginForm({title, fromCheckout, sessionExpired, showGues
       <ThemedScrollView contentContainerStyle={styles.screen}>
         <ThemedView
           padding="xl"
-          gap="md"
+          gap="lg"
           radius="lg"
           style={[styles.card, styles.cardShadow, { borderColor, shadowColor }]}
         >
@@ -185,8 +185,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   cardShadow: {
-    shadowOffset: { width: 0, height: spacing.xs },
-    shadowOpacity: 0.18,
+    shadowOffset: { width: spacing.xs, height: spacing.xs },
+    shadowOpacity: 0.20,
     shadowRadius: spacing.sm,
     elevation: spacing.xs,
   },
