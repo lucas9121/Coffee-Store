@@ -134,7 +134,7 @@ export default function LoginForm({title, fromCheckout, sessionExpired, showGues
           </ThemedButton>
 
           <ThemedButton
-            variant="ghost"
+            variant="link"
             onPress={() => router.push("/forgot-password")}
           >
             Forgot Password
@@ -142,7 +142,7 @@ export default function LoginForm({title, fromCheckout, sessionExpired, showGues
 
           {showSignupButton && !showGuestCheckout && (
             <ThemedButton
-              variant="ghost"
+              variant="link"
               onPress={() => router.push("/signup")}
             >
               Create Account
@@ -161,7 +161,7 @@ export default function LoginForm({title, fromCheckout, sessionExpired, showGues
 
           {showGuestCheckout && (
             <ThemedButton
-              variant="ghost"
+              variant="link"
               onPress={() => router.push("/guest-checkout")}
             >
               Continue as Guest

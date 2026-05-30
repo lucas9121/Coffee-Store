@@ -132,7 +132,7 @@ export default function ModalScreen() {
         </ThemedView>
       
         <ThemedButton 
-          variant='ghost'
+          variant='link'
           onPress={() => router.back()}
         >
           Close

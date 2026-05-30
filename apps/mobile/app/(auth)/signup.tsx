@@ -224,7 +224,7 @@ export default function SignUpScreen(){
 
 
                     <ThemedButton
-                      variant="ghost"
+                      variant="link"
                       onPress={() => {
                         setQuestionModalVisible(false);
                         setActiveQuestionField(null);
