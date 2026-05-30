@@ -1,11 +1,22 @@
 import { useState } from "react";
-import { StyleSheet, Pressable } from "react-native";
+import {
+  StyleSheet,
+  Pressable,
+  Image,
+  TouchableWithoutFeedback, 
+  Keyboard, 
+  KeyboardAvoidingView, 
+  Platform } from "react-native";
 import { Button } from "@react-navigation/elements";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
+import { ThemedScrollView } from "@/components/ui/themed-scroll-view";
 import { ThemedView } from "@/components/ui/themed-view";
 import { ThemedText } from "@/components/ui/themed-text";
 import { ThemedTextInput } from "@/components/ui/themed-text-input";
+import { ThemedButton } from "@/components/ui/themed-button";
+import { spacing, radius } from "@/constants/tokens";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { useAuth } from "@/context/AuthContext";
 import { loginUser } from "@/services/auth-api";
 
@@ -18,6 +29,9 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loginError, setLoginError] = useState("");
+  const errorColor = useThemeColor({}, "danger");
+  const borderColor = useThemeColor({}, "border");
+  const shadowColor = useThemeColor({}, "text");
 
   const params = useLocalSearchParams<{ fromCheckout?: string; sessionExpired?: string }>();
   const fromCheckout = params.fromCheckout === "true";
@@ -65,72 +79,120 @@ export default function LoginScreen() {
     router.replace("/");
   };
 
-  return(
-    <ThemedView style={styles.view} >
-      <ThemedText type="title" >Login Screen</ThemedText>
-      <ThemedTextInput
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
-      <ThemedTextInput
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry={!showPassword}
-        rightAccessory={
-          <Pressable
-            onPressIn={() => setShowPassword(true)}
-            onPressOut={() => setShowPassword(false)}
-            style={styles.eyeButton}
+  return (
+    <KeyboardAvoidingView 
+      style={{flex: 1}}
+      behavior={Platform.OS === "ios" ? "padding": undefined}
+    >
+      <ThemedScrollView contentContainerStyle={styles.screen}>
+        <ThemedView
+          padding="xl"
+          gap="md"
+          radius="lg"
+          style={[styles.card, styles.cardShadow, { borderColor, shadowColor }]}
+        >
+          <Image
+            source={require("@/assets/images/logo.jpg")}
+            style={styles.logo}
+          />
+
+          <ThemedText type="title">
+            {fromCheckout ? "Log in to Checkout" : "Welcome Back"}
+          </ThemedText>
+
+          <ThemedTextInput
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            keyboardType="email-address"
+          />
+
+          <ThemedTextInput
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!showPassword}
+            rightAccessory={
+              <Pressable
+                onPressIn={() => setShowPassword(true)}
+                onPressOut={() => setShowPassword(false)}
+                style={styles.eyeButton}
+              >
+                <ThemedText>👁️</ThemedText>
+              </Pressable>
+            }
+          />
+
+          <ThemedButton
+            variant="primary"
+            onPress={handleSubmit}
+            disabled={isSubmitting}
           >
-            <ThemedText>👁️</ThemedText>
-          </Pressable>
-        }
-      />
+            {isSubmitting ? "Logging in..." : "Log in"}
+          </ThemedButton>
 
-      <Button onPress={handleSubmit}>
-        {isSubmitting ? "Logging in..." : "Log in"}
-      </Button>
+          <ThemedButton
+            variant="ghost"
+            onPress={() => router.push("/forgot-password")}
+          >
+            Forgot Password
+          </ThemedButton>
 
-      <ThemedText type="link" onPress={() => router.push("/forgot-password")}>Forgot Password</ThemedText>
+          {sessionExpired && (
+            <ThemedText style={{ color: errorColor }}>
+              Session expired. Please log in again.
+            </ThemedText>
+          )}
 
-      {sessionExpired && (
-        <ThemedText style={styles.errorText}>
-          Session expired. Please log in again.
-        </ThemedText>
-      )}
+          {loginError ? (
+            <ThemedText style={{ color: errorColor }}>{loginError}</ThemedText>
+          ) : null}
 
-      {loginError ? <ThemedText style={styles.errorText}>{loginError}</ThemedText> : null}
-
-      {fromCheckout && (
-        <Button onPress={() => router.push("/guest-checkout")}>
-          Continue as Guest
-        </Button>
-      )}
-
-      <ThemedText type="subtitle">Dev shortcuts</ThemedText>
-      <Button onPress={handleUserLogin}>Log In as User</Button>
-      <Button onPress={handleWorkerLogin}>Log In as Worker</Button>
-    </ThemedView>
-  )
+          {fromCheckout && (
+            <ThemedButton
+              variant="ghost"
+              onPress={() => router.push("/guest-checkout")}
+            >
+              Continue as Guest
+            </ThemedButton>
+          )}
+        </ThemedView>
+      </ThemedScrollView>
+    </KeyboardAvoidingView>
+  );
 }
 
 const styles = StyleSheet.create({
-  view: {
-    flex: 1, 
-    alignItems: "center", 
+  screen: {
+    flex: 1,
+    alignItems: "center",
     justifyContent: "center",
-    padding: 24,
-    gap: 12,
+    padding: spacing.xl,
+  },
+  card: {
+    width: "100%",
+    borderWidth: 1,
+  },
+  cardShadow: {
+    shadowOffset: { width: 0, height: spacing.xs },
+    shadowOpacity: 0.18,
+    shadowRadius: spacing.sm,
+    elevation: spacing.xs,
+  },
+  logo: {
+    width: 120,
+    height: 120,
+    borderRadius: radius.pill,
+    alignSelf: "center",
+    resizeMode: "cover",
   },
   eyeButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
-  errorText:{
-    color: "red",
-  }
+  devSection: {
+    gap: spacing.sm,
+    marginTop: spacing.lg,
+  },
 });
