@@ -28,3 +28,9 @@ export const buttonHeight = {
   md: 44,
   lg: 52,
 } as const;
+
+export const fontFamily = {
+  body: "sans",
+  title: "serif",
+  button: "sans"
+} as const;
