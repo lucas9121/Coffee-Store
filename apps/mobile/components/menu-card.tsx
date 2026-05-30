@@ -3,6 +3,8 @@ import { spacing, radius, fontSize } from "@/constants/tokens";
 import { ThemedButton } from "@/components/ui/themed-button";
 import { ThemedView } from "@/components/ui/themed-view";
 import { ThemedText } from "@/components/ui/themed-text";
+import { useThemeColor } from "@/hooks/use-theme-color";
+import { Ionicons } from "@expo/vector-icons";
 
 type MenuCardProps = {
   name: string;
@@ -17,11 +19,16 @@ type MenuCardProps = {
 
 export function MenuCard({ name, image, price, isFavorite, isOpen, isUser, onFavoritePress, onAddPress }: MenuCardProps) {
   const imageSource = typeof image === "string" ? {uri: image} : image
+  const textColor = useThemeColor({}, "text");
   return (
     <ThemedView style={styles.card}>
       {isUser && 
         <Pressable style={styles.favoriteButton} onPress={() => onFavoritePress?.()}>
-          <ThemedText>{isFavorite ? "♥" : "♡"}</ThemedText>
+          <Ionicons
+            name={isFavorite ? "heart" : "heart-outline"}
+            size={20}
+            color={isFavorite ? "#D84B5A" : textColor}
+          />
         </Pressable>
       }
       <Image source={imageSource} style={styles.image} />
