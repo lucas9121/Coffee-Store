@@ -144,9 +144,6 @@ export function CustomerOrdersContent({
       <ThemedScrollView padding="xl" gap="xl">
         <ThemedText type="title">Order Menu</ThemedText>
         {!isStoreOpen && <ThemedText type="subtitle">Store is currently closed</ThemedText>}
-        {cartCount > 0 && (
-          <ThemedText>Cart Items: {cartCount}</ThemedText>
-        )}
 
         {accountType === "user" && userFavorites.length > 0 && (
           <Section title="Favorites">
