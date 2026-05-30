@@ -1,14 +1,18 @@
 import { useState } from 'react';
-import { Link, useLocalSearchParams, useRouter } from 'expo-router';
-import { Pressable, StyleSheet } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { StyleSheet } from 'react-native';
 import { ThemedText } from '@/components/ui/themed-text';
 import { ThemedView } from '@/components/ui/themed-view';
 import { CartItem } from '@/components/cart-item-row';
+import { ThemedScrollView } from '@/components/ui/themed-scroll-view';
+import { ThemedButton } from "@/components/ui/themed-button";
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useOrder } from '@/context/OrderContext';
-import { ThemedScrollView } from '@/components/ui/themed-scroll-view';
 import { createOrder } from '@/services/orders-api';
+import { getCurrentUser } from "@/services/user-api";
+import { spacing } from "@/constants/tokens";
+import { useThemeColor } from "@/hooks/use-theme-color";
 
 
 
@@ -21,6 +25,7 @@ export default function ModalScreen() {
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [checkoutError, setCheckoutError] = useState("");
+  const errorColor = useThemeColor({}, "danger");
 
   const subtotal = cartItems.reduce(
     (total, item) => total + item.price * item.quantity,
@@ -29,8 +34,14 @@ export default function ModalScreen() {
 
   async function resolveCheckoutCustomer(): Promise<{ customerName: string } | null> {
     if (accountType === "user") {
-      // Temporary until real backend user data exists
-      return { customerName: "Customer" };
+      try {
+        const userInfo = await getCurrentUser(accessToken);
+        return {customerName: userInfo.user.name};
+      } catch (error) {
+        console.error(error);
+        setCheckoutError("unable to load your account information.");
+        return null;
+      }
     }
 
     if (guestName && guestName.trim()) {
@@ -78,18 +89,18 @@ export default function ModalScreen() {
       <ThemedView style={styles.emptyCartInfo}>
         <ThemedText type="title">Order placed successfully</ThemedText>
 
-        <Pressable
+        <ThemedButton
+          variant="primary"
           onPress={() => router.replace("/")}
-          style={styles.checkoutButton}
         >
-          <ThemedText type="subtitle">Done</ThemedText>
-        </Pressable>
+          Done
+        </ThemedButton>
       </ThemedView>
     );
   }
 
   return (
-    <ThemedScrollView contentContainerStyle={styles.container}>
+    <ThemedScrollView padding='xl'>
       <ThemedView style={styles.mainContainer}>
         <ThemedView style={styles.cartInfo}>
           <ThemedText type="title" style={styles.title}>Cart</ThemedText>
@@ -105,58 +116,52 @@ export default function ModalScreen() {
           ))}
 
           {checkoutError ? (
-            <ThemedText>{checkoutError}</ThemedText>
+            <ThemedText style={{color: errorColor}}>{checkoutError}</ThemedText>
           ) : null}
 
           {cartItems.length > 0 && (
-            <Pressable
+            <ThemedButton
+              variant='primary'
+              size='lg'
               onPress={handleCheckout}
-              style={styles.checkoutButton}
               disabled={isSubmitting}
             >
-              <ThemedText type='subtitle'>{isSubmitting ? "Placing order..." : `Checkout $${subtotal.toFixed(2)}`}</ThemedText>
-            </Pressable>
+              {isSubmitting ? "Placing order..." : `Checkout $${subtotal.toFixed(2)}`}
+            </ThemedButton>
           )}
         </ThemedView>
       
-        <Link href="/" dismissTo style={styles.link}>
-          <ThemedText type="link" style={styles.linkText}>Close</ThemedText>
-        </Link>
+        <ThemedButton 
+          variant='ghost'
+          onPress={() => router.back()}
+        >
+          Close
+        </ThemedButton>
       </ThemedView>
     </ThemedScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    padding: 20,
-  },
   mainContainer:{
     flexGrow: 1,
     justifyContent: "space-between",
-    gap: 10,
+    gap: spacing.md,
   },
   cartInfo: {
-    gap: 10,
+    gap: spacing.md,
     flex: 1,
   },
   title: {
-    paddingBottom: 30,
+    paddingBottom: spacing.md,
   },
   emptyCartInfo: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  checkoutButton: {
-    padding: 15,
-    borderRadius: 50,
-    backgroundColor: "#02c4ccba",
-    alignItems: "center",
-  },
   link: {
-    paddingVertical: 15,
+    paddingVertical: spacing.md,
   },
   linkText: {
     textAlign: "center",
