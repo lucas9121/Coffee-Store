@@ -1,198 +1,23 @@
-import { useState } from "react";
-import {
-  StyleSheet,
-  Pressable,
-  Image,
-  TouchableWithoutFeedback, 
-  Keyboard, 
-  KeyboardAvoidingView, 
-  Platform } from "react-native";
-import { Button } from "@react-navigation/elements";
+import LoginForm from "@/components/login-form";
 import { useLocalSearchParams, useRouter } from "expo-router";
-
-import { ThemedScrollView } from "@/components/ui/themed-scroll-view";
-import { ThemedView } from "@/components/ui/themed-view";
-import { ThemedText } from "@/components/ui/themed-text";
-import { ThemedTextInput } from "@/components/ui/themed-text-input";
-import { ThemedButton } from "@/components/ui/themed-button";
-import { spacing, radius } from "@/constants/tokens";
-import { useThemeColor } from "@/hooks/use-theme-color";
-import { useAuth } from "@/context/AuthContext";
-import { loginUser } from "@/services/auth-api";
 
 
 export default function LoginScreen() {
-  const router = useRouter();
-  const { login } = useAuth();
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [loginError, setLoginError] = useState("");
-  const errorColor = useThemeColor({}, "danger");
-  const borderColor = useThemeColor({}, "border");
-  const shadowColor = useThemeColor({}, "text");
+  const params = useLocalSearchParams<{
+    fromCheckout?: string;
+    sessionExpired?: string;
+  }>();
 
-  const params = useLocalSearchParams<{ fromCheckout?: string; sessionExpired?: string }>();
   const fromCheckout = params.fromCheckout === "true";
   const sessionExpired = params.sessionExpired === "true";
 
-
-  async function handleSubmit(): Promise<void> {
-    setLoginError("");
-    setIsSubmitting(true);
-
-    try {
-      const data = await loginUser({ email, password });
-
-      const accessToken = data.token;
-      const refreshToken = data.refreshToken ?? null;
-      const accountType = data.user.account;
-
-      if (accountType === "admin") {
-        setLoginError("Login failed. Please check your credentials.");
-        return;
-      }
-
-      await login(accessToken, refreshToken, accountType);
-
-      if (fromCheckout) {
-        router.replace("/cart");
-      } else {
-        router.replace("/");
-      }
-    } catch (error) {
-      setLoginError("Login failed. Please check your email and password.");
-      console.error(error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  async function handleUserLogin() {
-    await login("mock-access-token-user", "mock-refresh-token-user", "user");
-    router.replace("/");
-  };
-
-  async function handleWorkerLogin() {
-    await login("mock-access-token-worker", "mock-refresh-token-worker", "worker");
-    router.replace("/");
-  };
-
   return (
-    <KeyboardAvoidingView 
-      style={{flex: 1}}
-      behavior={Platform.OS === "ios" ? "padding": undefined}
-    >
-      <ThemedScrollView contentContainerStyle={styles.screen}>
-        <ThemedView
-          padding="xl"
-          gap="md"
-          radius="lg"
-          style={[styles.card, styles.cardShadow, { borderColor, shadowColor }]}
-        >
-          <Image
-            source={require("@/assets/images/logo.jpg")}
-            style={styles.logo}
-          />
-
-          <ThemedText type="title">
-            {fromCheckout ? "Log in to Checkout" : "Welcome Back"}
-          </ThemedText>
-
-          <ThemedTextInput
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            keyboardType="email-address"
-          />
-
-          <ThemedTextInput
-            placeholder="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={!showPassword}
-            rightAccessory={
-              <Pressable
-                onPressIn={() => setShowPassword(true)}
-                onPressOut={() => setShowPassword(false)}
-                style={styles.eyeButton}
-              >
-                <ThemedText>👁️</ThemedText>
-              </Pressable>
-            }
-          />
-
-          <ThemedButton
-            variant="primary"
-            onPress={handleSubmit}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Logging in..." : "Log in"}
-          </ThemedButton>
-
-          <ThemedButton
-            variant="ghost"
-            onPress={() => router.push("/forgot-password")}
-          >
-            Forgot Password
-          </ThemedButton>
-
-          {sessionExpired && (
-            <ThemedText style={{ color: errorColor }}>
-              Session expired. Please log in again.
-            </ThemedText>
-          )}
-
-          {loginError ? (
-            <ThemedText style={{ color: errorColor }}>{loginError}</ThemedText>
-          ) : null}
-
-          {fromCheckout && (
-            <ThemedButton
-              variant="ghost"
-              onPress={() => router.push("/guest-checkout")}
-            >
-              Continue as Guest
-            </ThemedButton>
-          )}
-        </ThemedView>
-      </ThemedScrollView>
-    </KeyboardAvoidingView>
+    <LoginForm
+      title={fromCheckout ? "Log in to Checkout" : "Welcome Back"}
+      fromCheckout={fromCheckout}
+      sessionExpired={sessionExpired}
+      showGuestCheckout={fromCheckout}
+      showSignupButton
+    />
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: spacing.xl,
-  },
-  card: {
-    width: "100%",
-    borderWidth: 1,
-  },
-  cardShadow: {
-    shadowOffset: { width: 0, height: spacing.xs },
-    shadowOpacity: 0.18,
-    shadowRadius: spacing.sm,
-    elevation: spacing.xs,
-  },
-  logo: {
-    width: 120,
-    height: 120,
-    borderRadius: radius.pill,
-    alignSelf: "center",
-    resizeMode: "cover",
-  },
-  eyeButton: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  devSection: {
-    gap: spacing.sm,
-    marginTop: spacing.lg,
-  },
-});
