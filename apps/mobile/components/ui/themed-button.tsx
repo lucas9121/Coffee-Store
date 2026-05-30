@@ -3,7 +3,7 @@ import { ThemedText } from "./themed-text";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { spacing, radius, buttonHeight, fontSize } from "@/constants/tokens";
 
-type ButtonVariant = "primary" | "secondary" | "danger" | "success" | "ghost";
+type ButtonVariant = "primary" | "secondary" | "danger" | "success" | "ghost" | "link";
 type ButtonSize = "icon" | "sm" | "md" | "lg";
 
 type ThemedButtonProps = PressableProps & {
@@ -39,7 +39,7 @@ export function ThemedButton({
     variant === "success" ?
       { backgroundColor: success, borderColor: success } 
     :
-    variant === "ghost" ? 
+    variant === "link" ? 
       {backgroundColor: "tranparent", borderColor: "transparent"} 
     :
       { backgroundColor, borderColor };
