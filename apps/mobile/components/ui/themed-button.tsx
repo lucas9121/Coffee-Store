@@ -4,7 +4,7 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { spacing, radius, buttonHeight, fontSize } from "@/constants/tokens";
 
 type ButtonVariant = "primary" | "secondary" | "danger" | "success" | "ghost";
-type ButtonSize = "sm" | "md" | "lg";
+type ButtonSize = "icon" | "sm" | "md" | "lg";
 
 type ThemedButtonProps = PressableProps & {
   variant?: ButtonVariant;
@@ -43,10 +43,16 @@ export function ThemedButton({
 
   const labelColor = variant === "ghost" ? textColor : "#FFFFFF";
 
-  const sizeStyle: ViewStyle = {
-    minHeight: buttonHeight[size],
-    paddingHorizontal: size === "sm" ? spacing.sm : size === "md" ? spacing.md : size === "lg" ? spacing.lg: spacing.xl
-  };
+  const sizeStyle: ViewStyle = size === "icon" ? 
+    {
+      width: 32,
+      minHeight: 32,
+      paddingHorizontal: 0,
+    }: 
+    {
+      minHeight: buttonHeight[size],
+      paddingHorizontal: size === "sm" ? spacing.sm : size === "md" ? spacing.md : spacing.lg,
+    };
 
   return (
     <Pressable
@@ -66,7 +72,7 @@ export function ThemedButton({
           styles.text,
           {
             color: labelColor,
-            fontSize: size === "sm" ? fontSize.sm : size === "md" ? fontSize.md : fontSize.lg
+            fontSize: size === "icon" ? fontSize.md : size === "sm" ? fontSize.sm : size === "md" ? fontSize.md : fontSize.lg
           }
         ]}
       >
