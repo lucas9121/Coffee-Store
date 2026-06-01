@@ -39,7 +39,7 @@ export default function ModalScreen() {
         return {customerName: userInfo.user.name};
       } catch (error) {
         console.error(error);
-        setCheckoutError("unable to load your account information.");
+        setCheckoutError("Unable to load your account information.");
         return null;
       }
     }
@@ -160,10 +160,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  link: {
-    paddingVertical: spacing.md,
-  },
-  linkText: {
-    textAlign: "center",
-  }
 });
