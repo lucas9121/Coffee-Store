@@ -225,7 +225,6 @@ export function WorkerOrdersContent({
 
   return (
     <ThemedScrollView padding="xl" gap="xl">
-      <ThemedText type="title">Worker Orders</ThemedText>
 
       {isLoading && <ThemedText>Loading orders...</ThemedText>}
 

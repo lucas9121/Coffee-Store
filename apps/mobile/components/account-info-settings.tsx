@@ -110,7 +110,6 @@ export function AccountInfoSettings({
 
   return(
     <>
-      <ThemedText type="title">Account Settings</ThemedText>
 
       {/* Name */}
       <ThemedView style={styles.infoRow}>

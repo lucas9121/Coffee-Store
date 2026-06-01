@@ -191,7 +191,6 @@ export default function CustomerHomeScreen({
 
   return (
     <ThemedScrollView contentContainerStyle={styles.screenContent}>
-      <ThemedText type="title">Home</ThemedText>
 
       {isOpen ? (
         <ThemedView>

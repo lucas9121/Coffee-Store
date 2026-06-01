@@ -142,7 +142,6 @@ export function CustomerOrdersContent({
   return (
     <ThemedView style={{flex: 1}}>
       <ThemedScrollView padding="xl" gap="xl">
-        <ThemedText type="title">Order Menu</ThemedText>
         {!isStoreOpen && <ThemedText type="subtitle">Store is currently closed</ThemedText>}
 
         {accountType === "user" && userFavorites.length > 0 && (

@@ -255,7 +255,6 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
   return (
     <ThemedView style={styles.container}>
       <ThemedScrollView padding="md" gap="xl" contentContainerStyle={{alignItems: "center"}}>
-        <ThemedText type="title">Worker Home</ThemedText>
 
         <Section title="Store Status" style={{alignItems: "center"}}>
           {isLoadingStore ? (
