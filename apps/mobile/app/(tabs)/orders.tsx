@@ -5,6 +5,7 @@ import { WorkerOrdersContent } from "@/components/worker-orders-content";
 
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
+import { AppHeader } from "@/components/app-header";
 
 
 type MenuListItem = {
@@ -39,24 +40,30 @@ export default function OrdersScreen() {
 
   if (accountType === "worker") {
     return(
-      <WorkerOrdersContent 
-      accountType={accountType}
-      borderColor={borderColor}
-      token={accessToken}
-      />
+      <>
+        <AppHeader subtitle="Orders" />
+        <WorkerOrdersContent 
+        accountType={accountType}
+        borderColor={borderColor}
+        token={accessToken}
+        />
+      </>
     )
   }
 
   return (
-  <CustomerOrdersContent
-    accountType={accountType}
-    token={accessToken}
-    borderColor={borderColor}
-    handleAddToCart={handleAddToCart}
-    cartCount={cartCount}
-  />
-);
-}
+    <>
+      <AppHeader subtitle="Order Menu" />
+      <CustomerOrdersContent
+        accountType={accountType}
+        token={accessToken}
+        borderColor={borderColor}
+        handleAddToCart={handleAddToCart}
+        cartCount={cartCount}
+      />
+    </>
+  );
+};
 
 
 

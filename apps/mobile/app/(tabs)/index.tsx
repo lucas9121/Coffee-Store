@@ -3,6 +3,7 @@ import CustomerHomeScreen from "@/components/customer-home-content";
 
 import { useAuth } from "../../context/AuthContext";
 import { useOrder } from "@/context/OrderContext";
+import { AppHeader } from "@/components/app-header";
 
 
 export default function HomeScreen() {
@@ -11,17 +12,23 @@ export default function HomeScreen() {
 
   if (accountType === "worker") {
     return(
-      <WorkerHomeScreen 
-      accountType={accountType}
-      accessToken={accessToken}
-      />
+      <>
+        <AppHeader subtitle="Home" />
+        <WorkerHomeScreen 
+        accountType={accountType}
+        accessToken={accessToken}
+        />
+      </>
     )
   }
 
   return (
-    <CustomerHomeScreen 
-      accountType={accountType}
-      latestOrderId={latestOrderId}
-    />
+    <>
+      <AppHeader subtitle="Home" />
+      <CustomerHomeScreen 
+        accountType={accountType}
+        latestOrderId={latestOrderId}
+      />
+    </>
   );
 };
