@@ -140,6 +140,77 @@ async function getCurrentUser(req, res) {
 };
 
 
+async function getForgotPasswordQuestions(req, res) {
+  try {
+    const email = req.body.email?.trim().toLowerCase();
+
+    if (!email) {
+      return res.status(400).json({ message: "Missing Credentials" });
+    };
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    };
+
+    const securityQuestions = user.securityQuestions.map((q) => ({
+      question: q.question,
+    }));
+
+    return res.status(200).json({ securityQuestions });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  };
+};
+
+
+async function resetForgotPassword(req, res) {
+  try {
+    const email = req.body.email?.trim().toLowerCase();
+    const { answers, newPassword } = req.body;
+
+    if (!email || !answers || !newPassword) {
+      return res.status(400).json({ message: "Missing Credentials" });
+    }
+
+    if (!Array.isArray(answers) || answers.length !== 2) {
+      return res.status(400).json({ message: "Invalid answers" });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const firstMatch = await bcrypt.compare(
+      answers[0],
+      user.securityQuestions[0].answer
+    );
+
+    const secondMatch = await bcrypt.compare(
+      answers[1],
+      user.securityQuestions[1].answer
+    );
+
+    if (!firstMatch || !secondMatch) {
+      return res.status(401).json({ message: "Bad Credentials" });
+    }
+
+    user.password = newPassword;
+    user.refreshTokenHash = undefined;
+    user.refreshTokenExpiresAt = undefined;
+
+    await user.save();
+
+    return res.status(200).json({ message: "Password reset successful" });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+}
+
+
 async function updateUserPassword(req, res) {
   try {
     const userId = req.user.userId;
