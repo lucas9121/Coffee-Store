@@ -13,6 +13,8 @@ module.exports = {
   logoutUser,
   refreshAccessToken,
   getCurrentUser,
+  getForgotPasswordQuestions,
+  resetForgotPassword,
   updateUserPassword,
   updateUserProfile,
   toggleFavorites,
