@@ -147,6 +147,7 @@ export function CustomerOrdersContent({
         {accountType === "user" && userFavorites.length > 0 && (
           <Section title="Favorites">
             <HorizontalList
+              style={{borderTopWidth: 2, borderColor}}
               data={userFavorites}
               keyExtractor={(item) => item.id}
               renderItem={({item}) => (
@@ -168,6 +169,7 @@ export function CustomerOrdersContent({
         {accountType === "user" && userRecent.length > 0 && (
           <Section title="Recents">
             <HorizontalList
+              style={{borderTopWidth: 2, borderColor}}
               data={userRecent}
               keyExtractor={(item) => item.id}
               renderItem={({item}) => (

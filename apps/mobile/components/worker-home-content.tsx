@@ -59,10 +59,6 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
   const { logout } = useAuth();
   const errorColor = useThemeColor({}, "danger");
   const primaryColor = useThemeColor({}, "primary");
-  const shadowColor = useThemeColor(
-    { light: "#000000", dark: undefined },
-    "text"
-  );
 
   const imageMap: Record<string, any> = {
     coffee: require("@/assets/images/coffee.jpg"),
@@ -306,7 +302,7 @@ export default function WorkerHomeScreen({accountType, accessToken}: WorkerHomeS
 
                 <ThemedView style={styles.menuList}>
                   {filteredMenuItems.map((item) => (
-                    <ThemedView key={item.id} padding="xs" radius="md" style={[styles.cardShadow, {borderColor, shadowColor}]} >
+                    <ThemedView key={item.id}>
                       <MenuCard
                         name={item.name}
                         image={item.image}
@@ -441,13 +437,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-around',
-  },
-  cardShadow: {
-    borderWidth: 1,
-    shadowOffset: { width: 0, height: spacing.xs },
-    shadowOpacity: 0.15,
-    shadowRadius: spacing.xs,
-    elevation: spacing.xs,
   },
   modalOverlay: {
     flex: 1,

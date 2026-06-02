@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     borderWidth: 1,
     borderRadius: spacing.md,
-    shadowOffset: { width: 0, height: spacing.xs },
+    shadowOffset: { width: spacing.xs, height: spacing.xs },
     shadowOpacity: 0.20,
     shadowRadius: spacing.xs,
     elevation: spacing.xs,
