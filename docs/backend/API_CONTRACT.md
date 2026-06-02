@@ -385,6 +385,55 @@ Issues a new access token using a refresh token.
 
 ---
 
+## POST /users/forgot-password/questions
+
+Returns the user’s saved security questions.
+
+### Auth
+- No authentication required.
+
+### Request Body
+{
+  "email": "user@example.com"
+}
+
+### Responses
+200 → returns security questions only
+400 → missing credentials
+404 → user not found
+500 → server error
+
+---
+
+## POST /users/forgot-password/reset
+
+Resets a user password using security question answers.
+
+### Auth
+- No authentication required.
+
+### Request Body
+{
+  "email": "user@example.com",
+  "answers": ["answer1", "answer2"],
+  "newPassword": "newPassword123"
+}
+
+### Behavior
+- Verifies both security question answers.
+- Hashes and saves the new password.
+- Clears refreshTokenHash.
+- Clears refreshTokenExpiresAt.
+
+### Responses
+200 → password reset successful
+400 → missing credentials / invalid answers / validation error
+401 → bad security answers
+404 → user not found
+500 → server error
+
+---
+
 ## POST /users/me/logout
 
 Logs out the current user.
