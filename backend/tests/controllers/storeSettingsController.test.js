@@ -151,7 +151,7 @@ describe("updateWeeklySchedule", () => {
     expect(StoreSettings.findOneAndUpdate).toHaveBeenCalledWith(
       {},
       { $set: req.body },
-      { new: true }
+      { returnDocument: "after" }
     );
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith(fakeUpdatedStore);
@@ -202,7 +202,7 @@ describe("setManualOverride", () => {
           }
         }
       },
-      { new: true }
+      { returnDocument: "after" }
     );
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith(fakeUpdatedStore);

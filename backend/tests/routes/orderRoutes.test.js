@@ -36,6 +36,7 @@ describe("Order Routes (mocked DB)", () => {
     const fakeOrder = {
       _id: "507f191e810c19729de860ea", 
       customerName: "Alice",
+      source: "MOBILE",
       orderItems: [
         {
           item: "517f191e810c19729de860ed",
@@ -57,6 +58,7 @@ describe("Order Routes (mocked DB)", () => {
         friday: { open: "00:01", close: "23:59", enabled: true },
         saturday: { open: "00:01", close: "23:59", enabled: true },
       },
+      manualOverride: { status: "open", expiresAt: null},
     });
 
     // Mock DB lookup
@@ -70,6 +72,7 @@ describe("Order Routes (mocked DB)", () => {
       .post("/orders")
       .send({
         customerName: "Alice",
+        source: "MOBILE",
         orderItems: [
           {
             item: "517f191e810c19729de860ed",
@@ -105,7 +108,9 @@ describe("Order Routes (mocked DB)", () => {
   it("should return order by id", async () => {
     const validId = "507f191e810c19729de860ea";
     const fakeOrder = {_id: `${validId}`, customerName: "Alice"};
-    Order.findById.mockResolvedValue(fakeOrder);
+    Order.findById.mockReturnValue({
+      populate: jest.fn().mockResolvedValue(fakeOrder),
+    });
     const response = await request(app).get(`/orders/${validId}`);
 
     expect(Order.findById).toHaveBeenCalledWith(`${validId}`);
