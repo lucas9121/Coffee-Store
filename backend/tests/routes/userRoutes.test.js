@@ -6,12 +6,14 @@ jest.mock("../../controllers/userController", () => ({
   loginUser: jest.fn((req, res) => res.status(200).json({ ok: true })),
   logoutUser: jest.fn((req, res) => res.status(204).send()),
   refreshAccessToken: jest.fn((req, res) => res.status(200).json({ ok: true })),
+  getForgotPasswordQuestions: jest.fn((req, res) => res.status(200).json({ ok: true })),
+  resetForgotPassword: jest.fn((req, res) => res.status(200).json({ ok: true })),
   getCurrentUser: jest.fn((req, res) => res.status(200).json({ok: true})),
   updateUserPassword: jest.fn((req, res) => res.status(200).json({ok: true})),
   updateUserProfile: jest.fn((req, res) => res.status(200).json({ok: true})),
   updateUserSecurityQuestion: jest.fn((req, res) => res.status(200).json({ok: true})),
   toggleFavorites: jest.fn((req, res) => res.status(200).json({ok: true})),
-  deleteUser: jest.fn((req, res) => res.status(204).send())
+  deleteUser: jest.fn((req, res) => res.status(204).send()),
 }));
 
 // Router.use functions
@@ -30,12 +32,14 @@ const {
   loginUser,
   logoutUser,
   refreshAccessToken,
+  getForgotPasswordQuestions,
+  resetForgotPassword,
   getCurrentUser,
   updateUserPassword,
   updateUserProfile,
   updateUserSecurityQuestion,
   toggleFavorites,
-  deleteUser
+  deleteUser,
 } = require("../../controllers/userController");
 
 describe("User Routes", () => {
@@ -112,6 +116,42 @@ describe("User Routes", () => {
     expect(res.body).toEqual({ ok: true });
     expect(refreshAccessToken).toHaveBeenCalledTimes(1);
     expect(refreshAccessToken.mock.calls[0][0].body).toEqual(reqBody);
+  });
+
+  // POST /users/forgot-password/questions
+  it("POST /users/forgot-password/questions should call getForgotPasswordQuestions", async () => {
+    const reqBody = {
+      email: "alice@email.com",
+    };
+
+    const res = await request(app)
+      .post("/users/forgot-password/questions")
+      .send(reqBody);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ ok: true });
+    expect(getForgotPasswordQuestions).toHaveBeenCalledTimes(1);
+    expect(getForgotPasswordQuestions.mock.calls[0][0].body).toEqual(reqBody);
+    expect(getForgotPasswordQuestions.mock.calls[0][0].user).toBeUndefined();
+  });
+
+  // POST /users/forgot-password/reset
+  it("POST /users/forgot-password/reset should call resetForgotPassword", async () => {
+    const reqBody = {
+      email: "alice@email.com",
+      answers: ["toyota", "fluffy"],
+      newPassword: "newPassword123",
+    };
+
+    const res = await request(app)
+      .post("/users/forgot-password/reset")
+      .send(reqBody);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ ok: true });
+    expect(resetForgotPassword).toHaveBeenCalledTimes(1);
+    expect(resetForgotPassword.mock.calls[0][0].body).toEqual(reqBody);
+    expect(resetForgotPassword.mock.calls[0][0].user).toBeUndefined();
   });
 
   // GET /users/me
