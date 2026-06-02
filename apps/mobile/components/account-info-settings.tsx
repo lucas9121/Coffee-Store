@@ -113,11 +113,11 @@ export function AccountInfoSettings({
 
       {/* Name */}
       <ThemedView style={styles.infoRow}>
-        <ThemedText type="defaultSemiBold" style={styles.infoLabel}>
+        <ThemedText type="defaultSemiBold" style={styles.accountInfo}>
           Name
         </ThemedText>
 
-        <ThemedView style={styles.infoValue}>
+        <ThemedView style={styles.accountInfo}>
           {edit ? (
             <ThemedTextInput
               value={editedName}
@@ -132,11 +132,11 @@ export function AccountInfoSettings({
 
       {/* Email */}
       <ThemedView style={styles.infoRow}>
-        <ThemedText type="defaultSemiBold" style={styles.infoLabel}>
+        <ThemedText type="defaultSemiBold" style={styles.accountInfo}>
           Email
         </ThemedText>
 
-        <ThemedView style={styles.infoValue}>
+        <ThemedView style={styles.accountInfo}>
           {edit ? (
             <ThemedTextInput
               value={editedEmail}
@@ -153,11 +153,11 @@ export function AccountInfoSettings({
 
       {/* Account */}
       <ThemedView style={styles.infoRow}>
-        <ThemedText type="defaultSemiBold" style={styles.infoLabel}>
+        <ThemedText type="defaultSemiBold" style={styles.accountInfo}>
           Account
         </ThemedText>
 
-        <ThemedView style={styles.infoValue}>
+        <ThemedView style={styles.accountInfo}>
           <ThemedText>
             {accountType === "user" ? "Customer" : accountType === "worker" ? "Employee" : accountType}
           </ThemedText>
@@ -166,26 +166,23 @@ export function AccountInfoSettings({
 
       {/* Theme */}
       <ThemedView style={styles.infoRow}>
-        <ThemedText type="defaultSemiBold" style={styles.infoLabel}>
+        <ThemedText type="defaultSemiBold" style={styles.accountInfo}>
           Theme Color
         </ThemedText>
 
-        <ThemedView style={styles.infoValue}>
-          {edit ?
-            <ThemedButton variant="ghost" size="sm" onPress={changeTheme}>{themeMode}</ThemedButton> :
-            <ThemedText style={{textTransform: "capitalize"}}>{themeMode}</ThemedText>
-          }
+        <ThemedView style={styles.accountInfo}>
+          <ThemedButton variant="ghost" size="sm" onPress={changeTheme}>{themeMode}</ThemedButton>
         </ThemedView>
       </ThemedView>
 
       {/* Password (only in edit mode) */}
       {edit && (
         <ThemedView style={styles.infoRow}>
-          <ThemedText type="defaultSemiBold" style={styles.infoLabel}>
+          <ThemedText type="defaultSemiBold" style={styles.accountInfo}>
             Password
           </ThemedText>
 
-          <ThemedView style={styles.infoValue}>
+          <ThemedView style={styles.accountInfo}>
             <ThemedTextInput
               value={currentPassword}
               onChangeText={setCurrentPassword}
@@ -244,11 +241,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
-  infoLabel: {
-    width: "40%",
-  },
-  infoValue: {
-    width: "60%",
+  accountInfo: {
+    flex: 1,
   },
   buttonRow: {
     flexDirection: "row",

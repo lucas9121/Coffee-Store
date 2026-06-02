@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { ThemedText } from "@/components/ui/themed-text";
 import { ThemedScrollView } from "@/components/ui/themed-scroll-view";
+import { ThemedView } from "./ui/themed-view";
 import { ThemedButton } from "./ui/themed-button";
 import { Section } from "@/components/section";
 import { Card } from "./card";
@@ -192,7 +193,6 @@ export default function CustomerHomeScreen({
 
   return (
     <ThemedScrollView padding="xl" gap="xl">
-
       <Section title="Store Status">
         <Card>
           {isOpen ? (
@@ -239,30 +239,28 @@ export default function CustomerHomeScreen({
       </Section>
 
       <Section title="Quick Actions">
-        <Card>
-          <View style={styles.quickActions}>
-            <ThemedButton
-              variant="primary"
-              style={{flex: 1}}
-              onPress={() => router.push("/orders")}
-            >
-              Order Now
-            </ThemedButton>
+        <ThemedView style={styles.quickActions}>
+          <ThemedButton
+            variant="primary"
+            style={{flex: 1}}
+            onPress={() => router.push("/orders")}
+          >
+            Order Now
+          </ThemedButton>
 
-            <ThemedButton
-              variant="primary"
-              style={{flex: 1}}
-              onPress={() => router.push("/settings")}
-            >
-              Settings
-            </ThemedButton>
-          </View>
-        </Card>
+          <ThemedButton
+            variant="primary"
+            style={{flex: 1}}
+            onPress={() => router.push("/settings")}
+          >
+            Settings
+          </ThemedButton>
+        </ThemedView>
       </Section>
 
       <Section title="Announcements">
         <Card>
-          <ThemedText>Welcome to the Catedral Café</ThemedText>
+          <ThemedText type="defaultSemiBold">Welcome to Catedral Café</ThemedText>
           <ThemedText>Coffee and snacks are available before and after service times.</ThemedText>
         </Card>
       </Section>
