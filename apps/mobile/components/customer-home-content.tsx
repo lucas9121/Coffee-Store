@@ -1,16 +1,18 @@
 import { useState, useEffect, useRef } from "react";
-import { StyleSheet, Pressable } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { ThemedView } from "./ui/themed-view";
 import { ThemedText } from "@/components/ui/themed-text";
 import { ThemedScrollView } from "@/components/ui/themed-scroll-view";
+import { ThemedButton } from "./ui/themed-button";
 import { Section } from "@/components/section";
 
 import { getOrderById } from "@/services/orders-api";
 import { getStoreStatus } from "@/services/store-settings";
 import { getStoreHours } from "@/services/store-settings";
+import { spacing } from "@/constants/tokens";
 
 
 type LatestOrder = {
@@ -55,12 +57,15 @@ export default function CustomerHomeScreen({
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [storeHours, setStoreHours] = useState<StoreHours | null>(null);
   const [nextOpenMessage, setNextOpenMessage] = useState("");
   const isFirstOrderLoadRef = useRef(true);
   const lastOrderSignatureRef = useRef("");
   const router = useRouter();
   const borderColor = useThemeColor({}, "border");
+  const shadowColor = useThemeColor({}, "text");
+  const cardColor = useThemeColor({}, "card");
+  const errorColor = useThemeColor({}, "danger")
+  const successColor = useThemeColor({}, "success")
 
   async function loadStoreStatus() {
     try {
@@ -114,7 +119,6 @@ export default function CustomerHomeScreen({
   async function getStoreSchedule() {
     try {
       const data = await getStoreHours();
-      setStoreHours(data.weeklySchedule);
       setNextOpenMessage(getNextOpenMessage(data.weeklySchedule));
     } catch (error) {
       console.error(error);
@@ -190,90 +194,140 @@ export default function CustomerHomeScreen({
   }, []);
 
   return (
-    <ThemedScrollView contentContainerStyle={styles.screenContent}>
+    <ThemedScrollView padding="xl" gap="xl">
 
-      {isOpen ? (
-        <ThemedView>
-          <ThemedText type="subtitle">Store is Open</ThemedText>
-          <ThemedText>Ordering is available now</ThemedText>
-        </ThemedView>
-      ) : (
-        <ThemedView>
-          <ThemedText type="subtitle">Store is Closed</ThemedText>
-          <ThemedText>{nextOpenMessage || "We look forward to serving you again soon."}</ThemedText>
-        </ThemedView>
-      )}
+      <Section title="Store Status">
+        {isOpen ? (
+          <ThemedView
+            padding="lg"
+            gap="sm"
+            radius="lg"
+            style={[styles.card, styles.cardShadow, {borderColor, shadowColor, backgroundColor: cardColor}]}
+          >
+            <ThemedText type="defaultSemiBold" style={{color: successColor}}>OPEN</ThemedText>
+            <ThemedText>Ordering is available now</ThemedText>
+          </ThemedView>
+        ) : (
+          <ThemedView
+            padding="lg"
+            gap="sm"
+            radius="lg"
+            style={[styles.card, styles.cardShadow, {borderColor, shadowColor, backgroundColor: cardColor}]}
+          >
+            <ThemedText type="defaultSemiBold" style={{color: errorColor}}>CLOSED</ThemedText>
+            <ThemedText>{nextOpenMessage || "We look forward to serving you again soon."}</ThemedText>
+          </ThemedView>
+        )}
+      </Section>
 
-      {isLoading ? (
-        <ThemedText>Loading latest order...</ThemedText>
-      ) : latestOrder ? (
-        <Section title="Latest Order">
-          <ThemedText style={{ marginTop: 8 }}>
-            Status: {latestOrder.status}
-          </ThemedText>
-
-          {latestOrder.orderItems.map((orderItem, index) => (
-            <ThemedText key={index}>
-              {orderItem.item.name} x{orderItem.quantity}
+      <Section title="Latest Order">
+        {isLoading ? (
+          <ThemedView
+            padding="lg"
+            gap="sm"
+            radius="lg"
+            style={[styles.card, styles.cardShadow, {borderColor, shadowColor, backgroundColor: cardColor}]}
+          >
+            <ThemedText>Loading latest order...</ThemedText>
+          </ThemedView>
+        ) : latestOrder ? 
+        (
+          <ThemedView
+            padding="lg"
+            gap="sm"
+            radius="lg"
+            style={[styles.card, styles.cardShadow, {borderColor, shadowColor, backgroundColor: cardColor}]}
+          >
+            <ThemedText style={{ marginTop: 8 }}>
+              Status: {latestOrder.status}
             </ThemedText>
-          ))}
 
-          <ThemedText>Total: ${latestOrder.totalPrice.toFixed(2)}</ThemedText>
-        </Section>
-      ) : hasError ? (
-        <Section title="Latest Order">
-          <ThemedText style={styles.errorText}>
-            Unable to load latest order. Please try again.
-          </ThemedText>
-        </Section>
-      ) : (
-        <Section title="Latest Order">
-          <ThemedText>No recent order yet</ThemedText>
-        </Section>
-      )}
+            {latestOrder.orderItems.map((orderItem, index) => (
+              <ThemedText key={index}>
+                {orderItem.item.name} x{orderItem.quantity}
+              </ThemedText>
+            ))}
+
+            <ThemedText>Total: ${latestOrder.totalPrice.toFixed(2)}</ThemedText>
+          </ThemedView>
+        ) : hasError ? 
+        (
+          <ThemedView
+            padding="lg"
+            gap="sm"
+            radius="lg"
+            style={[styles.card, styles.cardShadow, {borderColor, shadowColor, backgroundColor: cardColor}]}
+          >
+            <ThemedText style={{color: errorColor}}> Unable to load latest order. Please try again.</ThemedText>
+          </ThemedView>
+        ) : 
+        (
+          <ThemedView
+            padding="lg"
+            gap="sm"
+            radius="lg"
+            style={[styles.card, styles.cardShadow, {borderColor, shadowColor, backgroundColor: cardColor}]}
+          >
+            <ThemedText>No recent order yet</ThemedText>
+          </ThemedView>
+        )}
+
+      </Section>
 
       <Section title="Quick Actions">
-        <ThemedView style={styles.quickActions}>
-          <Pressable
-            style={[styles.actionButton, {borderColor}]}
-            onPress={() => router.push("/orders")}
-          >
-            <ThemedText>Order Now</ThemedText>
-          </Pressable>
+        <ThemedView 
+          padding="lg"
+          gap="sm"
+          radius="lg"
+          style={[styles.card, styles.cardShadow, {borderColor, shadowColor, backgroundColor: cardColor}]}
+        >
+          <View style={styles.quickActions}>
+            <ThemedButton
+              variant="primary"
+              style={{flex: 1}}
+              onPress={() => router.push("/orders")}
+            >
+              Order Now
+            </ThemedButton>
 
-          <Pressable
-            style={[styles.actionButton, {borderColor}]}
-            onPress={() => router.push("/settings")}
-          >
-            <ThemedText>Settings</ThemedText>
-          </Pressable>
+            <ThemedButton
+              variant="primary"
+              style={{flex: 1}}
+              onPress={() => router.push("/settings")}
+            >
+              Settings
+            </ThemedButton>
+          </View>
         </ThemedView>
       </Section>
 
       <Section title="Announcements">
-        <ThemedText>Welcome to the Church Café</ThemedText>
-        <ThemedText>Coffee and snacks are available before and after service times.</ThemedText>
+        <ThemedView
+          padding="lg"
+          gap="sm"
+          radius="lg"
+          style={[styles.card, styles.cardShadow, {borderColor, shadowColor, backgroundColor: cardColor}]}
+        >
+          <ThemedText>Welcome to the Catedral Café</ThemedText>
+          <ThemedText>Coffee and snacks are available before and after service times.</ThemedText>
+        </ThemedView>
       </Section>
     </ThemedScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  screenContent: {
-    padding: 24,
-    gap: 24,
+  card: {
+    borderWidth: 1,
   },
-  errorText: {
-    color: "#ff6b6b",
+  cardShadow: {
+    shadowOffset: { width: 0, height: spacing.xs },
+    shadowOpacity: 0.20,
+    shadowRadius: spacing.sm,
+    elevation: spacing.xs,
   },
   quickActions: {
     flexDirection: "row",
-    gap: 12,
-  },
-  actionButton: {
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    gap: spacing.md,
   },
 });
