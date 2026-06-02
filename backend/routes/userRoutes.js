@@ -7,6 +7,8 @@ const {
   logoutUser,
   refreshAccessToken,
   getCurrentUser,
+  getForgotPasswordQuestions,
+  resetForgotPassword,
   updateUserPassword,
   updateUserProfile,
   updateUserSecurityQuestion,
@@ -17,6 +19,8 @@ const {
 router.post("/", createUser);
 router.post("/login", loginUser);
 router.post("/refresh", refreshAccessToken);
+router.post("/forgot-password/questions", getForgotPasswordQuestions);
+router.post("/forgot-password/reset", resetForgotPassword);
 
 router.use("/me", requireAuth);
 
