@@ -8,6 +8,8 @@ const {
   updateUserProfile,
   toggleFavorites,
   updateUserSecurityQuestion,
+  getForgotPasswordQuestions,
+  resetForgotPassword,
   deleteUser
 } = require("../../controllers/userController");
 const User = require("../../models/User");
@@ -1492,3 +1494,262 @@ describe("deleteUser", () => {
   });
 });
 
+describe("getForgotPasswordQuestions", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  // Test 1 - Successfull Test
+  it("should return security questions without answers", async () => {
+    const req = {
+      body: { email: "  ALICE@EMAIL.COM " },
+    };
+    const res = makeRes();
+
+    const dbUser = {
+      email: "alice@email.com",
+      securityQuestions: [
+        { question: "What was your first car?", answer: "$2b$hash1" },
+        { question: "What is the name of your first pet?", answer: "$2b$hash2" },
+      ],
+    };
+
+    User.findOne.mockResolvedValue(dbUser);
+
+    await getForgotPasswordQuestions(req, res);
+
+    expect(User.findOne).toHaveBeenCalledWith({ email: "alice@email.com" });
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      securityQuestions: [
+        { question: "What was your first car?" },
+        { question: "What is the name of your first pet?" },
+      ],
+    });
+  });
+
+  // Test 2 - Missing Credentials
+  it("should return 400 when email is missing", async () => {
+    const req = { body: {} };
+    const res = makeRes();
+
+    await getForgotPasswordQuestions(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ message: "Missing Credentials" });
+    expect(User.findOne).not.toHaveBeenCalled();
+  });
+
+  // Test 4 - User not found
+  it("should return 404 when email is not found", async () => {
+    const req = {
+      body: { email: "missing@email.com" },
+    };
+    const res = makeRes();
+
+    User.findOne.mockResolvedValue(null);
+
+    await getForgotPasswordQuestions(req, res);
+
+    expect(User.findOne).toHaveBeenCalledWith({ email: "missing@email.com" });
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ message: "User not found" });
+  });
+
+  // Test 5 - Server error
+  it("should return 500 on server error", async () => {
+    const req = {
+      body: { email: "alice@email.com" },
+    };
+    const res = makeRes();
+
+    User.findOne.mockRejectedValue(new Error("DB Fail"));
+
+    await getForgotPasswordQuestions(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ message: "DB Fail" });
+  });
+});
+
+
+describe("resetForgotPassword", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  // Test 1 - Successfull password reset
+  it("should reset password, clear refresh token fields, and return success", async () => {
+    const req = {
+      body: {
+        email: "  ALICE@EMAIL.COM ",
+        answers: ["toyota", "fluffy"],
+        newPassword: "newPassword123",
+      },
+    };
+    const res = makeRes();
+
+    const dbUser = {
+      email: "alice@email.com",
+      password: "$2b$oldhash",
+      securityQuestions: [
+        { question: "What was your first car?", answer: "$2b$hash1" },
+        { question: "What is the name of your first pet?", answer: "$2b$hash2" },
+      ],
+      refreshTokenHash: "old-refresh-hash",
+      refreshTokenExpiresAt: new Date(),
+      save: jest.fn().mockResolvedValue(true),
+    };
+
+    User.findOne.mockResolvedValue(dbUser);
+    bcrypt.compare
+      .mockResolvedValueOnce(true)
+      .mockResolvedValueOnce(true);
+
+    await resetForgotPassword(req, res);
+
+    expect(User.findOne).toHaveBeenCalledWith({ email: "alice@email.com" });
+    expect(bcrypt.compare).toHaveBeenNthCalledWith(
+      1,
+      "toyota",
+      dbUser.securityQuestions[0].answer
+    );
+    expect(bcrypt.compare).toHaveBeenNthCalledWith(
+      2,
+      "fluffy",
+      dbUser.securityQuestions[1].answer
+    );
+
+    expect(dbUser.password).toBe("newPassword123");
+    expect(dbUser.refreshTokenHash).toBeUndefined();
+    expect(dbUser.refreshTokenExpiresAt).toBeUndefined();
+    expect(dbUser.save).toHaveBeenCalledTimes(1);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Password reset successful",
+    });
+  });
+
+  // Test 2 - Missing Credentials
+  it("should return 400 when required fields are missing", async () => {
+    const req = {
+      body: {
+        email: "alice@email.com",
+        answers: ["toyota", "fluffy"],
+      },
+    };
+    const res = makeRes();
+
+    await resetForgotPassword(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ message: "Missing Credentials" });
+    expect(User.findOne).not.toHaveBeenCalled();
+  });
+
+  // Test 3 - Missing answer
+  it("should return 400 when answers is not an array of 2 answers", async () => {
+    const req = {
+      body: {
+        email: "alice@email.com",
+        answers: ["toyota"],
+        newPassword: "newPassword123",
+      },
+    };
+    const res = makeRes();
+
+    await resetForgotPassword(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ message: "Invalid answers" });
+    expect(User.findOne).not.toHaveBeenCalled();
+  });
+
+  // Test 4 - User not found
+  it("should return 404 when email is not found", async () => {
+    const req = {
+      body: {
+        email: "missing@email.com",
+        answers: ["toyota", "fluffy"],
+        newPassword: "newPassword123",
+      },
+    };
+    const res = makeRes();
+
+    User.findOne.mockResolvedValue(null);
+
+    await resetForgotPassword(req, res);
+
+    expect(User.findOne).toHaveBeenCalledWith({ email: "missing@email.com" });
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ message: "User not found" });
+    expect(bcrypt.compare).not.toHaveBeenCalled();
+  });
+
+  // Test 5 - Invalid answer
+  it("should return 401 when answers are wrong", async () => {
+    const req = {
+      body: {
+        email: "alice@email.com",
+        answers: ["wrong1", "wrong2"],
+        newPassword: "newPassword123",
+      },
+    };
+    const res = makeRes();
+
+    const dbUser = {
+      securityQuestions: [
+        { question: "What was your first car?", answer: "$2b$hash1" },
+        { question: "What is the name of your first pet?", answer: "$2b$hash2" },
+      ],
+      save: jest.fn(),
+    };
+
+    User.findOne.mockResolvedValue(dbUser);
+    bcrypt.compare
+      .mockResolvedValueOnce(false)
+      .mockResolvedValueOnce(true);
+
+    await resetForgotPassword(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({ message: "Bad Credentials" });
+    expect(dbUser.save).not.toHaveBeenCalled();
+  });
+
+  // Test 6 - Server Error
+  it("should return 500 when new password fails schema validation", async () => {
+    const req = {
+      body: {
+        email: "alice@email.com",
+        answers: ["toyota", "fluffy"],
+        newPassword: "123",
+      },
+    };
+    const res = makeRes();
+
+    const validationError = new Error("User validation failed");
+
+    const dbUser = {
+      password: "$2b$oldhash",
+      securityQuestions: [
+        { question: "What was your first car?", answer: "$2b$hash1" },
+        { question: "What is the name of your first pet?", answer: "$2b$hash2" },
+      ],
+      refreshTokenHash: "old-refresh-hash",
+      refreshTokenExpiresAt: new Date(),
+      save: jest.fn().mockRejectedValue(validationError),
+    };
+
+    User.findOne.mockResolvedValue(dbUser);
+    bcrypt.compare
+      .mockResolvedValueOnce(true)
+      .mockResolvedValueOnce(true);
+
+    await resetForgotPassword(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ message: validationError.message });
+  });
+});
