@@ -11,6 +11,8 @@ describe("Order Model", () => {
     const fakeId = new mongoose.Types.ObjectId();
     const order = new Order({
       customerName: "Alice",
+      user: null,
+      source: "IN PERSON",
       orderItems:[{
         item: fakeId,
         quantity: 1,
@@ -27,7 +29,26 @@ describe("Order Model", () => {
     expect(order).toHaveProperty("createdAt");
   });
 
-  //Test 2 - Invalid name length
+  // Test 2 create schema with user
+  it("should allow user ObjectId for registered user orders", async () => {
+    const order = new Order({
+      customerName: "Alice",
+      user: new mongoose.Types.ObjectId(),
+      source: "MOBILE",
+      orderItems: [
+        {
+          item: new mongoose.Types.ObjectId(),
+          quantity: 1,
+          priceAtPurchase: 5,
+        },
+      ],
+      totalPrice: 5,
+    });
+
+    await expect(order.validate()).resolves.toBeUndefined();
+  });
+
+  //Test 3 - Invalid name length
   invalidNames = [
     'J', // too short
     'My name is too long for this schema', // too long
@@ -47,7 +68,7 @@ describe("Order Model", () => {
     });
   });
 
-  // Test 3 - Missing required item field
+  // Test 4 - Missing required item field
   it("should not allow missing item reference", async () => {
     const order = new Order({
       customerName: "Alice",
@@ -66,7 +87,7 @@ describe("Order Model", () => {
     };
   });
 
-  // Test 4 - Missing priceAtPurchase
+  // Test 5 - Missing priceAtPurchase
   it("should not allow missing priceAtPurchase", async () => {
     const order = new Order({
       customerName: "Alice",
@@ -85,7 +106,7 @@ describe("Order Model", () => {
     };
   });
 
-  // Test 5 - Missing totalPrice
+  // Test 6 - Missing totalPrice
   it("should not allow missing totalPrice", async () => {
     const order = new Order({
       customerName: "Alice",
@@ -105,7 +126,7 @@ describe("Order Model", () => {
   });
 
 
-  //Test 6 - Status change 
+  //Test 7 - Status change 
   const validStatuses = [
     "PLACED", 
     "IN PROGRESS", 
@@ -124,7 +145,7 @@ describe("Order Model", () => {
     });
   });
 
-  // Test 7 - Invalid status
+  // Test 8 - Invalid status
   it("should not allow invalid status", async () => {
     const order = new Order({
       customerName: "Alice",
@@ -140,7 +161,7 @@ describe("Order Model", () => {
     expect(error.errors.status).toBeDefined();
   });
 
-  // Test 8 - Quantity default
+  // Test 9 - Quantity default
   it("should default quantity to 1 if not provided", async () => {
     const order = new Order({
       customerName: "Alice",

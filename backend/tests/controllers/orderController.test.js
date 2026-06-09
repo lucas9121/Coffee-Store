@@ -1,12 +1,14 @@
 const { createOrder, getOrder, updateOrder, updateOrderStatus, deleteOrder } = require("../../controllers/orderController");
 const Order = require("../../models/Order");
 const OrderItem = require("../../models/OrderItem");
+const User = require("../../models/User");
 const StoreSettings = require("../../models/StoreSettings");
-const isStoreOpen = require("../../utils/isStoreOpen")
+const isStoreOpen = require("../../utils/isStoreOpen");
 
 // Replace the real Order model with a mocked version
 jest.mock("../../models/Order");
 jest.mock("../../models/OrderItem"); // for createOrder test
+jest.mock("../../models/User"); // for createOrder test
 jest.mock("../../models/StoreSettings") // for createOrder test
 jest.mock("../../utils/isStoreOpen", () => jest.fn()) // for createOrder test
 
@@ -19,7 +21,7 @@ describe("createOrder", () => {
   // Test 1 - Successfull create
   it("should create an order successfully", async () => {
     // Fake DB accepted ID
-    const fakeItemId = "507f191e810c19729de860ea";
+    const fakeItemId = "507f191e810c19729de860eb";
 
     // Fake request object
     const req = {
@@ -32,6 +34,10 @@ describe("createOrder", () => {
             quantity: 2
           }
         ]
+      },
+      user: {
+        userId: "507f191e810c19729de860ea",
+        account: "user"
       }
     };
 
@@ -62,9 +68,17 @@ describe("createOrder", () => {
       price: 5
     });
 
+    // Mock DB user search
+    User.findById.mockResolvedValue({
+      _id: "507f191e810c19729de860ea",
+      recent: [],
+      save: jest.fn().mockResolvedValue(true),
+    });
+
     // Mock database call to simulate success
     Order.create.mockResolvedValue({
       customerName: "Alice",
+      user: "507f191e810c19729de860ea",
       orderItems: [
         {
           item: fakeItemId,
@@ -83,6 +97,7 @@ describe("createOrder", () => {
     expect(Order.create).toHaveBeenCalledWith({
       customerName: "Alice",
       source: "MOBILE",
+      user: "507f191e810c19729de860ea",
       orderItems: [
         {
           item: fakeItemId,
