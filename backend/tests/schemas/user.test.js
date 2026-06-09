@@ -27,6 +27,7 @@ describe("User Model", () => {
     expect(user.account).toBe("user");
     expect(user.favorites).toEqual([]);
     expect(user.recent).toEqual([]);
+    expect(user.expoPushToken).toBeNull();
     expect(user).toHaveProperty("createdAt");
     expect(user.securityQuestions[0].question).toBe("What is the name of your first pet?");
     expect(user.securityQuestions[0].answer).toBe("pet");
@@ -34,7 +35,31 @@ describe("User Model", () => {
     expect(user.securityQuestions[1].answer).toBe("school");
   });
 
-  // Test 2 - Email lowercase and trim
+  // Test 2 - Expo token
+  it("should allow expoPushToken to be saved", async () => {
+    const user = new User({
+      name: "Alice",
+      email: "alice@email.com",
+      password: "password123",
+      expoPushToken: "ExponentPushToken[abc123]",
+      securityQuestions: [
+        {
+          question: "What was your first car?",
+          answer: "car",
+        },
+        {
+          question: "What is the name of your first pet?",
+          answer: "pet",
+        },
+      ],
+    });
+
+    await user.validate();
+
+    expect(user.expoPushToken).toBe("ExponentPushToken[abc123]");
+  });
+
+  // Test 3 - Email lowercase and trim
   it("should lowercase and trim email", () => {
     const user = new User({
       name: "George",
@@ -54,7 +79,7 @@ describe("User Model", () => {
     expect(user.email).toBe("user@email.com")
   });
 
-  // Test 3 - Required field
+  // Test 4 - Required field
   const requiredFields = ["name", "email", "password", "securityQuestions"];
   requiredFields.forEach(field => {
     it(`should require ${field}`, () => {
@@ -80,7 +105,7 @@ describe("User Model", () => {
     });
   });
 
-  // Test 4 - Require two security questions
+  // Test 5 - Require two security questions
   it("should require two security questions", () => {
     const user = new User({
       name: "George",
@@ -97,7 +122,7 @@ describe("User Model", () => {
     expect(error.errors.securityQuestions).toBeDefined();
   });
 
-  // Test 5 - Wrong security question
+  // Test 6 - Wrong security question
   it("should require correct question", () => {
     const user = new User({
       name: "George",
@@ -118,7 +143,7 @@ describe("User Model", () => {
     expect(error.errors["securityQuestions.0.question"]).toBeDefined();
   });
 
-  // Test 6 - Missing answer
+  // Test 7 - Missing answer
   it("should require an answer", () => {
     const user = new User({
       name: "George",
