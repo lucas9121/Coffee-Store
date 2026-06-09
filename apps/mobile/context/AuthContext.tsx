@@ -1,6 +1,8 @@
 import React, {createContext, useContext, useMemo, useState, useEffect} from "react";
 import { getRefreshToken, deleteRefreshToken, setRefreshToken } from "@/services/tokenStorage";
 import { logoutUser } from "@/services/auth-api";
+import { savePushToken } from "@/services/user-api";
+import { registerForPushNotificationsAsync } from "@/services/notifications";
 
 type AccountType = "guest" | "user" | "worker";
 
@@ -58,6 +60,21 @@ export function AuthProvider({children} : {children: React.ReactNode}){
     }
   };
 
+  async function registerPushTokenForUser(token: string, type: AccountType) {
+    if (type !== "user") return;
+    if (token.startsWith("mock-")) return;
+
+    try {
+      const expoPushToken = await registerForPushNotificationsAsync();
+
+      if (!expoPushToken) return;
+
+      await savePushToken({ expoPushToken }, token);
+    } catch (error) {
+      console.error("Unable to register push token:", error);
+    }
+  }
+
   async function login(
     accessToken: string,
     refreshToken: string | null = null,
@@ -73,6 +90,7 @@ export function AuthProvider({children} : {children: React.ReactNode}){
     setAccessToken(accessToken);
     setAccountType(accountType);
     setIsInitializing(false);
+    await registerPushTokenForUser(accessToken, accountType);
   };
 
   useEffect(() => {
