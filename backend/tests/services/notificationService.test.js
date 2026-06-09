@@ -1,73 +1,61 @@
-
-const mockChunkPushNotifications = jest.fn();
-const mockSendPushNotificationsAsync = jest.fn();
-
-jest.mock("expo-server-sdk", () => {
-  return {
-    Expo: jest.fn().mockImplementation(() => ({
-      chunkPushNotifications: mockChunkPushNotifications,
-      sendPushNotificationsAsync: mockSendPushNotificationsAsync,
-    })),
-  };
-});
-
-const { Expo } = require("expo-server-sdk");
 const { sendPushNotification } = require("../../services/notifications");
 
 describe("notificationService", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+
+    global.fetch = jest.fn().mockResolvedValue({
+      json: jest.fn().mockResolvedValue({
+        data: {
+          status: "ok",
+        },
+      }),
+    });
   });
 
-  // Test 1 - Success notification
-  it("should send a push notification with valid Expo token", async () => {
-    Expo.isExpoPushToken = jest.fn().mockReturnValue(true);
-
-    const chunk = [
-      {
-        to: "ExponentPushToken[abc123]",
-        sound: "default",
-        title: "Order Ready",
-        body: "Your order is ready for pickup.",
-      },
-    ];
-
-    mockChunkPushNotifications.mockReturnValue([chunk]);
-    mockSendPushNotificationsAsync.mockResolvedValue([{ status: "ok" }]);
-
-    await sendPushNotification(
+  // Test 1 - Successfull test
+  it("should send a push notification with fetch", async () => {
+    const result = await sendPushNotification(
       "ExponentPushToken[abc123]",
       "Order Ready",
       "Your order is ready for pickup."
     );
 
-    expect(Expo.isExpoPushToken).toHaveBeenCalledWith("ExponentPushToken[abc123]");
-
-    expect(mockChunkPushNotifications).toHaveBeenCalledWith([
+    expect(global.fetch).toHaveBeenCalledWith(
+      "https://exp.host/--/api/v2/push/send",
       {
-        to: "ExponentPushToken[abc123]",
-        sound: "default",
-        title: "Order Ready",
-        body: "Your order is ready for pickup.",
-      },
-    ]);
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Accept-Encoding": "gzip, deflate",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          to: "ExponentPushToken[abc123]",
+          sound: "default",
+          title: "Order Ready",
+          body: "Your order is ready for pickup.",
+        }),
+      }
+    );
 
-    expect(mockSendPushNotificationsAsync).toHaveBeenCalledWith(chunk);
+    expect(result).toEqual({
+      data: {
+        status: "ok",
+      },
+    });
   });
 
-  // Test 2 - Invalid token
-  it("should throw an error for invalid Expo token", async () => {
-    Expo.isExpoPushToken = jest.fn().mockReturnValue(false);
-
+  // Test 2 - Missing token
+  it("should throw an error when expoPushToken is missing", async () => {
     await expect(
       sendPushNotification(
-        "bad-token",
+        "",
         "Order Ready",
         "Your order is ready for pickup."
       )
-    ).rejects.toThrow("Invalid Expo push token");
+    ).rejects.toThrow("Missing Expo push token");
 
-    expect(mockChunkPushNotifications).not.toHaveBeenCalled();
-    expect(mockSendPushNotificationsAsync).not.toHaveBeenCalled();
+    expect(global.fetch).not.toHaveBeenCalled();
   });
 });

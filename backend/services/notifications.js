@@ -1,26 +1,26 @@
-const { Expo } = require("expo-server-sdk");
-
-const expo = new Expo();
-
 async function sendPushNotification(expoPushToken, title, body) {
-  if (!Expo.isExpoPushToken(expoPushToken)) {
-    throw new Error("Invalid Expo push token");
+  if (!expoPushToken) {
+    throw new Error("Missing Expo push token");
   }
 
-  const messages = [
-    {
-      to: expoPushToken,
-      sound: "default",
-      title,
-      body,
+  const message = {
+    to: expoPushToken,
+    sound: "default",
+    title,
+    body,
+  };
+
+  const response = await fetch("https://exp.host/--/api/v2/push/send", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Accept-Encoding": "gzip, deflate",
+      "Content-Type": "application/json",
     },
-  ];
+    body: JSON.stringify(message),
+  });
 
-  const chunks = expo.chunkPushNotifications(messages);
-
-  for (const chunk of chunks) {
-    await expo.sendPushNotificationsAsync(chunk);
-  }
+  return response.json();
 }
 
 module.exports = {
