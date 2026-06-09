@@ -11,9 +11,19 @@ import { useThemeColor } from '@/hooks/use-theme-color';
 import { CartProvider } from '@/context/CartContext';
 import { OrderProvider } from '@/context/OrderContext';
 import { Image } from 'react-native';
-
-import { ThemedText } from '@/components/ui/themed-text';
 import { ThemedView } from '@/components/ui/themed-view';
+import * as Notifications from "expo-notifications";
+
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
 
 export const unstable_settings = {
   anchor: '(tabs)',

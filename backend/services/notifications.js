@@ -20,7 +20,8 @@ async function sendPushNotification(expoPushToken, title, body) {
     body: JSON.stringify(message),
   });
 
-  return response.json();
+  const data = await response.json();
+  return data;
 }
 
 module.exports = {
