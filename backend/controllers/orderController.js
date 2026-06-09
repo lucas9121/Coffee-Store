@@ -2,7 +2,9 @@ const Order = require('../models/Order');
 const User = require("../models/User"); //createOrder
 const mongoose = require("mongoose")
 const OrderItem = require("../models/OrderItem")
-const StoreSettings = require("../models/StoreSettings")
+const StoreSettings = require("../models/StoreSettings");
+const User = require("../models/User");
+const { sendPushNotification } = require("../services/notifications");
 
 const isStoreOpen = require("../utils/isStoreOpen");
 
@@ -133,24 +135,51 @@ async function updateOrder(req, res){
 
 async function updateOrderStatus(req, res){
   try {
-    if(!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({message: "Invalid ID"});
-    };
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid ID" });
+    }
 
     const updatedOrder = await Order.findByIdAndUpdate(
-      req.params.id, 
-      {status: req.body.status}, // Only allow status
-      { new:true, runValidators: true }
+      req.params.id,
+      { status: req.body.status },
+      { new: true, runValidators: true }
     );
 
-    if(!updatedOrder) return res.status(404).json({message: "Order not found"});
+    if (!updatedOrder) {
+      return res.status(404).json({ message: "Order not found" });
+    }
 
+    if (updatedOrder.user) {
+      const user = await User.findById(updatedOrder.user);
+
+      if (user?.expoPushToken) {
+        let title;
+        let body;
+        switch (updatedOrder.status) {
+          case "IN PROGRESS":
+            title = "Order Update";
+            body = "Your order is now being prepared.";
+            break;
+          case "READY":
+            title = "Order Ready";
+            body = "Your order is ready for pickup.";
+            break;
+          case "COMPLETED":
+            title = "Order Complete";
+            body = "Thank you for your order.";
+            break;
+        }
+        if (title && body) {
+          await sendPushNotification(user.expoPushToken, title, body);
+        }
+      }
+    }
     return res.status(200).json(updatedOrder);
 
   } catch (error) {
-    return res.status(400).json({message: error.message});
-  };
-};
+    return res.status(400).json({ message: error.message });
+  }
+}
 
 async function updateOrderPayment(req, res) {
   try {
