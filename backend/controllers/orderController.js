@@ -58,6 +58,7 @@ async function createOrder(req, res){
     // Create order ONCE with trusted values
     const order =  await Order.create({
       customerName,
+      user: user ? user._id : null,
       orderItems,
       source,
       totalPrice: finalPrice

@@ -9,6 +9,11 @@ const orderSchema = new mongoose.Schema(
       minlength: 2,
       trim: true
     },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
     status: {
       type: String, 
       enum: ["PLACED", "IN PROGRESS", "READY", "COMPLETED", "CANCELLED"], 
