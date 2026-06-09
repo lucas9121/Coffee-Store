@@ -13,6 +13,7 @@ const {
   updateUserProfile,
   updateUserSecurityQuestion,
   toggleFavorites,
+  updatePushToken,
   deleteUser 
 } = require("../controllers/userController");
 
@@ -29,6 +30,7 @@ router.post("/me/logout", logoutUser);
 router.patch("/me/password", updateUserPassword);
 router.patch("/me/profile", updateUserProfile);
 router.patch("/me/security-question", updateUserSecurityQuestion);
+router.patch("/me/push-token", updatePushToken);
 router.patch("/me/favorites/:orderItemId", toggleFavorites);
 router.delete("/me", deleteUser);
 

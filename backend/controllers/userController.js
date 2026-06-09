@@ -19,6 +19,7 @@ module.exports = {
   updateUserProfile,
   toggleFavorites,
   updateUserSecurityQuestion,
+  updatePushToken,
   deleteUser 
 };
 
@@ -340,6 +341,31 @@ async function updateUserSecurityQuestion(req, res) {
     return res.status(500).json({message: error.message})
   };
 };
+
+
+async function updatePushToken(req, res) {
+  try {
+    const userId = req.user.userId;
+    const { expoPushToken } = req.body;
+
+    if (!expoPushToken) {
+      return res.status(400).json({ message: "Missing expo push token" });
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(401).json({ message: "No user found" });
+    }
+
+    user.expoPushToken = expoPushToken;
+    await user.save();
+
+    return res.status(200).json({ message: "Push token saved" });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+}
 
 
 async function deleteUser(req, res) {
