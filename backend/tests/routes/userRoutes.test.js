@@ -13,6 +13,7 @@ jest.mock("../../controllers/userController", () => ({
   updateUserProfile: jest.fn((req, res) => res.status(200).json({ok: true})),
   updateUserSecurityQuestion: jest.fn((req, res) => res.status(200).json({ok: true})),
   toggleFavorites: jest.fn((req, res) => res.status(200).json({ok: true})),
+  updatePushToken: jest.fn((req, res) => res.status(200).json({ ok: true })),
   deleteUser: jest.fn((req, res) => res.status(204).send()),
 }));
 
@@ -39,6 +40,7 @@ const {
   updateUserProfile,
   updateUserSecurityQuestion,
   toggleFavorites,
+  updatePushToken,
   deleteUser,
 } = require("../../controllers/userController");
 
@@ -237,6 +239,28 @@ describe("User Routes", () => {
       expect.objectContaining({
         userId: "507f191e810c19729de860ea", 
         account: "user"
+      })
+    );
+  });
+
+  // PATCH /users/me/push-token
+  it("PATCH /users/me/push-token should call updatePushToken", async () => {
+    const reqBody = {
+      expoPushToken: "ExponentPushToken[abc123]",
+    };
+
+    const res = await request(app)
+      .patch("/users/me/push-token")
+      .send(reqBody);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ ok: true });
+    expect(updatePushToken).toHaveBeenCalledTimes(1);
+    expect(updatePushToken.mock.calls[0][0].body).toEqual(reqBody);
+    expect(updatePushToken.mock.calls[0][0].user).toEqual(
+      expect.objectContaining({
+        userId: "507f191e810c19729de860ea",
+        account: "user",
       })
     );
   });
