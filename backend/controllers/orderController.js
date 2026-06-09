@@ -3,7 +3,6 @@ const User = require("../models/User"); //createOrder
 const mongoose = require("mongoose")
 const OrderItem = require("../models/OrderItem")
 const StoreSettings = require("../models/StoreSettings");
-const User = require("../models/User");
 const { sendPushNotification } = require("../services/notifications");
 
 const isStoreOpen = require("../utils/isStoreOpen");
