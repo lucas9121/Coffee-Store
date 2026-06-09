@@ -46,6 +46,13 @@ export async function toggleFavoriteItem(
   return await sendRequest(`${BASE_URL}/favorites/${itemId}`, "PATCH", null, token);
 };
 
+export async function savePushToken(
+  payload: { expoPushToken: string },
+  token: string | null
+) {
+  return await sendRequest(`${BASE_URL}/push-token`, "PATCH", payload, token);
+};
+
 export async function deleteUser(
   payload: { password: string },
   token: string | null
