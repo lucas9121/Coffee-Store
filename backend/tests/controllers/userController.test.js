@@ -10,6 +10,7 @@ const {
   updateUserSecurityQuestion,
   getForgotPasswordQuestions,
   resetForgotPassword,
+  updatePushToken,
   deleteUser
 } = require("../../controllers/userController");
 const User = require("../../models/User");
@@ -1751,5 +1752,111 @@ describe("resetForgotPassword", () => {
 
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({ message: validationError.message });
+  });
+});
+
+
+describe("updatePushToken", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  // Test 1 - Success
+  it("should save expo push token", async () => {
+    const req = {
+      user: {
+        userId: "507f191e810c19729de860ea",
+      },
+      body: {
+        expoPushToken: "ExponentPushToken[abc123]",
+      },
+    };
+
+    const res = makeRes();
+
+    const dbUser = {
+      _id: req.user.userId,
+      expoPushToken: null,
+      save: jest.fn().mockResolvedValue(true),
+    };
+
+    User.findById.mockResolvedValue(dbUser);
+
+    await updatePushToken(req, res);
+
+    expect(dbUser.expoPushToken).toBe("ExponentPushToken[abc123]");
+    expect(dbUser.save).toHaveBeenCalledTimes(1);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Push token saved",
+    });
+  });
+
+  // Test 2 - Missing token
+  it("should return 400 when token is missing", async () => {
+    const req = {
+      user: {
+        userId: "507f191e810c19729de860ea",
+      },
+      body: {},
+    };
+
+    const res = makeRes();
+
+    await updatePushToken(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Missing expo push token",
+    });
+
+    expect(User.findById).not.toHaveBeenCalled();
+  });
+
+  // Test 3 - User not found
+  it("should return 401 when user is not found", async () => {
+    const req = {
+      user: {
+        userId: "507f191e810c19729de860ea",
+      },
+      body: {
+        expoPushToken: "ExponentPushToken[abc123]",
+      },
+    };
+
+    const res = makeRes();
+
+    User.findById.mockResolvedValue(null);
+
+    await updatePushToken(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "No user found",
+    });
+  });
+
+  // Test 4 - Server error
+  it("should return 500 on server error", async () => {
+    const req = {
+      user: {
+        userId: "507f191e810c19729de860ea",
+      },
+      body: {
+        expoPushToken: "ExponentPushToken[abc123]",
+      },
+    };
+
+    const res = makeRes();
+
+    User.findById.mockRejectedValue(new Error("DB Fail"));
+
+    await updatePushToken(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "DB Fail",
+    });
   });
 });
