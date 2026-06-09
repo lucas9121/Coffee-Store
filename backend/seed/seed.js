@@ -211,6 +211,7 @@ async function seed() {
       email,
       password,
       account: "user",
+      expoPushToken: null,
       securityQuestions: [
         { question: q1, answer: "seedAnswer1" },
         { question: q2, answer: "seedAnswer2" },
@@ -270,11 +271,13 @@ async function seed() {
 
     let customerName;
     let source;
+    let user = null;
 
     if (fromUser) {
       const pickedUser = sampleOne(freshCustomerUsers);
       customerName = pickedUser.name;
       source = customerSourceMap.get(pickedUser._id.toString());
+      user = pickedUser._id
     } else {
       const guestName = sampleOne(GUEST_NAMES);
       customerName = guestName;
@@ -305,6 +308,7 @@ async function seed() {
 
     ordersToCreate.push({
       customerName,
+      user,
       status,
       source,
       orderItems: orderItemsPayload,
