@@ -33,8 +33,19 @@ Represents a customer order placed through the kiosk.
 
 ---
 
-### source
+### user
+- Type: ObjectId
+- Ref: User
+- Default: null
+- Purpose: Links an order to the registered customer who placed it.
+- Notes:
+  - Guest orders store user as null.
+  - Authenticated customer orders store the user’s ObjectId.
+  - This supports push notifications and future order history features.
 
+---
+
+### source
 - Type: String
 - Enum:
   - MOBILE
@@ -45,7 +56,6 @@ Represents a customer order placed through the kiosk.
 ---
 
 ### isPaid
-
 - Type: Boolean
 - Default: false
 - Purpose: Tracks whether the order has been paid for.
@@ -55,9 +65,6 @@ Represents a customer order placed through the kiosk.
 ### orderItems (Array)
 
 Each order contains one or more order items.
-
-Structure:
-
 - item
   - Type: ObjectId
   - Ref: OrderItem
@@ -116,7 +123,6 @@ Represents a purchasable menu item.
 ---
 
 ### category
-
 - Type: String
 - Enum:
   - coffee
@@ -148,11 +154,7 @@ Only one StoreSettings document is expected in the system.
 ---
 
 ## weeklySchedule
-
 Defines operating hours for each day of the week.
-
-Structure for each day (Sunday – Saturday):
-
 - open: String
 - close: String
 - enabled: Boolean
@@ -240,10 +242,19 @@ Represents a user of the ChurchKiosk system. Users can be customers (user), empl
 
 --- 
 
+### expoPushToken
+- Type: String
+- Default: null
+- Required: No
+- Purpose: Stores the user’s Expo push notification token.
+- Notes:
+  - Only one device token is stored per user for now.
+  - Used by the backend to send order status notifications.
+
+---
+
 ### securityQuestions (Array – 2 items)
 Each user must select two security questions and provide answers.
-
-Structure:
 - question
   - Type: String
   - Enum:
@@ -273,18 +284,13 @@ Structure:
 ### favorites (Array)
 
 References to OrderItem documents that the user has marked as favorite.
-
-Structure:
 - Type: ObjectId
 - Ref: OrderItem
 
 ---
 
 ### recent (Array)
-
 References to recent OrderItem documents the user has purchased.
-
-Structure:
 - Type: ObjectId
 - Ref: OrderItem
 

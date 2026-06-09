@@ -34,6 +34,13 @@ Creates a new order.
 - If a valid authenticated user is present on the request (`req.user`):
   - Updates the user’s `recent` purchases list
   - Ensures uniqueness and keeps a maximum of 5 items (newest first)
+- If a valid authenticated user is present on the request (req.user):
+  - Updates the user’s recent purchases list
+  - Ensures uniqueness and keeps a maximum of 5 items (newest first)
+  - Stores the authenticated user’s ID on the order using the user field
+- If no authenticated user is present:
+  - Creates the order as a guest order
+  - Stores user as null
 
 ### Responses
 - 201 → returns created order
@@ -106,6 +113,20 @@ Updates only the order status.
 - 400 → invalid ID or invalid status
 - 401 → unauthorized
 - 403 → forbidden (insufficient role)
+
+### Behavior
+- Updates only the order status.
+- If the order belongs to a registered user and that user has an expoPushToken, the backend sends an Expo push notification for these statuses:
+  - IN PROGRESS
+    - Title: "Order Update"
+    - Body: "Your order is now being prepared."
+  - READY
+    - Title: "Order Ready"
+    - Body: "Your order is ready for pickup."
+  - COMPLETED
+    - Title: "Order Complete"
+    - Body: "Thank you for your order."
+- No notification is sent for guest orders, users without a push token, PLACED, or CANCELLED.
 
 ---
 
@@ -544,6 +565,30 @@ Toggles favorite status for a menu item.
 - 400 → invalid ID
 - 401 → unauthorized
 - 404 → item not found
+- 500 → server error
+
+---
+
+## PATCH /users/me/push-token
+
+Saves the current user’s Expo push notification token.
+
+### Auth
+- Requires authentication
+
+### Request Body
+{ 
+  "expoPushToken": "ExponentPushToken[...]" 
+}
+
+### Behavior
+- Stores the Expo push token on the authenticated user.
+- Only one device token is stored per user for now.
+
+### Responses
+- 200 → push token saved
+- 400 → missing expo push token
+- 401 → unauthorized / user not found
 - 500 → server error
 
 ---
