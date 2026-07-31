@@ -41,19 +41,19 @@ apps/mobile/
 │
 ├── app/                              # Expo Router routes
 │   ├── _layout.tsx                   # Root navigation + providers wrapper
-│   ├── modal.tsx                     # Default Expo modal route (optional)
+│   ├── cart.tsx                      # Cart / checkout modal
+│   ├── guest-checkout.tsx            # Guest checkout modal
+│   │
 │   ├── (tabs)/                       # Bottom tab navigator group
 │   │   ├── _layout.tsx               # Tabs layout (Home / Orders / Settings)
-│   │   ├── index.tsx                 # Home tab screen (placeholder)
-│   │   ├── orders.tsx                # Orders tab screen (placeholder)
-│   │   └── settings.tsx              # Settings tab screen (placeholder)
+│   │   ├── index.tsx                 # Home tab
+│   │   ├── orders.tsx                # Orders tab
+│   │   └── settings.tsx              # Settings tab
 │   │
-│   └── (auth)/                       
-│       └── login.tsx   
-│
-├── context/                          # Global state providers (React Context)
-│   ├── AuthContext.tsx               # accountType (guest/user/worker)
-│   └── ThemeContext.tsx              # themeMode (system/light/dark)
+│   └── (auth)/                       # Authentication routes
+│       ├── login.tsx                 # User login
+│       ├── signup.tsx                # User registration
+│       └── forgot-password.tsx       # Password recovery  
 │
 ├── assets/                           # Images/fonts (e.g., splash/loading image)
 │   └── images/
@@ -61,23 +61,36 @@ apps/mobile/
 │
 ├── components/                       # Reusable UI components
 │   ├── ui/                           # Base themed UI primitives
+│   │   ├── themed-button.tsx         # Shared themed button component
 │   │   ├── themed-text.tsx           # ThemedText wrapper (light/dark aware)
 │   │   ├── themed-view.tsx           # ThemedView wrapper (light/dark aware)
 │   │   ├── themed-scroll-view.tsx    # ThemedScrollView wrapper
-│   │   ├── themed-text-input.tsx     # ThemedTextInput wrapper
-│   │   ├── collapsible.tsx
-│   │   ├── icon-symbol.tsx
-│   │   └── icon-symbol.ios.tsx
-│   ├── cart-button.tsx               # Floating cart button (opens cart modal)
+│   │   └── themed-text-input.tsx     # ThemedTextInput wrapper
+│   │
+│   ├── app-header.tsx                # Shared page header
+│   ├── card.tsx                      # Shared card container
+│   ├── cart-button.tsx               # Floating cart button
+│   ├── cart-item-row.tsx             # Cart item row
+│   ├── customer-home-content.tsx     # Customer Home tab UI
+│   ├── customer-orders-content.tsx   # Customer Orders tab UI
+│   ├── guest-settings-content.tsx    # Guest Settings tab UI
 │   ├── horizontal-list.tsx           # Reusable horizontal FlatList wrapper
+│   ├── login-form.tsx                # Shared login form
 │   ├── menu-card.tsx                 # Menu item card component
 │   ├── section.tsx                   # Section container with title
-│   ├── customer-orders-content.tsx   # Customer Orders tab UI
+│   ├── worker-home-content.tsx       # Worker Home tab UI
 │   └── worker-orders-content.tsx     # Worker Orders tab UI
 │
 ├── constants/
-│   ├── theme.ts                      # Colors + fonts (light/dark palettes)
+│   ├── theme.ts                      # Colors (light/dark palettes)
+│   ├── tokens.ts                     # Shared spacing, radius, typography, sizing
 │   └── mock-menu-data.ts             # Temporary menu data (to be replaced by API)
+│
+├── context/                          # Global state providers (React Context)
+│   ├── AuthContext.tsx               # Authentication + access token state
+│   ├── CartContext.tsx               # Shopping cart state
+│   ├── OrderContext.tsx              # Latest customer order state
+│   └── ThemeContext.tsx              # Theme mode (system/light/dark)
 │
 ├── hooks/
 │   ├── use-color-scheme.ts           # Native color scheme hook
@@ -88,7 +101,14 @@ apps/mobile/
 │   └── reset-project.js              # Expo template utility script (optional)
 │
 ├── services/
-│   └── tokenStorage.ts
+│   ├── api.ts                        # Shared API request helper
+│   ├── auth-api.ts                   # Authentication API
+│   ├── menu-api.ts                   # Menu API
+│   ├── notifications.ts              # Expo push notification registration
+│   ├── orders-api.ts                 # Orders API
+│   ├── store-settings.ts             # Store status / schedule API
+│   ├── tokenStorage.ts               # SecureStore refresh token helpers
+│   └── user-api.ts                   # User profile API
 │
 ├── .vscode/                          # Local editor config (optional)
 │
@@ -134,8 +154,9 @@ backend/
 │   └── optionalAuth.js
 │
 ├── utils/
-│   ├── isStoreOpen.js
-│   └── token.js
+│   ├── isStoreOpen.js                
+│   ├── notifications.js              
+│   └── token.js                      
 │
 ├── config/
 │   └── db.js          # MongoDB connection logic

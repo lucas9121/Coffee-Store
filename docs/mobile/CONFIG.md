@@ -48,14 +48,36 @@ The current mobile implementation includes:
 
 - auth bootstrap on app start
 - refresh token lookup from secure storage
-- `login()` context action
-- `logout()` context action
+- login/logout using the backend API
+- secure refresh token persistence
 - initialization gate using `isInitializing`
+- authenticated API requests using in-memory access tokens
+- guest checkout support
+- password recovery
+- Expo push notification registration after login
 
-Backend API login and refresh requests are **not wired yet**. Current login flow still includes temporary developer shortcuts for role switching while frontend screens are being built.
+## Installed Mobile Dependencies
 
-## Installed Mobile Auth Dependency
+Authentication
 
 - `expo-secure-store`
+  - Secure refresh token storage
 
-This package is used for secure refresh token persistence on supported native platforms.
+Notifications
+
+- `expo-notifications`
+  - Push notification registration
+  - Foreground notification handling
+
+## Expo Configuration
+
+The mobile app is configured through `app.json`.
+
+Current configuration includes:
+
+- application icons
+- splash screen
+- Expo Router
+- Secure Store
+- EAS project configuration
+- Expo project ID (required for push notifications)

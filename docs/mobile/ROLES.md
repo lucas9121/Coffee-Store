@@ -11,8 +11,11 @@ The mobile app supports three roles.
 Guests:
 
 - can browse the menu
-- can place orders
+- can place guest orders
+- can use guest checkout
+- can access Login and Sign Up
 - cannot save favorites
+- cannot receive order notifications
 - cannot access account-only features
 - do not require login or tokens
 
@@ -23,7 +26,9 @@ Users:
 - full customer functionality
 - favorites
 - recents
-- order history
+- live order tracking
+- push notifications
+- password recovery
 - authenticated customer experience
 
 ## worker
@@ -33,3 +38,4 @@ Workers:
 - order management
 - store open / close controls
 - in-person order creation
+- update customer order status

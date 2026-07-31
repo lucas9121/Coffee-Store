@@ -1,37 +1,98 @@
 # Project Status
 
 ## Completed
-- Backend architecture (monorepo + Express API)
-- MongoDB data models (Order, OrderItem, StoreSettings, User)
-- Order creation logic
+
+### Backend
+- Backend architecture (Express + MongoDB monorepo)
+- MongoDB data models
+  - Order
+  - OrderItem
+  - StoreSettings
+  - User
+- Order creation
   - Server-side price locking
-  - Total price calculation
+  - Total calculation
   - Store open/close enforcement
-  - Optional user `recent` purchase tracking
-- Store schedule management
+  - Guest and authenticated checkout
+  - Order ownership for authenticated users
+- Store management
   - Weekly schedule
-  - Manual open/close override with expiration
-- Authentication system
-  - JWT-based access tokens
-  - Role-based access (user / worker / admin)
-  - Refresh token flow for customers (mobile)
+  - Manual open/close override
+  - Public store status endpoints
+- Authentication
+  - JWT access tokens
+  - Refresh token flow
+  - Role-based authorization
   - Logout token revocation
+  - Password recovery using security questions
+- User features
+  - Favorites
+  - Recent purchases
+  - Expo push token registration
+- Push notification support
+  - Stores Expo push tokens
+  - Sends notifications for:
+    - IN PROGRESS
+    - READY
+    - COMPLETED
 - Authorization middleware
   - `requireAuth`
   - `authorizeRoles`
-- Full test coverage
+  - `optionalAuth`
+- Full automated testing
   - Controllers
   - Routes
   - Middleware
-  - Schemas
+  - Models
+- Development seed data
 - API contracts documented
-- Database seed data (development)
-- Mobile wireframe (Expo / React Native)
+
+### Mobile App
+- Mobile application architecture
+- Theme system
+  - Light/Dark mode
+  - Design tokens
+  - Shared themed components
+- Shared UI components
+  - AppHeader
+  - ThemedButton
+  - Card
+  - Inputs
+  - ScrollView
+- Authentication
+  - Login
+  - Signup
+  - Logout
+  - Forgot Password
+  - Guest checkout flow
+- Customer experience
+  - Home dashboard
+  - Live latest order
+  - Store status
+  - Quick actions
+  - Announcements
+  - Menu browsing
+  - Cart
+  - Checkout
+  - Favorites
+- Worker experience
+  - Order management
+  - In-person ordering
+  - Store open/close controls
+- Notifications
+  - Push notification registration
+  - Foreground notification handling
+- Loading screen
+- App icons
+- Navigation
+  - Role-based tabs
+  - Authentication modals
 
 ## In Progress
-- Mobile build steps (mobile-first)
+- Admin web dashboard
 
 ## Planned
-- Admin web frontend
+- Production deployment
 - CI/CD pipeline
-- Deployment
+- App Store & Google Play release
+- Face ID / biometric login

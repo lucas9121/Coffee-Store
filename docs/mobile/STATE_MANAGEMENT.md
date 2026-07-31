@@ -26,6 +26,8 @@ Used for:
 - auth/session state
 - app-start auth initialization
 - login/logout actions
+- authenticated API requests
+- push notification registration after login
 - future token refresh flow
 
 ### Current Auth Behavior
@@ -36,7 +38,8 @@ Current bootstrap flow:
 
 1. read refresh token from secure storage
 2. set `hasRefreshToken`
-3. set `isInitializing` to `false`
+3. complete auth initialization
+4. set `isInitializing` to `false`
 
 This allows the app to pause UI rendering until auth initialization finishes.
 
@@ -85,6 +88,41 @@ Current behavior:
 - `light`
 - `dark`
 
+## CartContext
+
+`CartContext` manages the customer's shopping cart.
+
+### Stores
+
+- `cartItems`
+- `setCartItems`
+
+### Purpose
+
+Used for:
+
+- cart persistence during the current session
+- quantity updates
+- checkout
+- floating cart badge
+
+## OrderContext
+
+`OrderContext` manages the customer's latest order.
+
+### Stores
+
+- `latestOrderId`
+- `setLatestOrderId`
+
+### Purpose
+
+Used for:
+
+- tracking the most recent order
+- displaying live order status on the Home screen
+- polling for status changes after checkout
+
 ## Local Component State
 
 Screens manage local UI state using `useState`.
@@ -98,10 +136,17 @@ Examples:
 
 ## Reusable Themed Components
 
-The app currently includes reusable theme-aware wrappers:
+The app includes reusable theme-aware UI primitives:
 
+- `ThemedButton`
+- `ThemedScrollView`
 - `ThemedText`
-- `ThemedView`
 - `ThemedTextInput`
+- `ThemedView`
 
-These help keep light/dark mode behavior consistent across screens and reduce repeated styling logic.
+Higher-level shared components include:
+
+- `AppHeader`
+- `Card`
+- `LoginForm`
+- `Section`
