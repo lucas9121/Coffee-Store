@@ -1,17 +1,19 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
+    "name": "Catedral Café",
+    "slug": "catedral-cafe",
+    "scheme": "catedralcafe",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.PNG",
-    "scheme": "mobile",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
+      "bundleIdentifier": "com.lucascarlos.catedralcafe",
       "supportsTablet": true
     },
     "android": {
+      "package": "com.lucascarlos.catedralcafe",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/icon.PNG",
