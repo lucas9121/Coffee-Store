@@ -46,7 +46,7 @@ export function AuthProvider({children} : {children: React.ReactNode}){
   async function logout(): Promise<void> {
     try {
       // call backend only if there is a real token
-      if(accessToken && !accessToken.startsWith("mock-")) {
+      if(accessToken) {
         await logoutUser(accessToken);
       }
     } catch (error) {
@@ -62,20 +62,11 @@ export function AuthProvider({children} : {children: React.ReactNode}){
 
   async function registerPushTokenForUser(token: string, type: AccountType) {
     if (type !== "user") return;
-    if (token.startsWith("mock-")) return;
-
-    console.log("push function")
 
     try {
-      console.log("Registering push token...");
       const expoPushToken = await registerForPushNotificationsAsync();
-      console.log("Expo push token:", expoPushToken);
-
       if (!expoPushToken) return;
-
-      console.log("Saving push token to backend...");
       await savePushToken({ expoPushToken }, token);
-      console.log("Push token saved.");
     } catch (error) {
       console.error("Unable to register push token:", error);
     }
