@@ -72,16 +72,6 @@ export default function LoginForm({title, fromCheckout, sessionExpired, showGues
     }
   };
 
-  async function handleUserLogin() {
-    await login("mock-access-token-user", "mock-refresh-token-user", "user");
-    router.replace("/");
-  };
-
-  async function handleWorkerLogin() {
-    await login("mock-access-token-worker", "mock-refresh-token-worker", "worker");
-    router.replace("/");
-  };
-
   return (
     <KeyboardAvoidingView 
       style={{flex: 1}}
