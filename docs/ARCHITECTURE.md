@@ -98,7 +98,6 @@ apps/mobile/
 │   └── use-theme-color.ts            # Theme color resolver helper
 │
 ├── scripts/
-│   └── reset-project.js              # Expo template utility script (optional)
 │
 ├── services/
 │   ├── api.ts                        # Shared API request helper
