@@ -277,7 +277,6 @@ Each user must select two security questions and provide answers.
 - Hashing ensures answers are securely stored.
 - Deleting a user removes the User document only.
 - Orders are not cascade-deleted.
-- Current orders are not linked to users by ObjectId, so historical order records remain independent.
 
 --- 
 
