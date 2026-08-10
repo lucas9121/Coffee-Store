@@ -88,8 +88,30 @@
   - Role-based tabs
   - Authentication modals
 
+### Admin Web
+- Vite + React application initialized
+- React Router configured
+- Admin authentication foundation
+  - Login using shared backend authentication
+  - Admin-only account validation
+  - Protected routes
+  - Session persistence using `sessionStorage`
+  - Admin access token stored for the browser session
+- Shared authenticated API request helper
+  - Sends admin access token with protected backend requests
+  - Handles JSON responses and API errors
+
 ## In Progress
-- Admin web dashboard
+### Admin Web
+- Dashboard
+  - Initial dashboard shell
+  - Analytics required for V1 and scheduled for completion after core management pages
+- Menu management
+- User/account management
+- Weekly store schedule management
+- Admin account settings
+- Admin logout flow
+- Catedral Café web visual system
 
 ## Planned
 - Production deployment
