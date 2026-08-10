@@ -238,7 +238,7 @@ User becomes guest
 
 
 --------------------------------------------------
-F) Admin Dashboard Flow (Planned)
+F) Admin Dashboard Flow (Web)
 --------------------------------------------------
 
 Admin opens admin web dashboard
@@ -247,18 +247,76 @@ Admin opens admin web dashboard
 Admin logs in
         │
         ▼
-Admin dashboard loads
+POST /users/login
+        │
+        ├── Invalid credentials
+        │       │
+        │       ▼
+        │   Show login error
+        │
+        ├── Valid non-admin account
+        │       │
+        │       ▼
+        │   Deny admin web access
+        │
+        └── Valid admin account
+                │
+                ▼
+        Backend issues 3-hour access token
+                │
+                ▼
+        Web stores admin session
+        in sessionStorage
+                │
+                ▼
+        Protected admin dashboard loads
+                │
+                ▼
+        Admin navigation
+                │
+                ├── Dashboard
+                │     • Analytics / reporting
+                │
+                ├── Menu
+                │     • View menu items
+                │     • Create menu items
+                │     • Edit menu items
+                │     • Set item availability
+                │     • Delete menu items
+                │
+                ├── Users
+                │     • View users
+                │     • Sort / paginate users
+                │     • Change account roles
+                │
+                ├── Schedule
+                │     • Configure weekly store schedule
+                │
+                └── Admin Profile
+                      • Account settings
+                      • Logout
+
+
+Admin makes protected API request
         │
         ▼
-Admin manages system
+Web attaches admin JWT
         │
-        ├── Manage menu items
+        ▼
+Backend requireAuth
         │
-        ├── Manage worker accounts
+        ▼
+Backend authorizeRoles("admin")
         │
-        ├── Monitor orders
+        ├── Unauthorized / forbidden
+        │       │
+        │       ▼
+        │   Reject request
         │
-        └── Configure store schedule
+        └── Authorized
+                │
+                ▼
+        Perform admin operation
 
 
 --------------------------------------------------
@@ -272,7 +330,9 @@ All orders must pass backend validation:
 • Totals calculated server-side
 • Order status begins as PLACED
 
-Order lifecycle:
+Order statuses:
 
-PLACED → IN_PROGRESS → COMPLETED
+PLACED → IN PROGRESS → READY → COMPLETED
+
+An order may also be marked CANCELLED.
 ```
