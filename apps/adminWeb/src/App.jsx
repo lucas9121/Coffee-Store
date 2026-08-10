@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router";
 import LoginPage from "./pages/LoginPage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import DashboardPage from "./pages/DashboardPage";
 
 function App() {
   return (
@@ -10,7 +11,7 @@ function App() {
         path="/" 
         element={
           <ProtectedRoute>
-            <h1>ChurchKiosk Admin</h1>
+            <DashboardPage />
           </ProtectedRoute>
         } 
       />
