@@ -1,8 +1,11 @@
 import styles from "./Header.module.css"
 import { useState } from "react";
 import { NavLink } from "react-router";
+import { useAuth } from "../../context/AuthContext";
+
 function Header(){
   const [show, setShow] = useState(false);
+  const { user }  = useAuth();
   
   return(
     <nav className={styles.header}>
@@ -20,7 +23,7 @@ function Header(){
         {
           show && 
           <ul className={styles.userMenu}>
-            <li>Admin Name</li>
+            <li>{user?.name}</li>
             <li><NavLink to="/settings">Settings</NavLink></li>
             <li>Logout</li>
           </ul>
