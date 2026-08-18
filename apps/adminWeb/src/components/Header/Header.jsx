@@ -1,11 +1,17 @@
 import styles from "./Header.module.css"
 import { useState } from "react";
-import { NavLink } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 import { useAuth } from "../../context/AuthContext";
 
 function Header(){
   const [show, setShow] = useState(false);
-  const { user }  = useAuth();
+  const { user, logout }  = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout()
+    navigate("/login", {replace: true})
+  }
   
   return(
     <nav className={styles.header}>
@@ -25,7 +31,11 @@ function Header(){
           <ul className={styles.userMenu}>
             <li>{user?.name}</li>
             <li><NavLink to="/settings">Settings</NavLink></li>
-            <li>Logout</li>
+            <li>
+              <button type="button" onClick={handleLogout}>
+                Logout
+              </button>
+            </li>
           </ul>
         }
       </div>
