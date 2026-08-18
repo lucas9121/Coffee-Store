@@ -1,13 +1,8 @@
 function SchedulePage() {
   return (
     <main>
-      <h1>Manu</h1>
-      <p>Welcome to the Catedral Café administration schedule.</p>
-
-      <section>
-        <h2>Schedule</h2>
-        <p>Analytics schedule coming soon.</p>
-      </section>
+      <h1>Schedule</h1>
+      <p>Manage Catedral Café's weekly schedule.</p>
     </main>
   );
 }
