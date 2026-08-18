@@ -124,7 +124,7 @@ apps/mobile/
 Backend Structure
 ------------------------------------------------------
 
-backend/
+apps/backend/
 │
 ├── controllers/
 │   ├── orderController.js
@@ -191,4 +191,47 @@ backend/
 ├── package.json
 ├── server.js          # Server entry point
 └── .nvmrc             # Node version (v24.14.0)
+
+
+------------------------------------------------------
+Webpage Structure
+------------------------------------------------------
+
+apps/admin-web/
+│
+├── public/
+│   └── images/
+│       └── logo.jpg                    # Catedral Café logo
+│
+├── src/
+│   ├── components/
+│   │   ├── Header/
+│   │   │   ├── Header.jsx              # Shared admin navigation/header
+│   │   │   └── Header.module.css       # Header-specific scoped styles
+│   │   │
+│   │   ├── Layout.jsx                  # Shared protected-page layout
+│   │   └── ProtectedRoute.jsx          # Restricts routes to authenticated admins
+│   │
+│   ├── context/
+│   │   └── AuthContext.jsx             # Admin auth/session state
+│   │
+│   ├── pages/
+│   │   ├── DashboardPage.jsx           # Admin home; analytics dashboard
+│   │   ├── LoginPage.jsx               # Admin login
+│   │   ├── MenuPage.jsx                # Menu management
+│   │   ├── UsersPage.jsx               # User/account-role management
+│   │   ├── SchedulePage.jsx            # Weekly store schedule management
+│   │   └── SettingsPage.jsx            # Current admin account settings
+│   │
+│   ├── services/
+│   │   ├── api.js                      # Shared authenticated API request helper
+│   │   └── auth-api.js                 # Admin login API service
+│   │
+│   ├── App.jsx                         # React Router route definitions
+│   ├── main.jsx                        # Application entry point + providers
+│   └── index.css                       # Global theme variables and base web styles
+│
+├── package.json
+├── package-lock.json
+└── vite.config.js
 ```
