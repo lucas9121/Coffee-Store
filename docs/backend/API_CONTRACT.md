@@ -31,9 +31,6 @@ Creates a new order.
   - IN PERSON
 - Copies price into `priceAtPurchase`
 - Calculates `totalPrice` server-side
-- If a valid authenticated user is present on the request (`req.user`):
-  - Updates the user’s `recent` purchases list
-  - Ensures uniqueness and keeps a maximum of 5 items (newest first)
 - If a valid authenticated user is present on the request (req.user):
   - Updates the user’s recent purchases list
   - Ensures uniqueness and keeps a maximum of 5 items (newest first)
@@ -212,7 +209,7 @@ Creates a new menu item.
 
 ---
 
-## PUT /menu/:id
+## PATCH /menu/:id
 
 Updates a menu item.
 
