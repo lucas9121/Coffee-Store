@@ -9,6 +9,7 @@ function Header(){
   const navigate = useNavigate();
 
   const handleLogout = () => {
+    setShow(false)
     logout()
     navigate("/login", {replace: true})
   }
@@ -30,7 +31,10 @@ function Header(){
           show && 
           <ul className={styles.userMenu}>
             <li>{user?.name}</li>
-            <li><NavLink to="/settings">Settings</NavLink></li>
+            <li>
+              <NavLink onClick={() => {setShow(false)}} to="/settings">
+                Settings
+              </NavLink></li>
             <li>
               <button type="button" onClick={handleLogout}>
                 Logout
