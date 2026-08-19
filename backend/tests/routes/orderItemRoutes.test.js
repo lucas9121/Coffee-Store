@@ -1,6 +1,20 @@
 const request = require("supertest");
 const app = require("../../app");
 
+jest.mock("../../middleware/requireAuth", () => {
+  return (req, res, next) => {
+    req.user = {
+      userId: "507f191e810c19729de860ea",
+      account: "admin",
+    };
+    next();
+  };
+});
+
+jest.mock("../../middleware/authorizeRoles", () => {
+  return () => (req, res, next) => next();
+});
+
 const OrderItem = require("../../models/OrderItem");
 jest.mock("../../models/OrderItem");
 
