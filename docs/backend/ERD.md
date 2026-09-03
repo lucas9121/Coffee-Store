@@ -98,4 +98,4 @@ Guest orders store user as null.
 User (Many) → OrderItem (Many)
 Users may reference OrderItems through favorites and recent purchases.
 
-![ChurchKiosk ERD](ERD.png)
+![ChurchKiosk ERD]
