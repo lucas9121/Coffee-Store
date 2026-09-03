@@ -135,6 +135,7 @@ async function seed() {
       image: i.image,
       category: i.category,
       inStock: true,
+      isVisible: true,
     }))
   );
 
