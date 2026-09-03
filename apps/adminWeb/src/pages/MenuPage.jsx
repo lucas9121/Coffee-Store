@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getMenuItems } from "../services/menu-api";
 import styles from "./MenuPage.module.css"
+import Button from "../components/Button/Button";
 function MenuPage() {
   const [menuItems, setMenuItems] = useState([])
   const [loading, setLoading] = useState(false);
@@ -45,12 +46,15 @@ function MenuPage() {
                     <p className={styles.category}>{item.category} </p>
                     <p className={styles.price}>${item.price.toFixed(2)} </p>
                     <p className={item.inStock ? styles.inStock : styles.outOfStock}>{item.inStock ? "In Stock" : "Out of Stock"} </p>
-                    <button type="button" className={item.isVisible ? styles.visibleButton : styles.hiddenButton}>
+                    <Button
+                      variant={item.isVisible ? "success" : "secondary"}
+                      size="sm"
+                    >
                       {item.isVisible ? "Displayed" : "Hidden"}
-                    </button>
+                    </Button>
                     <div className={styles.actions}>
-                      <button type="button" className={styles.editButton}>Edit </button>
-                      <button type="button" className={styles.deleteButton}>Delete </button>
+                      <Button>Edit</Button>
+                      <Button variant="danger">Delete</Button>
                     </div>
                   </div>
                 </div>
