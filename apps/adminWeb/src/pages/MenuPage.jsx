@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getMenuItems } from "../services/menu-api";
+import { getMenuItems, updateMenuItem } from "../services/menu-api";
 import styles from "./MenuPage.module.css"
 import Button from "../components/Button/Button";
 function MenuPage() {
@@ -21,6 +21,22 @@ function MenuPage() {
       }
     })()
   }, [])
+
+  async function handleVisibility(item) {
+    const visibilityChange = !item.isVisible
+    try {
+      await updateMenuItem(item._id, {isVisible: visibilityChange})
+      setMenuItems((currentItems) => 
+      currentItems.map((currentItem) => {
+        if(currentItem._id === item._id){
+          return {...currentItem, isVisible: visibilityChange}
+        }
+        return currentItem;
+      }))
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
   return (
     <main className={styles.menuPage}>
@@ -49,6 +65,7 @@ function MenuPage() {
                     <Button
                       variant={item.isVisible ? "success" : "secondary"}
                       size="sm"
+                      onClick={() => handleVisibility(item)}
                     >
                       {item.isVisible ? "Displayed" : "Hidden"}
                     </Button>
