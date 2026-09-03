@@ -25,6 +25,8 @@ Creates a new order.
 ### Behavior
 - Verifies store is open using StoreSettings + isStoreOpen()
 - Validates each OrderItem exists
+- Rejects hidden items (`isVisible: false`)
+- Rejects out-of-stock items (`inStock: false`)
 - Requires source.
 - Allowed source values:
   - MOBILE
@@ -41,7 +43,7 @@ Creates a new order.
 
 ### Responses
 - 201 → returns created order
-- 400 → missing order source
+- 400 → missing order source, hidden order item, or out-of-stock order item
 - 403 → store is closed
 - 404 → order item not found
 - 500 → server error
@@ -166,10 +168,38 @@ Deletes an order.
 
 ## GET /menu
 
-Returns all order items.
+Returns all visible order items.
+
+### Behavior
+- Public endpoint.
+- Returns only menu items where `isVisible` is `true`.
+- Used by customer and worker menu displays.
+- Hidden items are not returned.
 
 ### Responses
-- 200 → array of order items
+- 200 → array of visible order items
+- 500 → server error
+
+---
+
+## GET /menu/admin
+
+Returns all order items, including hidden items.
+
+### Auth
+- Requires authentication
+- Allowed roles:
+  - admin
+
+### Behavior
+- Returns both visible and hidden menu items.
+- Used by admin web for menu management.
+- Allows hidden items to remain editable and be made visible again later.
+
+### Responses
+- 200 → array of all order items
+- 401 → unauthorized
+- 403 → forbidden
 - 500 → server error
 
 ---
@@ -200,6 +230,13 @@ Creates a new menu item.
   "price": 2.50
 }
 
+### Behavior
+- `isVisible` may be set when creating an item.
+- `isVisible` defaults to `true` when not provided.
+- `inStock` and `isVisible` are independent:
+  - `inStock` determines whether an offered item is currently available.
+  - `isVisible` determines whether the item is offered/displayed at all.
+
 ### Responses
 - 201 → created item
 - 400 → validation error
@@ -217,6 +254,11 @@ Updates a menu item.
 - Requires authentication
 - Allowed roles:
   - admin
+
+### Behavior
+- Admin may update `isVisible`.
+- Setting `isVisible` to `false` hides the item from customer and worker menu retrieval without deleting it.
+- Hidden items remain available through `GET /menu/admin` and may later be made visible again.
 
 ### Responses
 - 200 → updated item
