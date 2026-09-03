@@ -136,6 +136,22 @@ Represents a purchasable menu item.
 ### inStock
 - Type: Boolean
 - Default: true
+- Purpose: Controls whether a currently offered item is available to purchase.
+- Notes:
+  - Independent from `isVisible`.
+  - Out-of-stock items cannot be ordered.
+
+---
+
+### isVisible
+- Type: Boolean
+- Default: true
+- Purpose: Controls whether the item is currently offered/displayed on customer and worker menus.
+- Notes:
+  - Independent from `inStock`.
+  - `false` hides the item without deleting it.
+  - Hidden items remain stored in the database and can still be retrieved and edited by admins.
+  - Hidden items cannot be ordered.
 
 ---
 
