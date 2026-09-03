@@ -5,7 +5,7 @@ export async function getMenuItems() {
 }
 
 export async function createMenuItem(item) {
-  return await apiFetch("/menu", {
+  return await apiFetch("/menu/admin", {
     method: "POST",
     body: JSON.stringify(item),
   });
