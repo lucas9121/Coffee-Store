@@ -40,7 +40,7 @@ export function ThemedButton({
       { backgroundColor: success, borderColor: success } 
     :
     variant === "link" ? 
-      {backgroundColor: "tranparent", borderColor: "transparent"} 
+      {backgroundColor: "transparent", borderColor: "transparent"} 
     :
       { backgroundColor, borderColor };
 
