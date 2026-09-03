@@ -43,7 +43,10 @@ async function createOrder(req, res){
 
       // Fetch real item from DB
       const itemFromDB = await OrderItem.findById(orderItem.item);
+
       if(!itemFromDB) return res.status(404).json({message: "Order item not found"});
+      if (!itemFromDB.isVisible) return res.status(400).json({message: "Order item is not currently available"});
+      if (!itemFromDB.inStock) return res.status(400).json({message: "Order item is out of stock"});
 
       const price = itemFromDB.price
       // Copy real price into order
