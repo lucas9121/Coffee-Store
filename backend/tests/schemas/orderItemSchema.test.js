@@ -10,11 +10,13 @@ describe("Order Item Model", () => {
     const orderItem = new OrderItem({
       name: "Cappuccino",
       price: 5,
+      category: "coffee",
   });
     expect(orderItem.name).toBe("Cappuccino");
     expect(orderItem.price).toBe(5);
     expect(orderItem.image).toBeUndefined();
     expect(orderItem.inStock).toBe(true);
+    expect(orderItem.isVisible).toBe(true);
     expect(orderItem).toHaveProperty("createdAt");
   });
 
