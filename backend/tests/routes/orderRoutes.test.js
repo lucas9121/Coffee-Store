@@ -64,7 +64,9 @@ describe("Order Routes (mocked DB)", () => {
     // Mock DB lookup
     OrderItem.findById.mockResolvedValue({
       _id: "517f191e810c19729de860ed",
-      price: 5
+      price: 5,
+      inStock: true,
+      isVisible: true
     });
     Order.create.mockResolvedValue(fakeOrder);
 

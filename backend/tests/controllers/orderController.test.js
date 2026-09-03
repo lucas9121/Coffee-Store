@@ -65,7 +65,9 @@ describe("createOrder", () => {
     // Mock DB item lookup
     OrderItem.findById.mockResolvedValue({
       _id: fakeItemId,
-      price: 5
+      price: 5,
+      inStock: true,
+      isVisible: true,
     });
 
     // Mock DB user search
@@ -182,7 +184,93 @@ describe("createOrder", () => {
     expect(res.json).toHaveBeenCalledWith({message: "Order item not found"})
   });
 
-  // Test 4 - Error
+  // Test 4 - Hidden order item
+  it("should return 400 if order item is hidden", async () => {
+    const fakeItemId = "507f191e810c19729de860ea";
+
+    const req = {
+      body: {
+        customerName: "Alice",
+        source: "MOBILE",
+        orderItems: [
+          {
+            item: fakeItemId,
+            quantity: 2
+          }
+        ]
+      }
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+
+    StoreSettings.findOne.mockResolvedValue({});
+
+    isStoreOpen.mockReturnValue(true);
+
+    OrderItem.findById.mockResolvedValue({
+      _id: fakeItemId,
+      price: 5,
+      isVisible: false,
+      inStock: true
+    });
+
+    await createOrder(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Order item is not currently available"
+    });
+
+    expect(Order.create).not.toHaveBeenCalled();
+  });
+
+  // Test 5 - Out of stock order item
+  it("should return 400 if order item is out of stock", async () => {
+    const fakeItemId = "507f191e810c19729de860ea";
+
+    const req = {
+      body: {
+        customerName: "Alice",
+        source: "MOBILE",
+        orderItems: [
+          {
+            item: fakeItemId,
+            quantity: 2
+          }
+        ]
+      }
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+
+    StoreSettings.findOne.mockResolvedValue({});
+
+    isStoreOpen.mockReturnValue(true);
+
+    OrderItem.findById.mockResolvedValue({
+      _id: fakeItemId,
+      price: 5,
+      isVisible: true,
+      inStock: false
+    });
+
+    await createOrder(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Order item is out of stock"
+    });
+
+    expect(Order.create).not.toHaveBeenCalled();
+  });
+
+  // Test 6 - Error
   it("should return 500 if an unexpected error occurs", async () => {
     const fakeItemId = "507f191e810c19729de860ea";
     const req = {
@@ -218,7 +306,9 @@ describe("createOrder", () => {
     // First DB call succeeds
     OrderItem.findById.mockResolvedValue({
       _id: fakeItemId,
-      price: 5
+      price: 5,
+      inStock: true,
+      isVisible: true
     });
 
     // Simulate database failure on Order.create
