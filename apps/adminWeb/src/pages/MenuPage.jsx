@@ -45,6 +45,9 @@ function MenuPage() {
                     <p className={styles.category}>{item.category} </p>
                     <p className={styles.price}>${item.price.toFixed(2)} </p>
                     <p className={item.inStock ? styles.inStock : styles.outOfStock}>{item.inStock ? "In Stock" : "Out of Stock"} </p>
+                    <button type="button" className={item.isVisible ? styles.visibleButton : styles.hiddenButton}>
+                      {item.isVisible ? "Displayed" : "Hidden"}
+                    </button>
                     <div className={styles.actions}>
                       <button type="button" className={styles.editButton}>Edit </button>
                       <button type="button" className={styles.deleteButton}>Delete </button>
