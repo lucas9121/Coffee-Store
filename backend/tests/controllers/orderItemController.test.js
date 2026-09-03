@@ -1,6 +1,7 @@
 const {
   getOrderItem, 
-  getAllOrderItems, 
+  getAllOrderItems,
+  getAllOrderItemsAdmin, 
   createItem, 
   updateOrderItem, 
   deleteOrderItem
@@ -86,6 +87,7 @@ describe("getAllOrderItems", () => {
     OrderItem.find.mockResolvedValue(fakeOrderItems);
     await getAllOrderItems(req, res);
     expect(res.status).toHaveBeenCalledWith(200);
+    expect(OrderItem.find).toHaveBeenCalledWith({ isVisible: true });
     expect(res.json).toHaveBeenCalledWith(fakeOrderItems);
   });
 
@@ -103,6 +105,66 @@ describe("getAllOrderItems", () => {
     expect(res.json).toHaveBeenCalledWith({message: mockError.message})
   });
 })
+
+describe("getAllOrderItemsAdmin", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  // Test 1 - Admin gets all order items, including hidden ones
+  it("should get all orderItems including hidden items", async () => {
+    const req = {};
+
+    const fakeOrderItems = [
+      {
+        _id: "507f191e810c19729de860ea",
+        name: "Latte",
+        price: 5,
+        isVisible: true
+      },
+      {
+        _id: "507f191e810c19729de860eb",
+        name: "Chocolate Cake",
+        price: 6,
+        isVisible: false
+      }
+    ];
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+
+    OrderItem.find.mockResolvedValue(fakeOrderItems);
+
+    await getAllOrderItemsAdmin(req, res);
+
+    expect(OrderItem.find).toHaveBeenCalledWith();
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(fakeOrderItems);
+  });
+
+  // Test 2 - Server error
+  it("should return 500 for server errors", async () => {
+    const req = {};
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+
+    const mockError = new Error("Server error");
+
+    OrderItem.find.mockRejectedValue(mockError);
+
+    await getAllOrderItemsAdmin(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({
+      message: mockError.message
+    });
+  });
+});
 
 describe("createOrderItem", () => {
   beforeEach(() => {
@@ -170,7 +232,8 @@ describe("updateOrderItem", () => {
     {name: "Cappuccino"}, 
     {price: 10}, 
     {image: "picture.com"}, 
-    {inStock: false}
+    {inStock: false},
+    {isVisible: false}
   ];
   validUpdates.forEach(update => {
     it(`should update order ${Object.keys(update)[0]} to ${Object.values(update)[0]}`, async () => {
