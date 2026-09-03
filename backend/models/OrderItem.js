@@ -10,7 +10,8 @@ const orderItemSchema = new Schema({
     type: String,
     enum: ["coffee", "juice", "food", "dessert"]
   },
-  inStock: {type: Boolean, default: true}
+  inStock: {type: Boolean, default: true},
+  isVisible: {type: Boolean, default: true}
 }, {timestamps: true});
 
 module.exports = model("OrderItem", orderItemSchema)
