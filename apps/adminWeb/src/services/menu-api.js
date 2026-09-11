@@ -1,11 +1,11 @@
 import { apiFetch } from "./api";
 
 export async function getMenuItems() {
-  return await apiFetch("/menu");
+  return await apiFetch("/menu/admin");
 }
 
 export async function createMenuItem(item) {
-  return await apiFetch("/menu/admin", {
+  return await apiFetch("/menu", {
     method: "POST",
     body: JSON.stringify(item),
   });
