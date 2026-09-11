@@ -22,7 +22,6 @@ function MenuPage() {
         setLoading(true)
         const data = await getMenuItems()
         setMenuItems(data)
-        setError("")
       } catch (error) {
         setError(error.message)
       } finally {
@@ -46,7 +45,8 @@ function MenuPage() {
         category: "coffee",
         inStock: true,
         isVisible: true,
-      })
+      });
+      setError("");
     } catch (error) {
       setError(error.message)
       console.error(error)
@@ -64,6 +64,7 @@ function MenuPage() {
         }
         return currentItem;
       }))
+      setError("");
     } catch (error) {
       setError(error.message)
       console.error(error)
@@ -78,6 +79,7 @@ function MenuPage() {
       setMenuItems((currentItems) => 
         currentItems.filter((currentItem) => currentItem._id !== item._id)
       )
+      setError("");
     } catch (error) {
       setError(error.message)
       console.error(error)
