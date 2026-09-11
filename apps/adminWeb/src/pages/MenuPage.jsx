@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getMenuItems, updateMenuItem } from "../services/menu-api";
+import { getMenuItems, updateMenuItem, deleteMenuItem } from "../services/menu-api";
 import styles from "./MenuPage.module.css"
 import Button from "../components/Button/Button";
 function MenuPage() {
@@ -34,6 +34,21 @@ function MenuPage() {
         return currentItem;
       }))
     } catch (error) {
+      setError(error.message)
+      console.error(error)
+    }
+  }
+
+  async function handleDelete(item){
+    const confirmed = window.confirm("Are you sure you want to delete this menu item?")
+    if(!confirmed) return
+    try {
+      await deleteMenuItem(item._id)
+      setMenuItems((currentItems) => 
+        currentItems.filter((currentItem) => currentItem._id !== item._id)
+      )
+    } catch (error) {
+      setError(error.message)
       console.error(error)
     }
   }
@@ -42,7 +57,7 @@ function MenuPage() {
     <main className={styles.menuPage}>
       <div className={styles.pageHeader}>
         <h1>Menu</h1>
-        <p>Manage Catedral Café mneu items.</p>
+        <p>Manage Catedral Café menu items.</p>
       </div>
       {error && <p className={styles.error}>{error}</p>}
       { loading ? (
@@ -71,7 +86,12 @@ function MenuPage() {
                     </Button>
                     <div className={styles.actions}>
                       <Button>Edit</Button>
-                      <Button variant="danger">Delete</Button>
+                      <Button 
+                      variant="danger"
+                      onClick={() => handleDelete(item)}
+                      >
+                        Delete
+                      </Button>
                     </div>
                   </div>
                 </div>
