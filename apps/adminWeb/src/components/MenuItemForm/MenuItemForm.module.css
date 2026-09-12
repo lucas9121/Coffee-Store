@@ -1,0 +1,87 @@
+.addForm {
+  width: 100%;
+  max-width: 600px;
+  padding: var(--spacing-xl);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.addForm h2 {
+  margin-top: 0;
+  margin-bottom: var(--spacing-xl);
+  font-family: var(--font-family-title);
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-lg);
+}
+
+.formGroup label {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.formGroup input,
+.formGroup select {
+  min-height: var(--button-height-md);
+  padding: 0 var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-background);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: var(--font-size-md);
+}
+
+.formGroup input:focus,
+.formGroup select:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.checkboxRow {
+  display: flex;
+  gap: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+}
+
+.checkboxRow label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.checkboxRow input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.formActions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: flex-end;
+  padding-top: var(--spacing-sm);
+}
+
+@media (max-width: 600px) {
+  .addForm {
+    padding: var(--spacing-lg);
+  }
+
+  .checkboxRow {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  .formActions {
+    flex-direction: column;
+  }
+}
