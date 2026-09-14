@@ -22,8 +22,9 @@
 
 .menuGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 260px));
   gap: var(--spacing-xl);
+  justify-content: start;
 }
 
 .menuCard {
@@ -86,6 +87,12 @@
   padding-top: var(--spacing-sm); 
   align-items: center;
   justify-content: center;
+}
+
+.categoryList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xxl);
 }
 
 @media (max-width: 600px) {
