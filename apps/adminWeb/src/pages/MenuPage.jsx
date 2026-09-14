@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getMenuItems, updateMenuItem, deleteMenuItem, createMenuItem } from "../services/menu-api";
 import MenuItemForm from "../components/MenuItemForm/MenuItemForm";
+import Modal from "../components/Modal/Modal";
 import styles from "./MenuPage.module.css"
 import Button from "../components/Button/Button";
 function MenuPage() {
@@ -119,22 +120,26 @@ function MenuPage() {
     <main className={styles.menuPage}>
       <div className={styles.pageHeader}>
         {showAddForm && (
-          <MenuItemForm
-            item={newItem}
-            setItem={setNewItem}
-            onSubmit={handleCreate}
-            onCancel={() => setShowAddForm(false)}
-            mode="add"
-          />
+          <Modal onClose={() => setShowAddForm(false)}>
+            <MenuItemForm
+              item={newItem}
+              setItem={setNewItem}
+              onSubmit={handleCreate}
+              onCancel={() => setShowAddForm(false)}
+              mode="add"
+            />
+          </Modal>
         )}
         {editedItem && (
-          <MenuItemForm
-            item={editedItem}
-            setItem={setEditedItem}
-            onSubmit={handleEdit}
-            onCancel={() => setEditedItem(null)}
-            mode="edit"
-          />
+          <Modal onClose={() => setEditedItem(null)}>
+            <MenuItemForm
+              item={editedItem}
+              setItem={setEditedItem}
+              onSubmit={handleEdit}
+              onCancel={() => setEditedItem(null)}
+              mode="edit"
+            />
+          </Modal>
         )}
         <h1>Menu</h1>
         <p>Manage Catedral Café menu items.</p>
