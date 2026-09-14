@@ -9,7 +9,7 @@ function MenuItemForm({
   mode
 }) {
   return(
-    <section className={styles.addForm}>
+    <section className={styles.menuItemForm}>
       <h2>
         {mode === "add" ? "Add Menu Item" : "Edit Menu Item"}
       </h2>
