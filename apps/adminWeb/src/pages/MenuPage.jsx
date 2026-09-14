@@ -8,6 +8,7 @@ function MenuPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editedItem, setEditedItem] = useState(null);
   const [newItem, setNewItem] = useState({
     name: "",
     price: "",
@@ -52,7 +53,24 @@ function MenuPage() {
       setError(error.message)
       console.error(error)
     }
-  }
+  };
+
+  async function handleEdit(item) {
+    try {
+      const updatedItem = await updateMenuItem(item._id, {...item, price: Number(item.price)});
+      setMenuItems((currentItems) => 
+        currentItems.map((currentItem) => {
+          if(currentItem._id === item._id) return updatedItem;
+          return currentItem;
+        })
+      )
+      setError("");
+      setEditedItem(null);
+    } catch (error) {
+      setError(error.message);
+      console.error(error);
+    }
+  };
 
   async function handleVisibility(item) {
     const visibilityChange = !item.isVisible
@@ -85,6 +103,16 @@ function MenuPage() {
       setError(error.message)
       console.error(error)
     }
+  };
+
+  function handleOpenAddForm() {
+    setShowAddForm(true);
+    setEditedItem(null);
+  }
+
+  function handleOpenEditForm(item) {
+    setEditedItem(item);
+    setShowAddForm(false);
   }
 
   return (
@@ -99,10 +127,19 @@ function MenuPage() {
             mode="add"
           />
         )}
+        {editedItem && (
+          <MenuItemForm
+            item={editedItem}
+            setItem={setEditedItem}
+            onSubmit={handleEdit}
+            onCancel={() => setEditedItem(null)}
+            mode="edit"
+          />
+        )}
         <h1>Menu</h1>
         <p>Manage Catedral Café menu items.</p>
         <Button 
-        onClick={() => setShowAddForm(true)}>
+        onClick={handleOpenAddForm}>
           Add Menu Item
         </Button>
       </div>
@@ -132,10 +169,12 @@ function MenuPage() {
                       {item.isVisible ? "Displayed" : "Hidden"}
                     </Button>
                     <div className={styles.actions}>
-                      <Button>Edit</Button>
+                      <Button onClick={() => handleOpenEditForm(item)}>
+                        Edit
+                      </Button>
                       <Button 
-                      variant="danger"
-                      onClick={() => handleDelete(item)}
+                        variant="danger"
+                        onClick={() => handleDelete(item)}
                       >
                         Delete
                       </Button>
