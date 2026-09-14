@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getMenuItems, updateMenuItem, deleteMenuItem, createMenuItem } from "../services/menu-api";
+import MenuItemForm from "../components/MenuItemForm/MenuItemForm";
 import styles from "./MenuPage.module.css"
 import Button from "../components/Button/Button";
 function MenuPage() {
@@ -90,102 +91,13 @@ function MenuPage() {
     <main className={styles.menuPage}>
       <div className={styles.pageHeader}>
         {showAddForm && (
-          <section className={styles.addForm}>
-            <h2>Add Menu Item</h2>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="itemName">Name</label>
-              <input
-                id="itemName"
-                type="text"
-                value={newItem.name}
-                onChange={(e) =>
-                  setNewItem({ ...newItem, name: e.target.value })
-                }
-                required
-              />
-            </div>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="itemPrice">Price</label>
-              <input
-                id="itemPrice"
-                type="number"
-                min="0"
-                step="0.01"
-                value={newItem.price}
-                onChange={(e) =>
-                  setNewItem({ ...newItem, price: e.target.value })
-                }
-                required
-              />
-            </div>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="itemImage">Image URL (optional)</label>
-              <input
-                id="itemImage"
-                type="text"
-                value={newItem.image}
-                onChange={(e) =>
-                  setNewItem({ ...newItem, image: e.target.value })
-                }
-              />
-            </div>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="itemCategory">Category</label>
-              <select
-                id="itemCategory"
-                value={newItem.category}
-                onChange={(e) =>
-                  setNewItem({ ...newItem, category: e.target.value })
-                }
-              >
-                <option value="coffee">Coffee</option>
-                <option value="juice">Juice</option>
-                <option value="food">Food</option>
-                <option value="dessert">Dessert</option>
-              </select>
-            </div>
-
-            <div className={styles.checkboxRow}>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={newItem.inStock}
-                  onChange={(e) =>
-                    setNewItem({ ...newItem, inStock: e.target.checked })
-                  }
-                />
-                In Stock
-              </label>
-
-              <label>
-                <input
-                  type="checkbox"
-                  checked={newItem.isVisible}
-                  onChange={(e) =>
-                    setNewItem({ ...newItem, isVisible: e.target.checked })
-                  }
-                />
-                Displayed
-              </label>
-            </div>
-
-            <div className={styles.formActions}>
-              <Button onClick={() =>handleCreate(newItem)}>
-                Add Item
-              </Button>
-
-              <Button
-                variant="secondary"
-                onClick={() => setShowAddForm(false)}
-              >
-                Cancel
-              </Button>
-            </div>
-          </section>
+          <MenuItemForm
+            item={newItem}
+            setItem={setNewItem}
+            onSubmit={handleCreate}
+            onCancel={() => setShowAddForm(false)}
+            mode="add"
+          />
         )}
         <h1>Menu</h1>
         <p>Manage Catedral Café menu items.</p>
