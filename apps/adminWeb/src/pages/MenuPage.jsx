@@ -18,6 +18,7 @@ function MenuPage() {
     inStock: true,
     isVisible: true,
   });
+  const categories = ["coffee", "juice", "food", "dessert"];
 
   useEffect( () => {
     (async () => {
@@ -149,48 +150,86 @@ function MenuPage() {
         </Button>
       </div>
       {error && <p className={styles.error}>{error}</p>}
-      { loading ? (
-          <p>loading...</p> 
-        ) : (
-          <div className={styles.menuGrid}>
-            {menuItems.map((item) => {
-              return(
-                <div key={item._id} className={styles.menuCard}>
-                  <img 
-                    className={styles.menuImage}
-                    src={item.image || "/images/logo.jpg" } 
-                    alt={item.name} 
-                  />
-                  <div className={styles.menuContent}>
-                    <p className={styles.menuName}>{item.name} </p>
-                    <p className={styles.category}>{item.category} </p>
-                    <p className={styles.price}>${item.price.toFixed(2)} </p>
-                    <p className={item.inStock ? styles.inStock : styles.outOfStock}>{item.inStock ? "In Stock" : "Out of Stock"} </p>
-                    <Button
-                      variant={item.isVisible ? "success" : "secondary"}
-                      size="sm"
-                      onClick={() => handleVisibility(item)}
-                    >
-                      {item.isVisible ? "Displayed" : "Hidden"}
-                    </Button>
-                    <div className={styles.actions}>
-                      <Button onClick={() => handleOpenEditForm(item)}>
-                        Edit
-                      </Button>
-                      <Button 
-                        variant="danger"
-                        onClick={() => handleDelete(item)}
-                      >
-                        Delete
-                      </Button>
-                    </div>
+      {loading ? (
+        <p>loading...</p>
+      ) : (
+        <div className={styles.categoryList}>
+          {categories.map((category) => {
+            const categoryItems = menuItems.filter(
+              (item) => item.category === category
+            );
+
+            return (
+              <section key={category}>
+                <h2>
+                  {category.charAt(0).toUpperCase() + category.slice(1)}
+                </h2>
+
+                {categoryItems.length === 0 ? (
+                  <p>No menu items in this category.</p>
+                ) : (
+                  <div className={styles.menuGrid}>
+                    {categoryItems.map((item) => {
+                      return (
+                        <div key={item._id} className={styles.menuCard}>
+                          <img
+                            className={styles.menuImage}
+                            src={item.image || "/images/logo.jpg"}
+                            alt={item.name}
+                          />
+
+                          <div className={styles.menuContent}>
+                            <p className={styles.menuName}>{item.name}</p>
+                            <p className={styles.category}>{item.category}</p>
+                            <p className={styles.price}>
+                              ${item.price.toFixed(2)}
+                            </p>
+
+                            <p
+                              className={
+                                item.inStock
+                                  ? styles.inStock
+                                  : styles.outOfStock
+                              }
+                            >
+                              {item.inStock ? "In Stock" : "Out of Stock"}
+                            </p>
+
+                            <Button
+                              variant={
+                                item.isVisible ? "success" : "secondary"
+                              }
+                              size="sm"
+                              onClick={() => handleVisibility(item)}
+                            >
+                              {item.isVisible ? "Displayed" : "Hidden"}
+                            </Button>
+
+                            <div className={styles.actions}>
+                              <Button
+                                onClick={() => handleOpenEditForm(item)}
+                              >
+                                Edit
+                              </Button>
+
+                              <Button
+                                variant="danger"
+                                onClick={() => handleDelete(item)}
+                              >
+                                Delete
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                </div>
-              )
-            })}
-          </div>
-        )
-      }
+                )}
+              </section>
+            );
+          })}
+        </div>
+      )}
     </main>
   );
 }
