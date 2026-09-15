@@ -176,6 +176,10 @@ function MenuPage() {
                             className={styles.menuImage}
                             src={item.image || "/images/logo.jpg"}
                             alt={item.name}
+                            onError={(event) => {
+                              event.currentTarget.onerror = null; // prevents error loop if logo fails
+                              event.currentTarget.src = "/images/logo.jpg";
+                            }}
                           />
 
                           <div className={styles.menuContent}>
