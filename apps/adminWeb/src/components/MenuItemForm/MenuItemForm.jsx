@@ -6,7 +6,8 @@ function MenuItemForm({
   setItem,
   onSubmit,
   onCancel,
-  mode
+  mode,
+  isSaving
 }) {
   return(
     <section className={styles.menuItemForm}>
@@ -95,8 +96,16 @@ function MenuItemForm({
       </div>
 
       <div className={styles.formActions}>
-        <Button onClick={() =>onSubmit(item)}>
-          {mode === "add" ? "Add Item" : "Save Chages"}
+        <Button 
+          onClick={() =>onSubmit(item)}
+          isDisabled={isSaving}
+        >
+          {isSaving 
+            ? "Saving..."
+            : mode === "add" 
+              ? "Add Item" 
+              : "Save Chages"
+          }
         </Button>
 
         <Button
