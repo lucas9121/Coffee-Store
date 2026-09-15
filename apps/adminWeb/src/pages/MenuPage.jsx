@@ -9,6 +9,7 @@ function MenuPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
+  const [isSaving, setIsSaving] = useState(false)
   const [editedItem, setEditedItem] = useState(null);
   const [newItem, setNewItem] = useState({
     name: "",
@@ -36,6 +37,7 @@ function MenuPage() {
 
   async function handleCreate(item) {
     try {
+      setIsSaving(true);
       const createdItem = await createMenuItem({
         ...item,
         price: Number(item.price)
@@ -54,11 +56,14 @@ function MenuPage() {
     } catch (error) {
       setError(error.message)
       console.error(error)
+    } finally {
+      setIsSaving(false);
     }
   };
 
   async function handleEdit(item) {
     try {
+      setIsSaving(true);
       const updatedItem = await updateMenuItem(item._id, {...item, price: Number(item.price)});
       setMenuItems((currentItems) => 
         currentItems.map((currentItem) => {
@@ -71,6 +76,8 @@ function MenuPage() {
     } catch (error) {
       setError(error.message);
       console.error(error);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -128,6 +135,7 @@ function MenuPage() {
               onSubmit={handleCreate}
               onCancel={() => setShowAddForm(false)}
               mode="add"
+              isSaving={isSaving}
             />
           </Modal>
         )}
@@ -139,6 +147,7 @@ function MenuPage() {
               onSubmit={handleEdit}
               onCancel={() => setEditedItem(null)}
               mode="edit"
+              isSaving={isSaving}
             />
           </Modal>
         )}
