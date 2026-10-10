@@ -128,7 +128,10 @@ function MenuPage() {
     <main className={styles.menuPage}>
       <div className={styles.pageHeader}>
         {showAddForm && (
-          <Modal onClose={() => setShowAddForm(false)}>
+          <Modal 
+            onClose={() => setShowAddForm(false)}
+            isSaving={isSaving}
+          >
             <MenuItemForm
               item={newItem}
               setItem={setNewItem}
@@ -140,7 +143,10 @@ function MenuPage() {
           </Modal>
         )}
         {editedItem && (
-          <Modal onClose={() => setEditedItem(null)}>
+          <Modal 
+            onClose={() => setEditedItem(null)}
+            isSaving={isSaving}
+          >
             <MenuItemForm
               item={editedItem}
               setItem={setEditedItem}
