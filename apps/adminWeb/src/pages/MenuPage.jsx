@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { getMenuItems, updateMenuItem, deleteMenuItem, createMenuItem } from "../services/menu-api";
 import MenuItemForm from "../components/MenuItemForm/MenuItemForm";
 import Modal from "../components/Modal/Modal";
 import styles from "./MenuPage.module.css"
 import Button from "../components/Button/Button";
+
 function MenuPage() {
   const [menuItems, setMenuItems] = useState([])
   const [loading, setLoading] = useState(false);
@@ -11,6 +12,7 @@ function MenuPage() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [isSaving, setIsSaving] = useState(false)
   const [editedItem, setEditedItem] = useState(null);
+  const savingRef = useRef(false)
   const [newItem, setNewItem] = useState({
     name: "",
     price: "",
@@ -36,8 +38,12 @@ function MenuPage() {
   }, [])
 
   async function handleCreate(item) {
+    if(savingRef.current) return;
+
+    savingRef.current = true;
+    setIsSaving(true);
+
     try {
-      setIsSaving(true);
       const createdItem = await createMenuItem({
         ...item,
         price: Number(item.price)
@@ -57,13 +63,18 @@ function MenuPage() {
       setError(error.message)
       console.error(error)
     } finally {
+      savingRef.current = false;
       setIsSaving(false);
     }
   };
 
   async function handleEdit(item) {
+    if(savingRef.current) return;
+
+    savingRef.current = true;
+    setIsSaving(true); 
+
     try {
-      setIsSaving(true);
       const updatedItem = await updateMenuItem(item._id, {...item, price: Number(item.price)});
       setMenuItems((currentItems) => 
         currentItems.map((currentItem) => {
@@ -77,6 +88,7 @@ function MenuPage() {
       setError(error.message);
       console.error(error);
     } finally {
+      savingRef.current = false;
       setIsSaving(false);
     }
   };
