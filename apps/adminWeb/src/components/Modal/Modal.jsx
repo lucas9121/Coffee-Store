@@ -1,12 +1,12 @@
 import { useEffect } from "react";
 import styles from "./Modal.module.css";
 
-function Modal({ children, onClose }) {
+function Modal({ children, onClose, isSaving = false }) {
   useEffect(() => {
     document.body.style.overflow = "hidden";
 
     function handleKeyDown(event) {
-      if (event.key === "Escape") {
+      if (event.key === "Escape" && !isSaving) {
         onClose();
       }
     }
@@ -17,10 +17,10 @@ function Modal({ children, onClose }) {
       document.body.style.overflow = "";
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [onClose]);
+  }, [onClose, isSaving]);
 
   function handleOverlayClick(event) {
-    if (event.target === event.currentTarget) {
+    if (event.target === event.currentTarget && !isSaving) {
       onClose();
     }
   }
