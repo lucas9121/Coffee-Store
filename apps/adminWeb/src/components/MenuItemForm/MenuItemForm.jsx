@@ -111,6 +111,7 @@ function MenuItemForm({
         <Button
           variant="secondary"
           onClick={onCancel}
+          isDisabled={isSaving}
         >
           Cancel
         </Button>
