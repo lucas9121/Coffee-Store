@@ -126,7 +126,7 @@ async function updateOrder(req, res){
     const updatedOrder = await Order.findByIdAndUpdate(
       req.params.id, 
       req.body, 
-      { new:true, runValidators: true }
+      { returnDocument: "after", runValidators: true }
     );
     if(!updatedOrder) return res.status(404).json({message: "Order not found"});
     return res.status(200).json(updatedOrder);
@@ -144,7 +144,7 @@ async function updateOrderStatus(req, res){
     const updatedOrder = await Order.findByIdAndUpdate(
       req.params.id,
       { status: req.body.status },
-      { new: true, runValidators: true }
+      { returnDocument: "after", runValidators: true }
     );
 
     if (!updatedOrder) {
@@ -192,7 +192,7 @@ async function updateOrderPayment(req, res) {
     const updatedOrder = await Order.findByIdAndUpdate(
       req.params.id,
       { isPaid: req.body.isPaid },
-      { new: true, runValidators: true }
+      { returnDocument: "after", runValidators: true }
     );
 
     if (!updatedOrder) {

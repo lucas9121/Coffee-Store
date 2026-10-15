@@ -76,7 +76,7 @@ describe("Order Item Routes (mocked DB)", () => {
     expect(OrderItem.findByIdAndUpdate).toHaveBeenCalledWith(
       validId, 
       {name: "Cappuccino", price: 6},
-      {new: true, runValidators: true}
+      {returnDocument: "after", runValidators: true}
     );
     expect(response.status).toBe(200);
     expect(response.body).toEqual(fakeUpdateOrder);

@@ -63,7 +63,7 @@ describe("updateUserAccount", () => {
     expect(User.findByIdAndUpdate).toHaveBeenCalledWith(
       req.params.userId,
       {account: req.body.account},
-      {new:true, runValidators: true}
+      {returnDocument: "after", runValidators: true}
     );
   });
 

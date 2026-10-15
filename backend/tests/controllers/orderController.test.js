@@ -413,7 +413,7 @@ describe("updateOrder", () => {
       expect(Order.findByIdAndUpdate).toHaveBeenCalledWith(
         req.params.id,
         req.body,
-        {new: true, runValidators: true}
+        {returnDocument: "after", runValidators: true}
       );
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(fakeUpdate);
@@ -499,7 +499,7 @@ describe("updateOrdeStatus", () => {
       expect(Order.findByIdAndUpdate).toHaveBeenCalledWith(
         req.params.id,
         {status},
-        {new: true, runValidators: true}
+        {returnDocument: "after", runValidators: true}
       );
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(fakeUpdate);

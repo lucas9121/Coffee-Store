@@ -13,7 +13,7 @@ async function updateUserAccount(req, res) {
     const updatedUser = await User.findByIdAndUpdate(
       req.params.userId,
       {account: newAccountType},
-      {new: true, runValidators: true}
+      {returnDocument: "after", runValidators: true}
     );
     if (!updatedUser) return res.status(404).json({ message: "No user found" });
 

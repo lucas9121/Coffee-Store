@@ -258,7 +258,7 @@ describe("updateOrderItem", () => {
       expect(OrderItem.findByIdAndUpdate).toHaveBeenCalledWith(
         req.params.id,
         req.body,
-        {new: true, runValidators: true}
+        {returnDocument: "after", runValidators: true}
       );
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(fakeUpdate);

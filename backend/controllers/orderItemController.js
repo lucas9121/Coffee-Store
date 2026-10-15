@@ -59,7 +59,7 @@ async function updateOrderItem(req, res) {
     const updatedOrderItem = await OrderItem.findByIdAndUpdate(
       req.params.id, 
       req.body, 
-      { new:true, runValidators: true }
+      { returnDocument: "after", runValidators: true }
     );
     if(!updatedOrderItem) return res.status(404).json({message: "Item not found"});
     return res.status(200).json(updatedOrderItem);
