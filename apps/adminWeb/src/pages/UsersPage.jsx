@@ -2,11 +2,14 @@ import { useState, useEffect } from "react";
 import { getAdminUsers } from "../services/admin-users-api";
 import Button from "../components/Button/Button";
 import styles from "./UsersPage.module.css"
+import Modal from "../components/Modal/Modal";
 
 function UsersPage() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [newRole, setNewRole] = useState("")
 
   useEffect(() => {
     (async () => {
@@ -22,6 +25,12 @@ function UsersPage() {
       }
     })()
   },[])
+
+  function handleOpenRoleModal(user){
+    setSelectedUser(user);
+    setNewRole(user.account);
+  };
+
   return (
     <main className={styles.page}>
       <div className={styles.pageHeader}>
@@ -53,12 +62,16 @@ function UsersPage() {
                   <td>{user.email}</td>
                   <td>
                     <span className={`${styles.roleBadge} ${styles[user.account]}`}>
-                      {user.account}
+                      {user.account === "user" ? "Customer" : user.account === "worker" ? "Employee" : "Administrator"}
                     </span>
                   </td>
                   <td>{new Date(user.createdAt).toLocaleDateString()}</td>
                   <td>
-                    <Button variant="secondary" size="sm">
+                    <Button 
+                      variant="secondary" 
+                      size="sm"
+                      onClick={() => handleOpenRoleModal(user)}
+                    >
                       Change Role
                     </Button>
                   </td>
@@ -67,6 +80,20 @@ function UsersPage() {
             </tbody>
           </table>
         </div>
+      )}
+      {selectedUser && (
+        <Modal onClose={() => setSelectedUser(null)}>
+          <p>{selectedUser.name}</p>
+          <p>{selectedUser.email}</p>
+          <select
+            value={newRole}
+            onChange={(event) => setNewRole(event.target.value)}
+          >
+            <option value="user">Customer</option>
+            <option value="worker">Employee</option>
+            <option value="admin">Administrator</option>
+          </select>
+        </Modal>
       )}
     </main>
   );
