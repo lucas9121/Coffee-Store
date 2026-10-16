@@ -3,13 +3,15 @@ import { getAdminUsers } from "../services/admin-users-api";
 import Button from "../components/Button/Button";
 import styles from "./UsersPage.module.css"
 import Modal from "../components/Modal/Modal";
+import { useAuth } from "../context/AuthContext";
 
 function UsersPage() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
-  const [newRole, setNewRole] = useState("")
+  const [newRole, setNewRole] = useState("");
+  const { user :currentUser } = useAuth(); 
 
   useEffect(() => {
     (async () => {
@@ -71,6 +73,7 @@ function UsersPage() {
                       variant="secondary" 
                       size="sm"
                       onClick={() => handleOpenRoleModal(user)}
+                      isDisabled={user._id === currentUser._id}
                     >
                       Change Role
                     </Button>
