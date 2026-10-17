@@ -10,6 +10,13 @@ async function updateUserAccount(req, res) {
       return res.status(400).json({message: "Invalid account type"})
     }
 
+    const currentUserID = req.user.userId
+    if(String(currentUserID) === String(req.params.userId)){
+      return res.status(403).json({
+        message: "You cannot change your own account role"
+      })
+    };
+
     const updatedUser = await User.findByIdAndUpdate(
       req.params.userId,
       {account: newAccountType},
