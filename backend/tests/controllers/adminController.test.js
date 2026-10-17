@@ -39,7 +39,11 @@ describe("updateUserAccount", () => {
       },
       body: {
         account: "admin"
-      }
+      },
+      user: {
+        userId: "507f191e810c19729de860eb",
+        account: "admin"
+      },
     };
 
     const res = {
@@ -67,7 +71,38 @@ describe("updateUserAccount", () => {
     );
   });
 
-  // Test 2 - Invalid account type
+  // Test 2 - Admin cannot change their own role
+  it("should return 403 when admin tries to change their own role", async () => {
+    const adminId = "507f191e810c19729de860ea";
+
+    const req = {
+      user: {
+        userId: adminId,
+        account: "admin"
+      },
+      params: {
+        userId: adminId
+      },
+      body: {
+        account: "worker"
+      }
+    };
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    };
+
+    await updateUserAccount(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "You cannot change your own account role"
+    });
+    expect(User.findByIdAndUpdate).not.toHaveBeenCalled();
+  });
+
+  // Test 3 - Invalid account type
   it("should return 400 for invalid account", async() => {
     const req = {body: {account: "hacker"}};
 
@@ -83,7 +118,7 @@ describe("updateUserAccount", () => {
     expect(User.findByIdAndUpdate).toHaveBeenCalledTimes(0);
   });
 
-  // Test 3 - User not found
+  // Test 4 - User not found
   it("should return 404 for no user found", async() => {
     const req = {
       params: {
@@ -91,7 +126,11 @@ describe("updateUserAccount", () => {
       },
       body: {
         account: "admin"
-      }
+      },
+      user: {
+        userId: "507f191e810c19729de860eb",
+        account: "admin"
+      },
     };
 
     const res = {
@@ -107,7 +146,7 @@ describe("updateUserAccount", () => {
     expect(res.json).toHaveBeenCalledWith({message: "No user found"});
   });
 
-  // Test 4 Server error
+  // Test 5 Server error
   it("should return 500 for server error", async() => {
     const req = {
       params: {
@@ -115,7 +154,11 @@ describe("updateUserAccount", () => {
       },
       body: {
         account: "admin"
-      }
+      },
+      user: {
+        userId: "507f191e810c19729de860eb",
+        account: "admin"
+      },
     };
 
     const res = {
