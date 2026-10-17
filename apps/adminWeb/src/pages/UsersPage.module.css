@@ -1,7 +1,3 @@
-
-
-
-
 .page {
   width: 100%;
   max-width: 1400px;
@@ -46,12 +42,12 @@
 .table th {
   background: var(--color-card);
   color: var(--color-muted-text);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-lg);
   font-weight: 600;
 }
 
 .table td {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-md);
 }
 
 .table tbody tr:last-child td {
@@ -66,7 +62,7 @@
   display: inline-block;
   padding: var(--spacing-xs) var(--spacing-md);
   border-radius: var(--radius-pill);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-sm);
   font-weight: 600;
   text-transform: capitalize;
   background: var(--color-card);
@@ -104,3 +100,99 @@
     padding: var(--spacing-md);
   }
 }
+
+/* Change Role Modal */
+
+.roleModal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  padding: var(--spacing-xl);
+}
+
+.roleModalHeader h2 {
+  margin: 0 0 var(--spacing-sm);
+  font-size: var(--font-xl);
+}
+
+.roleModalHeader p {
+  margin: 0;
+  color: var(--color-muted-text);
+  font-size: var(--font-sm);
+}
+
+.roleUserInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-lg);
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.roleUserInfo strong {
+  font-size: var(--font-md);
+  color: var(--color-text);
+}
+
+.roleUserInfo span {
+  color: var(--color-muted-text);
+  font-size: var(--font-sm);
+  overflow-wrap: anywhere;
+}
+
+.roleField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.roleField label {
+  font-size: var(--font-sm);
+  font-weight: 600;
+}
+
+.roleField select {
+  width: 100%;
+  min-height: var(--button-height-md);
+  padding: var(--spacing-md);
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font: inherit;
+  cursor: pointer;
+}
+
+.roleField select:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.roleField select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.roleModalActions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+@media (max-width: 600px) {
+  .roleModal {
+    padding: var(--spacing-md);
+  }
+
+  .roleModalActions {
+    justify-content: stretch;
+  }
+
+  .roleModalActions > * {
+    flex: 1;
+  }
+}
+
