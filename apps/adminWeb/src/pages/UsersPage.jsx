@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { getAdminUsers } from "../services/admin-users-api";
+import { useState, useEffect, useRef } from "react";
+import { getAdminUsers, updateUserAccount } from "../services/admin-users-api";
 import Button from "../components/Button/Button";
 import styles from "./UsersPage.module.css"
 import Modal from "../components/Modal/Modal";
@@ -12,6 +12,9 @@ function UsersPage() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [newRole, setNewRole] = useState("");
   const { user :currentUser } = useAuth(); 
+  const [isSaving, setIsSaving] = useState(false);
+  const [roleError, setRoleError] = useState("");
+  const savingRef = useRef(false);
 
   useEffect(() => {
     (async () => {
@@ -31,6 +34,30 @@ function UsersPage() {
   function handleOpenRoleModal(user){
     setSelectedUser(user);
     setNewRole(user.account);
+    setRoleError("");
+  };
+
+  async function handleSaveRole(){
+    if(savingRef.current) return;
+    savingRef.current = true;
+    setIsSaving(true);
+
+    try {
+      const { updatedUser } = await updateUserAccount(selectedUser._id, newRole);
+      setUsers((currentUsers) => 
+        currentUsers.map((user) => {
+          if(user._id === selectedUser._id) return updatedUser;
+          return user;
+        })
+      );
+      setSelectedUser(null);
+      setRoleError("");
+    } catch (error) {
+      setRoleError(error.message);
+    } finally{
+      savingRef.current = false;
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -85,17 +112,57 @@ function UsersPage() {
         </div>
       )}
       {selectedUser && (
-        <Modal onClose={() => setSelectedUser(null)}>
-          <p>{selectedUser.name}</p>
-          <p>{selectedUser.email}</p>
-          <select
-            value={newRole}
-            onChange={(event) => setNewRole(event.target.value)}
-          >
-            <option value="user">Customer</option>
-            <option value="worker">Employee</option>
-            <option value="admin">Administrator</option>
-          </select>
+        <Modal
+          onClose={() => setSelectedUser(null)}
+          isSaving={isSaving}
+        >
+          <div className={styles.roleModal}>
+            <div className={styles.roleModalHeader}>
+              <h2>Change User Role</h2>
+              <p>Update the account permissions for this user.</p>
+            </div>
+
+            <div className={styles.roleUserInfo}>
+              <strong>{selectedUser.name}</strong>
+              <span>{selectedUser.email}</span>
+            </div>
+
+            <div className={styles.roleField}>
+              <label htmlFor="user-role">Account Role</label>
+              <select
+                id="user-role"
+                value={newRole}
+                onChange={(event) => setNewRole(event.target.value)}
+                disabled={isSaving}
+              >
+                <option value="user">Customer</option>
+                <option value="worker">Employee</option>
+                <option value="admin">Administrator</option>
+              </select>
+            </div>
+
+            {roleError && (
+              <p className={styles.error}>{roleError}</p>
+            )}
+
+            <div className={styles.roleModalActions}>
+              <Button
+                variant="ghost"
+                onClick={() => setSelectedUser(null)}
+                isDisabled={isSaving}
+              >
+                Cancel
+              </Button>
+
+              <Button
+                variant="primary"
+                onClick={handleSaveRole}
+                isDisabled={isSaving || newRole === selectedUser.account}
+              >
+                {isSaving ? "Saving..." : "Save Changes"}
+              </Button>
+            </div>
+          </div>
         </Modal>
       )}
     </main>
