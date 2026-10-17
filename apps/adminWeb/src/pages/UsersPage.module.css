@@ -42,7 +42,7 @@
 .table th {
   background: var(--color-card);
   color: var(--color-muted-text);
-  font-size: var(--font-lg);
+  font-size: var(--font-md);
   font-weight: 600;
 }
 
@@ -155,7 +155,7 @@
 
 .roleField select {
   width: 100%;
-  min-height: var(--button-height-md);
+  min-height: 44px;
   padding: var(--spacing-md);
   color: var(--color-text);
   background: var(--color-surface);
@@ -188,7 +188,7 @@
   }
 
   .roleModalActions {
-    justify-content: stretch;
+    justify-content: space-between;
   }
 
   .roleModalActions > * {
