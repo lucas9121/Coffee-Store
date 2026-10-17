@@ -38,7 +38,7 @@ The system supports multiple roles with different experiences:
 - Enter in-person orders
 - Control store open/close status
 
-### Admin (Planned)
+### Admin 
 - Manage menu, users, and store settings via web dashboard
 
 ---

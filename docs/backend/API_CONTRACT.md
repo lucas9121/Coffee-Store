@@ -654,3 +654,67 @@ Deletes the current user account.
 - 400 → missing credentials
 - 401 → bad credentials
 - 500 → server error
+
+---
+
+# Admin
+
+## GET /admin/users
+
+Returns a paginated list of registered users.
+
+### Auth
+- Requires authentication
+- Allowed roles:
+  - admin
+
+### Query Parameters
+- page (default: 1)
+- limit (default: 20)
+- sortBy (default: createdAt)
+- sortDir (default: desc)
+
+### Behavior
+- Returns users sorted and paginated according to the query parameters.
+- Excludes passwords and security question answers from the results.
+
+### Responses
+- 200 → users and pagination metadata
+- 400 → invalid pagination or sorting parameters
+- 401 → unauthorized
+- 403 → forbidden
+- 500 → server error
+
+---
+
+## PATCH /admin/users/:userId/account
+
+Changes a user's account role.
+
+### Auth
+- Requires authentication
+- Allowed roles:
+  - admin
+
+### Request Body
+{
+  "account": "worker"
+}
+
+### Behavior
+- Allowed account roles:
+  - user
+  - worker
+  - admin
+- Administrators can change another user's account role.
+- Administrators cannot change their own account role.
+- The backend compares the authenticated administrator's ID with the target user's ID before updating the account.
+- Changing another administrator's role is currently permitted.
+
+### Responses
+- 200 → updated user
+- 400 → invalid account role
+- 401 → unauthorized
+- 403 → forbidden, including attempts to change the authenticated administrator's own role
+- 404 → user not found
+- 500 → server error
