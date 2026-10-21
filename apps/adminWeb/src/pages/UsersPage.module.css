@@ -101,6 +101,20 @@
   }
 }
 
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-xl) 0;
+}
+
+.pagination span {
+  color: var(--color-muted-text);
+  font-size: var(--font-md);
+}
+
+
 /* Change Role Modal */
 
 .roleModal {
