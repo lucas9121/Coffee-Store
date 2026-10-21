@@ -1,7 +1,7 @@
 import { apiFetch } from "./api";
 
-export async function getAdminUsers() {
-  return apiFetch("/admin/users");
+export async function getAdminUsers(page = 1) {
+  return apiFetch(`/admin/users?page=${page}`);
 }
 
 export async function updateUserAccount(userId, account){
