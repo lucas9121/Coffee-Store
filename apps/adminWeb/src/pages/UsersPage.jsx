@@ -15,13 +15,18 @@ function UsersPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [roleError, setRoleError] = useState("");
   const savingRef = useRef(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     (async () => {
       try {
         setLoading(true);
-        const data = await getAdminUsers();
+        const data = await getAdminUsers(page);
         setUsers(data.users);
+        setTotalPages(data.totalPages)
+        console.log(data.totalPages)
+        console.log(data.total)
         setError("");
       } catch (error) {
         setError(error.message);
@@ -29,7 +34,7 @@ function UsersPage() {
         setLoading(false);
       }
     })()
-  },[])
+  },[page])
 
   function handleOpenRoleModal(user){
     setSelectedUser(user);
@@ -109,6 +114,29 @@ function UsersPage() {
               ))}
             </tbody>
           </table>
+          <div className={styles.pagination}>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setPage((currentPage) => currentPage - 1)}
+              isDisabled={page === 1 || loading}
+            >
+              Previous
+            </Button>
+
+            <span>
+              Page {page} of {totalPages}
+            </span>
+
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setPage((currentPage) => currentPage + 1)}
+              isDisabled={page >= totalPages || loading}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       )}
       {selectedUser && (
