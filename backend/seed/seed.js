@@ -198,11 +198,11 @@ async function seed() {
     );
   }
 
-  console.log("👤 Creating 15 customer users...");
+  console.log("👤 Creating 45 customer users...");
   const customerUsers = [];
 
-  for (let i = 0; i < 15; i++) {
-    const name = USER_NAMES[i];
+  for (let i = 0; i < 45; i++) {
+    const name = `${USER_NAMES[i % USER_NAMES.length]} ${Math.floor(i / USER_NAMES.length) + 1}`;
     const email = makeEmail(name, i);
 
     const [q1, q2] = pickTwoDifferentQuestions();
