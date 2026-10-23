@@ -17,16 +17,16 @@ function UsersPage() {
   const savingRef = useRef(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortDir, setSortDir] = useState("desc");
 
   useEffect(() => {
     (async () => {
       try {
         setLoading(true);
-        const data = await getAdminUsers(page);
+        const data = await getAdminUsers(page, sortBy, sortDir);
         setUsers(data.users);
-        setTotalPages(data.totalPages)
-        console.log(data.totalPages)
-        console.log(data.total)
+        setTotalPages(data.totalPages);
         setError("");
       } catch (error) {
         setError(error.message);
@@ -34,7 +34,20 @@ function UsersPage() {
         setLoading(false);
       }
     })()
-  },[page])
+  },[page, sortBy, sortDir])
+
+  function handleSort(field) {
+    if (field === sortBy) {
+      setSortDir((currentDir) =>
+        currentDir === "asc" ? "desc" : "asc"
+      );
+    } else {
+      setSortBy(field);
+      setSortDir("asc");
+    }
+
+    setPage(1);
+  }
 
   function handleOpenRoleModal(user){
     setSelectedUser(user);
@@ -82,10 +95,42 @@ function UsersPage() {
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Date Created</th>
+                <th>
+                  <button
+                    type="button"
+                    className={styles.sortButton}
+                    onClick={() => handleSort("name")}
+                  >
+                    Name
+                  </button>
+                </th>
+                <th> 
+                  <button
+                    type="button"
+                    className={styles.sortButton}
+                    onClick={() => handleSort("email")}
+                  >
+                    Email
+                  </button>
+                </th>
+                <th> 
+                  <button
+                    type="button"
+                    className={styles.sortButton}
+                    onClick={() => handleSort("account")}
+                  >
+                    Role
+                  </button>
+                </th>
+                <th> 
+                  <button
+                    type="button"
+                    className={styles.sortButton}
+                    onClick={() => handleSort("createdAt")}
+                  >
+                    Date Created
+                  </button>
+                </th>
                 <th>Actions</th>
               </tr>
             </thead>
